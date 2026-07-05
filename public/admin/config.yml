@@ -1,7 +1,6 @@
 backend:
   name: github
-  # TODO: sobald das GitHub-Repo existiert, hier "besitzer/repo-name" eintragen, z.B. stefansterchi/ferienwohnung-oberland-website
-  repo: OWNER/REPO
+  repo: ferienwohnungsverein-jungfrau/ferienwohnung-oberland-website
   branch: main
 
 # Live-Vorschau der Astro-Seite direkt im CMS (optional, kann leer bleiben)
