@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# lokale WordPress-Backups/Exporte (nicht Teil des Astro-Projekts)
+_wordpress-backup/
