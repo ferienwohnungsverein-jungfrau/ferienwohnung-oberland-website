@@ -1,0 +1,149 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<Layout title="Für unsere Region - Ferienwohnungsbetreibende Berner Oberland">
+  <!-- Hero -->
+  <section class="section page-hero">
+    <div class="container">
+      <h1>Ferienwohnungen Berner Oberland</h1>
+      <p>Wir betreiben Ferienwohnungen und sind Gastgeber:innen und Arbeitgeber:innen, aber auch engagierte Nachbarn, Mitgestaltende unserer Region, Investierende in die Zukunft des Berner Oberlands.</p>
+      <p>Mit persönlichem Einsatz, Verantwortung und Herzblut schaffen wir Erlebnisse für Gäste, Arbeit für Einheimische und Wertschöpfung für unsere Gemeinden.</p>
+      <p>Wir sagen <strong>Ja zu klaren Regeln</strong>. Aber <strong>Nein zu pauschalen Einschränkungen</strong>, die unsere Lebensrealität ignorieren.</p>
+      <div class="hero__actions">
+        <a href="#spinitiative" class="btn btn-accent">Unsere Positionen</a>
+        <a href="#mitgliedwerden" class="btn btn-accent">Mitgliedschaft</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3-Spalten: Rollen -->
+  <section class="section section--subtle">
+    <div class="container grid-3 text-center">
+      <div>
+        <Icon name="hotel" size={64} class="role-icon" />
+        <h2>Gastgeber:in</h2>
+        <p>Wir bieten Gästen individuelle und persönliche Unterkünfte und schaffen echte Erlebnisse.</p>
+      </div>
+      <div>
+        <Icon name="user" size={64} class="role-icon" />
+        <h2>Arbeitgeber:in</h2>
+        <p>Unsere Betriebe schaffen Arbeitsplätze – direkt in der Region.</p>
+      </div>
+      <div>
+        <Icon name="heart" size={64} class="role-icon" />
+        <h2>Nachbar:in</h2>
+        <p>Wir sind Teil unserer Gemeinden – engagiert, lokal verankert und nahbar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Warum wir vermieten -->
+  <section class="section section--white">
+    <div class="container grid-2">
+      <img src="/images/hero-region.jpg" alt="" width="1024" height="768" />
+      <div>
+        <h2>Warum wir vermieten</h2>
+        <p>Die Gründe sind vielfältig: Einige von uns bieten Ferienwohnungen im eigenen Haus an. Andere vermieten einzelne Wohnungen. Allen gemeinsam ist: Wir tun dies mit Engagement – und mit Verantwortung gegenüber unseren Gästen und unserer Region.</p>
+        <a href="/ueber-uns/" class="btn btn-accent">Mehr über uns</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3-Spalten: Werte -->
+  <section class="section section--white">
+    <div class="container grid-3 text-center">
+      <div>
+        <Icon name="puzzle-piece" size={64} class="role-icon" />
+        <h3>Mitgestaltende unserer Region</h3>
+        <p>Wir investieren in unsere Immobilien, erhalten Bausubstanz und schaffen Lebensraum.</p>
+      </div>
+      <div>
+        <Icon name="check" size={64} class="role-icon" />
+        <h3>Verantwortungsvolle Gastgeberinnen</h3>
+        <p>Wir zahlen Abgaben, bewerben unsere Region aktiv mit und tragen zur Vielfalt bei.</p>
+      </div>
+      <div>
+        <Icon name="cogs" size={64} class="role-icon" />
+        <h3>Engagierte Gemeindemitglieder</h3>
+        <p>Viele von uns engagieren sich ehrenamtlich – in Vereinen, bei Anlässen oder im Tourismus.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SP/JUSO Initiative -->
+  <section class="section section--subtle" id="spinitiative">
+    <div class="container grid-2">
+      <div>
+        <ul class="icon-list">
+          <li>
+            <Icon name="arrow-circle-right" size={28} />
+            <span>Wir sind keine grossen Investoren – sondern lokale Einzelpersonen und Familien.</span>
+          </li>
+          <li>
+            <Icon name="thumbs-up" size={28} />
+            <span>Ferienwohnungen stärken das lokale Gewerbe – von Reinigung über Handwerk bis Gastronomie.</span>
+          </li>
+          <li>
+            <Icon name="dot-circle" size={28} />
+            <span>Pauschale Verbote zerstören Existenzen und schwächen die Wertschöpfungskette auf dem Bödeli.</span>
+          </li>
+        </ul>
+        <a href="/airbnb-initiative/" class="btn btn-accent">Aktuelle Initiative von SP und JUSO</a>
+      </div>
+      <img src="/images/interlaken-see.jpg" alt="" width="1024" height="569" />
+    </div>
+  </section>
+
+  <!-- Werde Mitglied -->
+  <section class="section page-hero" id="mitgliedwerden">
+    <div class="container">
+      <h2>Werde Mitglied</h2>
+      <p>im Verein für Immobilieneigentümer und Ferienwohnungsbetreiber Interlaken und Umgebung</p>
+      <ul class="icon-list">
+        <li>
+          <Icon name="check-square" size={26} />
+          <span>Setze dich ein für eine seriöse Parahotellerie.</span>
+        </li>
+        <li>
+          <Icon name="check-square" size={26} />
+          <span>Helfe Mitmenschen aufzuklären: Miteinander statt Gegeneinander.</span>
+        </li>
+        <li>
+          <Icon name="check-square" size={26} />
+          <span>Sei ein Mehrwert für Gäste, Nachbarn und das lokale Gewerbe.</span>
+        </li>
+      </ul>
+      <a href="/mitglied/" class="btn btn-accent">Mitglied werden</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero__actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .grid-3 p {
+    margin-inline: auto;
+  }
+
+  .grid-2 h2 { margin-bottom: var(--space-2); }
+  .grid-2 p { margin-bottom: var(--space-3); }
+
+  .icon-list {
+    margin-block: var(--space-3);
+  }
+
+  #mitgliedwerden p {
+    margin-bottom: var(--space-2);
+  }
+
+  #mitgliedwerden .btn {
+    margin-top: var(--space-2);
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <p>Verantwortlich Verein IGFI</p>
+    <p>Website erstellt von <a href="http://digy.ch" target="_blank" rel="noopener">🎲 DIGY.ch</a></p>
+    <p><a href="/datenschutz/">Datenschutzerklärung</a></p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-bg-subtle);
+    border-top: 1px solid var(--color-border);
+    padding-block: var(--space-3);
+  }
+
+  .footer__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+
+  .footer__inner a {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 700px) {
+    .footer__inner {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+</style>

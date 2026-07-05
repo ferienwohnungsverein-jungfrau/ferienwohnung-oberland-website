@@ -1,0 +1,134 @@
+---
+const links = [
+  { href: '/', label: 'Start' },
+  { href: '/ueber-uns/', label: 'Über uns' },
+  { href: '/airbnb-initiative/', label: 'Unsere Positionen' },
+  { href: '/mitglied/', label: 'Mitglied werden' },
+  { href: '/kontakt/', label: 'Kontakt' },
+];
+
+const currentPath = Astro.url.pathname;
+function isActive(href: string) {
+  return href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+}
+---
+
+<header class="nav">
+  <div class="container nav__inner">
+    <nav class="nav__links" aria-label="Hauptnavigation">
+      {links.map((link) => (
+        <a href={link.href} class:list={['nav__link', { 'nav__link--active': isActive(link.href) }]}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <button class="nav__toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="nav__mobile" hidden>
+    <nav aria-label="Mobile Navigation">
+      {links.map((link) => (
+        <a href={link.href} class:list={['nav__mobile-link', { 'nav__mobile-link--active': isActive(link.href) }]}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 76px;
+  }
+
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .nav__link {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--color-text-on-dark);
+    transition: color 0.2s;
+  }
+
+  .nav__link:hover,
+  .nav__link--active {
+    color: var(--color-white);
+    font-weight: 600;
+  }
+
+  .nav__toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+
+  .nav__toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-white);
+    border-radius: 2px;
+  }
+
+  .nav__mobile {
+    padding: var(--space-2) var(--container-pad) var(--space-3);
+    background: var(--color-primary-dark);
+  }
+
+  .nav__mobile nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav__mobile-link {
+    display: block;
+    font-size: var(--text-base);
+    color: var(--color-text-on-dark);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .nav__mobile-link--active,
+  .nav__mobile-link:hover {
+    color: var(--color-white);
+    font-weight: 600;
+  }
+
+  @media (max-width: 700px) {
+    .nav__links { display: none; }
+    .nav__toggle { display: flex; }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector('.nav__toggle') as HTMLButtonElement;
+  const mobileMenu = document.getElementById('mobile-menu');
+  toggle?.addEventListener('click', () => {
+    const isOpen = mobileMenu?.hidden === false;
+    mobileMenu!.hidden = isOpen;
+    toggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>

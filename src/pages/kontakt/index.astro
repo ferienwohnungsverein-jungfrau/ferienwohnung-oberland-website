@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import kontakt from '../../data/kontakt.json';
+---
+
+<Layout title="Kontakt - Ferienwohnungsbetreibende Berner Oberland">
+  <!-- Hero -->
+  <section class="section page-hero">
+    <div class="container">
+      <h1>Kontakt</h1>
+    </div>
+  </section>
+
+  <!-- Kontaktdaten -->
+  <section class="section section--subtle">
+    <div class="container grid-2">
+      <div class="kontakt-col">
+        <h2>Presseanfragen</h2>
+        <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">E-Mail</a>
+        <h2>Vereinstelefon</h2>
+        <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+      </div>
+      <img src="/images/harder-kulm.jpg" alt="" />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .kontakt-col {
+    text-align: center;
+  }
+
+  .kontakt-col h2 {
+    margin-bottom: var(--space-2);
+  }
+
+  .kontakt-col h2 + .btn {
+    margin-bottom: var(--space-4);
+  }
+
+  .center-btn {
+    margin-inline: auto;
+  }
+</style>

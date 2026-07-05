@@ -1,0 +1,94 @@
+---
+import { vorstand as members } from '../data/vorstand.json';
+---
+
+<div class="board-accordion">
+  {members.map((m) => (
+    <details class="board-accordion__item" open={m.offen}>
+      <summary class="board-accordion__title">
+        <span>{m.rolle}</span>
+        <span class="board-accordion__icon" aria-hidden="true"></span>
+      </summary>
+      <div class="board-accordion__body">
+        <p>{m.name}<br />{m.ort}</p>
+      </div>
+    </details>
+  ))}
+</div>
+
+<style>
+  .board-accordion {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .board-accordion__item {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .board-accordion__item:last-child {
+    border-bottom: none;
+  }
+
+  .board-accordion__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-heading);
+    list-style: none;
+  }
+
+  .board-accordion__title::-webkit-details-marker {
+    display: none;
+  }
+
+  .board-accordion__icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .board-accordion__icon::before,
+  .board-accordion__icon::after {
+    content: '';
+    position: absolute;
+    background: var(--color-accent);
+    transition: transform 0.15s ease;
+  }
+
+  .board-accordion__icon::before {
+    top: 6px; left: 0;
+    width: 14px; height: 2px;
+  }
+
+  .board-accordion__icon::after {
+    top: 0; left: 6px;
+    width: 2px; height: 14px;
+  }
+
+  details[open] .board-accordion__icon::after {
+    transform: scaleY(0);
+  }
+
+  .board-accordion__body {
+    padding: 0 1.2rem 1.1rem;
+  }
+</style>
+
+<script>
+  const items = document.querySelectorAll<HTMLDetailsElement>('.board-accordion__item');
+  items.forEach((item) => {
+    item.addEventListener('toggle', () => {
+      if (item.open) {
+        items.forEach((other) => {
+          if (other !== item) other.open = false;
+        });
+      }
+    });
+  });
+</script>

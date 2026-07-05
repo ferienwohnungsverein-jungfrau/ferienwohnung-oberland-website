@@ -1,0 +1,100 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BoardAccordion from '../../components/BoardAccordion.astro';
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+---
+
+<Layout title="Wer wir sind - Ferienwohnungsbetreibende Berner Oberland">
+  <!-- Hero -->
+  <section class="section page-hero">
+    <div class="container text-center hero-narrow">
+      <h1>Wer wir sind</h1>
+      <p>Wir sind eine private Gruppe von Airbnb Anbietern im Grossraum Interlaken.</p>
+      <p>Unser Verein hat zum Ziel, den Austausch von Informationen und Erfahrungen zwischen den Mitgliedern zu fördern.</p>
+      <p>Gegenüber Behörden können wir als Gruppe Ansprechpartner sein zum Thema Vermieten von Ferienwohnungen.</p>
+      <p>Wir treffen uns regelmässig zum Erfahrungsaustausch und helfen einander mit Tipps rund um die Gästebetreuung.</p>
+      <a href="#unseretätigkeit" class="btn btn-accent">Unsere Tätigkeit</a>
+    </div>
+  </section>
+
+  <!-- Unser Vorstand -->
+  <section class="section section--white" id="unseretätigkeit">
+    <div class="container grid-2">
+      <div>
+        <h2>Unser Vorstand</h2>
+        <BoardAccordion />
+      </div>
+      <img src="/images/vorstand-haende.jpg" alt="" />
+    </div>
+  </section>
+
+  <!-- Warum wir vermieten -->
+  <section class="section section--subtle">
+    <div class="container grid-2">
+      <div>
+        <h2>Warum wir Ferienwohnungen vermieten</h2>
+        <p>Wir schätzen den Kontakt zu Gästen und freuen uns, wenn sie nach ihren Ferien zufrieden und erholt nach Hause zurückkehren.</p>
+        <p>Einige von uns vermieten einzelne Zimmer in ihrer Wohnung. Damit haben sie den engsten Kontakt zu den Gästen.</p>
+        <p>An den Bewertungen der Gäste sieht man, dass es auch für Gastgeber:innen eine schöne Erfahrung ist, mit anderen Menschen Kontakt zu haben.</p>
+        <a href="/airbnb-initiative/" class="btn btn-accent">Aktuelle Initiative von SP und JUSO</a>
+      </div>
+      <img src="/images/harder-kulm.jpg" alt="" />
+    </div>
+  </section>
+
+  <!-- Video + mehr Einsatz -->
+  <section class="section section--white">
+    <div class="container grid-2">
+      <YouTubeEmbed id="oYg1nMOCFbs" title="Ferienwohnungsbetreibende Berner Oberland" />
+      <div>
+        <h2>Auch mehr Einsatz ist möglich</h2>
+        <p>Andere vermieten möblierte Wohnungen und müssen damit etwas mehr Aufwand treiben: Wohnung möblieren, Reinigungen organisieren, rund um die Uhr Gäste betreuen.</p>
+        <p>Wir alle beraten die Gäste über die verschiedenen Möglichkeiten für Aktivitäten im Jungfraugebiet und stellen manchmal Ausflüge für die Gäste zusammen.</p>
+        <p>Unsere Restaurant-Tipps sind sehr beliebt.</p>
+        <p>Zusätzliche Aktivitäten für Gäste werden auf Wunsch von diversen Gästebetreuern angeboten: Paragliding, Wandern, Bergwanderungen.</p>
+        <p>Es gibt sogar Gastgeber:innen, die Gäste zu Fuss vom Bahnhof abholen und auf dem Weg zur Wohnung gleich zeigen, wo die Jungfrau ist oder der nächste Coop, und welche Restaurants zu empfehlen sind.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vielfalt unserer Rollen -->
+  <section class="section page-hero">
+    <div class="container">
+      <h2>Vielfalt unserer Rollen</h2>
+      <p>Alles in allem sind wir eine heterogene Gruppe mit verschiedenen Angeboten für Gäste, die den Kontakt mit einheimischen Gastgebern schätzen.</p>
+      <p>Gemeinsam ist für uns alle: Wir lieben unsere Tätigkeit als Gastgeber und freuen uns über die Interaktion mit unseren Gästen.</p>
+      <p>Gleichzeitig sind wir auch Arbeitgeber für Gästebetreuende und Reinigungspersonal oder machen diese Arbeiten selbst.</p>
+      <a href="/mitglied/" class="btn btn-accent">Mitglied werden</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero-narrow {
+    max-width: 640px;
+  }
+
+  .hero-narrow p {
+    margin-inline: auto;
+  }
+
+  .hero-narrow .btn {
+    margin-top: var(--space-3);
+  }
+
+  .grid-2 h2 {
+    margin-bottom: var(--space-2);
+  }
+
+  .grid-2 p {
+    margin-bottom: var(--space-2);
+  }
+
+  .grid-2 .btn {
+    margin-top: var(--space-2);
+  }
+
+  .page-hero .btn {
+    margin-top: var(--space-3);
+  }
+</style>

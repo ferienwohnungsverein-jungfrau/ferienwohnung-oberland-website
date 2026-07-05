@@ -1,0 +1,42 @@
+backend:
+  name: github
+  # TODO: sobald das GitHub-Repo existiert, hier "besitzer/repo-name" eintragen, z.B. stefansterchi/ferienwohnung-oberland-website
+  repo: OWNER/REPO
+  branch: main
+
+# Live-Vorschau der Astro-Seite direkt im CMS (optional, kann leer bleiben)
+site_url: https://ferienwohnung-oberland.ch
+
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  - name: "vorstand"
+    label: "Vorstand"
+    files:
+      - name: "vorstand"
+        label: "Vorstandsmitglieder"
+        file: "src/data/vorstand.json"
+        fields:
+          - label: "Mitglieder"
+            name: "vorstand"
+            widget: "list"
+            summary: "{{rolle}} – {{name}}"
+            fields:
+              - { label: "Rolle", name: "rolle", widget: "string" }
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Ort (PLZ Ort)", name: "ort", widget: "string" }
+              - { label: "Standardmässig geöffnet anzeigen", name: "offen", widget: "boolean", default: false }
+
+  - name: "kontakt"
+    label: "Kontakt"
+    files:
+      - name: "kontakt"
+        label: "Kontaktdaten"
+        file: "src/data/kontakt.json"
+        fields:
+          - { label: "E-Mail Presseanfragen", name: "presseEmail", widget: "string" }
+          - { label: "Vereinstelefon (Anzeige, z.B. 078 319 59 71)", name: "vereinsTelefon", widget: "string" }
+          - { label: "Vereinstelefon (Link-Format, z.B. +41783195971)", name: "vereinsTelefonLink", widget: "string" }
+          - { label: "Anmeldung E-Mail 1", name: "anmeldungEmail1", widget: "string" }
+          - { label: "Anmeldung E-Mail 2", name: "anmeldungEmail2", widget: "string" }

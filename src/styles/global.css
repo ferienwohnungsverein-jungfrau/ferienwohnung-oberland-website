@@ -1,0 +1,229 @@
+/* ============================================
+   Ferienwohnungen Berner Oberland – Global Styles
+   Design System: #004D7A / #74C2E1 / #F4A261
+   (Nachbau der bisherigen WordPress/Elementor-Seite)
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Open+Sans:wght@400;600&display=swap');
+
+/* ── Design Tokens ── */
+:root {
+  /* Farben */
+  --color-primary:      #004D7A;
+  --color-primary-dark: #003a5c;
+  --color-secondary:    #74C2E1;
+  --color-accent:       #F4A261;
+  --color-accent-dark:  #e8894a;
+  --color-white:        #ffffff;
+  --color-bg:           #F9F9F9;
+  --color-bg-subtle:    #F0F5FA;
+  --color-heading:      #1e293b;
+  --color-text:         #334155;
+  --color-text-on-dark: rgba(255, 255, 255, 0.92);
+  --color-border:       #D1D5DB;
+
+  /* Typografie */
+  --font-heading: 'Poppins', sans-serif;
+  --font-sans: 'Open Sans', sans-serif;
+
+  --text-sm:   0.9rem;
+  --text-base: 1.12rem;
+  --text-lg:   1.25rem;
+
+  /* Abstände */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-6: 3rem;
+  --space-8: 4rem;
+  --space-10: 5rem;
+
+  /* Layout */
+  --container-max: 1140px;
+  --container-pad: clamp(1.25rem, 4vw, 2.5rem);
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-full: 9999px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 400;
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.65;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ── Layout ── */
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+.section {
+  padding-block: var(--space-10);
+}
+
+.section--dark,
+.page-hero {
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
+}
+
+.section--subtle {
+  background: var(--color-bg-subtle);
+}
+
+.section--white {
+  background: var(--color-white);
+}
+
+/* Erste (dunkle) Sektion einer Seite: Platz für den absolut positionierten Nav */
+.page-hero {
+  padding-top: calc(76px + var(--space-6));
+}
+
+.page-hero p {
+  max-width: 65ch;
+}
+
+/* ── Typografie ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-heading);
+}
+
+h1 { font-size: clamp(2rem, 4.5vw, 3rem); margin-bottom: var(--space-2); }
+h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; margin-bottom: var(--space-2); }
+h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: var(--space-1); }
+
+.section--dark h1,
+.section--dark h2,
+.section--dark h3,
+.page-hero h1,
+.page-hero h2,
+.page-hero h3 {
+  color: var(--color-white);
+}
+
+p { max-width: 65ch; }
+
+.section p + p,
+.page-hero p + p {
+  margin-top: var(--space-2);
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-accent {
+  background: var(--color-accent);
+  color: var(--color-white);
+}
+
+.btn-accent:hover {
+  background: var(--color-accent-dark);
+  color: var(--color-white);
+}
+
+/* ── Icon-Liste ── */
+.icon-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.icon-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.icon-list svg {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  color: var(--color-primary);
+}
+
+.page-hero .icon-list svg,
+.section--dark .icon-list svg {
+  color: var(--color-white);
+}
+
+/* Icons in den 3-Spalten-Feature-Sektionen */
+.role-icon {
+  color: var(--color-secondary);
+  margin-bottom: var(--space-2);
+}
+
+/* ── Grid Helpers ── */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .grid-3 { grid-template-columns: 1fr; gap: var(--space-6); }
+  .grid-2 { grid-template-columns: 1fr; gap: var(--space-4); }
+}
+
+.text-center { text-align: center; }

@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Wir sind Gastgeber:innen, Arbeitgeber:innen und Nachbarn – als Ferienwohnungsbetreibende im Berner Oberland setzen wir uns für faire Regeln und lebendige Gemeinden ein.',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="de-CH">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="Ferienwohnungsbetreibende Berner Oberland" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <Nav />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

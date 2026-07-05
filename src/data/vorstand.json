@@ -1,0 +1,10 @@
+{
+  "vorstand": [
+    { "rolle": "Präsident", "name": "Joel Hartmann", "ort": "3800 Matten", "offen": true },
+    { "rolle": "Vize-Präsident", "name": "Peter Balmer", "ort": "3800 Interlaken", "offen": false },
+    { "rolle": "Kassier", "name": "Dino Rossi", "ort": "3800 Unterseen", "offen": false },
+    { "rolle": "Sekretariat", "name": "Geronimo Van der Burg", "ort": "3800 Interlaken", "offen": false },
+    { "rolle": "Medien und Kommunikation", "name": "Franz Hefti", "ort": "3800 Unterseen", "offen": false },
+    { "rolle": "Koordination Rechtsangelegenheiten", "name": "Matt Horn", "ort": "3800 Interlaken", "offen": false }
+  ]
+}
