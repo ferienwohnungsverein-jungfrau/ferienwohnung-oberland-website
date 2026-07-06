@@ -4,13 +4,11 @@ import Icon from '../../../components/Icon.astro';
 import kontakt from '../../../data/kontakt.json';
 import { Image } from 'astro:assets';
 import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
-
-const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmail2}?subject=Membership%20application%20or%20inquiry&body=Thank%20you%20for%20getting%20in%20touch.%20%0A%0AMy%20name%20is%3A%20%0ANumber%20of%20beds%3A%20`;
 ---
 
 <Layout
   title="For Hosts - Membership - Ferienwohnungsverein Jungfrau"
-  description="Professional exchange, joint representation, and a quality label: become a member of the Ferienwohnungsverein Jungfrau."
+  description="Professional exchange, joint representation, and efforts towards a quality label: become a member of the Ferienwohnungsverein Jungfrau."
   langAlt="/mitgliedschaft/"
 >
   <!-- Hero -->
@@ -27,7 +25,7 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
       <div>
         <Icon name="user" size={64} class="role-icon" />
         <h2>Professional Exchange</h2>
-        <p>Practical know-how among hosts: guest care, cleaning, legal questions around short-term rentals – from experience, not theory.</p>
+        <p>Internal exchange among hosts – in person as well as at meetings: guest care, cleaning, legal questions around short-term rentals – from experience, not theory.</p>
       </div>
       <div>
         <Icon name="puzzle-piece" size={64} class="role-icon" />
@@ -37,7 +35,7 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
       <div>
         <Icon name="check-square" size={64} class="role-icon" />
         <h2>Quality Label</h2>
-        <p>As a member, you benefit from our quality label for responsible holiday apartment hosts – good for your own reputation and for the whole sector.</p>
+        <p>Efforts are under way to build a quality label for responsible holiday apartment hosts – various ideas are currently being examined. As a member, you're on board from the start.</p>
       </div>
     </div>
   </section>
@@ -60,10 +58,57 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
   <section class="section section--white" id="signup">
     <div class="container anmeldung">
       <h2 class="text-center">Become a Member</h2>
-      <p class="text-center">Applications currently run by email or phone. An online application form with direct payment (TWINT) is in preparation.</p>
-      <div class="anmeldung__actions">
-        <a href={anmeldungHref} class="btn btn-accent center-btn">Apply by email</a>
-        <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+      <p class="text-center">Fill in the form below – we will get back to you. Alternatively, you can reach us by phone at <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
+
+      <!-- Success message (shown after submission) -->
+      <div id="form-success" class="form-success" style="display:none">
+        <h3>Almost done.</h3>
+        <p>Check your inbox – we've sent you a confirmation link by email. Only after clicking that link will we receive your application.</p>
+      </div>
+
+      <!-- Form -->
+      <div class="form-wrap" id="form-wrap">
+        <form id="anmeldung-form" class="anmeldung-form" method="POST">
+
+          <!-- Honeypot: hidden from humans, bots fill it in blindly -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <input type="hidden" name="locale" value="en" />
+
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required placeholder="First name Last name" />
+          </div>
+
+          <div class="form-group">
+            <label for="betten">Number of Beds *</label>
+            <input type="number" id="betten" name="betten" min="1" step="1" required placeholder="e.g. 4" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required placeholder="you@email.ch" />
+          </div>
+
+          <div class="form-group">
+            <label for="telefon">Phone Number *</label>
+            <input type="tel" id="telefon" name="telefon" required placeholder="079 000 00 00" />
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="datenschutz" name="datenschutz" required />
+            <label for="datenschutz">
+              I have read the <a href="/en/privacy/">Privacy Policy</a> and agree to the processing of my data. *
+            </label>
+          </div>
+
+          <p id="form-error" class="form-error" style="display:none"></p>
+
+          <button type="submit" id="submit-btn" class="btn btn-accent center-btn">Send Application</button>
+        </form>
       </div>
     </div>
   </section>
@@ -87,10 +132,142 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
     margin-block: var(--space-2) var(--space-3);
   }
 
-  .anmeldung__actions {
+  .anmeldung a {
+    font-weight: 600;
+  }
+
+  .form-wrap {
+    text-align: left;
+    margin-top: var(--space-3);
+  }
+
+  .anmeldung-form {
     display: flex;
+    flex-direction: column;
     gap: var(--space-3);
-    justify-content: center;
-    flex-wrap: wrap;
+  }
+
+  /* Honeypot: visually hidden, but readable in the DOM for bots */
+  .hp-field {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .form-group label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .form-group input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-white);
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .form-check {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .form-check input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+  }
+
+  .form-check label {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .form-error {
+    font-size: var(--text-sm);
+    color: #dc2626;
+    padding: var(--space-2) var(--space-3);
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+  }
+
+  .form-success {
+    padding: var(--space-4);
+    background: var(--color-bg-subtle);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-3);
+  }
+
+  .form-success h3 {
+    margin-bottom: var(--space-1);
   }
 </style>
+
+<script>
+  const form = document.getElementById('anmeldung-form') as HTMLFormElement | null;
+  const formWrap = document.getElementById('form-wrap') as HTMLDivElement | null;
+  const formSuccess = document.getElementById('form-success') as HTMLDivElement | null;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const formError = document.getElementById('form-error') as HTMLParagraphElement | null;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!formError || !submitBtn || !formWrap || !formSuccess) return;
+    formError.style.display = 'none';
+
+    const formData = new FormData(form);
+    const originalText = submitBtn.textContent;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    try {
+      const response = await fetch('/php/mitgliedschaft-anmeldung.php', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        formWrap.style.display = 'none';
+        formSuccess.style.display = 'block';
+        formSuccess.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        formError.textContent = data.message || 'Please try again.';
+        formError.style.display = 'block';
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    } catch {
+      formError.textContent = 'Connection error. Please try again.';
+      formError.style.display = 'block';
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  });
+</script>

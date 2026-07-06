@@ -4,13 +4,11 @@ import Icon from '../../components/Icon.astro';
 import kontakt from '../../data/kontakt.json';
 import { Image } from 'astro:assets';
 import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
-
-const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmail2}?subject=Anmeldung%20oder%20Anfrage%20f%C3%BCr%20Mitgliedschaft&body=Vielen%20Dank%2C%20dass%20ihr%20mit%20mir%20Kontakt%20aufnehmt.%20%0A%0AMein%20Name%20ist%3A%20%0AAnzahl%20Betten%3A%20`;
 ---
 
 <Layout
   title="Mitgliedschaft - Ferienwohnungsverein Jungfrau"
-  description="Fachaustausch, gemeinsame Interessenvertretung und ein Qualitätslabel: Werden Sie Mitglied im Ferienwohnungsverein Jungfrau."
+  description="Fachaustausch, gemeinsame Interessenvertretung und Bestrebungen für ein Qualitätslabel: Werden Sie Mitglied im Ferienwohnungsverein Jungfrau."
   langAlt="/en/membership/"
 >
   <!-- Hero -->
@@ -27,7 +25,7 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
       <div>
         <Icon name="user" size={64} class="role-icon" />
         <h2>Fachaustausch</h2>
-        <p>Erfahrungswissen unter Betreiber:innen: Gästebetreuung, Reinigung, rechtliche Fragen rund um die Kurzzeitvermietung – aus erster Hand statt aus der Theorie.</p>
+        <p>Interner Austausch unter Betreiber:innen – im persönlichen Gespräch wie auch an Treffen: Gästebetreuung, Reinigung, rechtliche Fragen rund um die Kurzzeitvermietung – aus erster Hand statt aus der Theorie.</p>
       </div>
       <div>
         <Icon name="puzzle-piece" size={64} class="role-icon" />
@@ -37,7 +35,7 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
       <div>
         <Icon name="check-square" size={64} class="role-icon" />
         <h2>Qualitätslabel</h2>
-        <p>Als Mitglied profitieren Sie vom Aufbau eines Qualitätslabels für seriöse Ferienwohnungsbetreiber:innen – gut fürs eigene Image und für die ganze Branche.</p>
+        <p>Es sind Bestrebungen im Gang, ein Qualitätslabel für seriöse Ferienwohnungsbetreiber:innen aufzubauen – verschiedene Ideen werden aktuell geprüft. Als Mitglied sind Sie von Anfang an dabei.</p>
       </div>
     </div>
   </section>
@@ -60,10 +58,57 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
   <section class="section section--white" id="anmeldung">
     <div class="container anmeldung">
       <h2 class="text-center">Mitglied werden</h2>
-      <p class="text-center">Aktuell läuft die Anmeldung per E-Mail oder Telefon. Ein Online-Anmeldeformular mit direkter Zahlungsmöglichkeit (TWINT) ist in Vorbereitung.</p>
-      <div class="anmeldung__actions">
-        <a href={anmeldungHref} class="btn btn-accent center-btn">Per E-Mail anfragen</a>
-        <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+      <p class="text-center">Füllen Sie das Formular aus – wir melden uns danach bei Ihnen. Alternativ erreichen Sie uns telefonisch unter <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
+
+      <!-- Danke-Meldung (wird nach Absenden eingeblendet) -->
+      <div id="form-success" class="form-success" style="display:none">
+        <h3>Fast geschafft.</h3>
+        <p>Prüfen Sie Ihr Postfach – wir haben Ihnen einen Bestätigungslink per E-Mail geschickt. Erst nach dem Klick auf diesen Link erhalten wir Ihre Anmeldung.</p>
+      </div>
+
+      <!-- Formular -->
+      <div class="form-wrap" id="form-wrap">
+        <form id="anmeldung-form" class="anmeldung-form" method="POST">
+
+          <!-- Honeypot: für Menschen unsichtbar, Bots füllen es blind aus -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <input type="hidden" name="locale" value="de" />
+
+          <div class="form-group">
+            <label for="name">Name Vorname *</label>
+            <input type="text" id="name" name="name" required placeholder="Vorname Nachname" />
+          </div>
+
+          <div class="form-group">
+            <label for="betten">Anzahl Betten *</label>
+            <input type="number" id="betten" name="betten" min="1" step="1" required placeholder="z.B. 4" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">E-Mail *</label>
+            <input type="email" id="email" name="email" required placeholder="ihre@email.ch" />
+          </div>
+
+          <div class="form-group">
+            <label for="telefon">Telefonnummer *</label>
+            <input type="tel" id="telefon" name="telefon" required placeholder="079 000 00 00" />
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="datenschutz" name="datenschutz" required />
+            <label for="datenschutz">
+              Ich habe die <a href="/datenschutz/">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden. *
+            </label>
+          </div>
+
+          <p id="form-error" class="form-error" style="display:none"></p>
+
+          <button type="submit" id="submit-btn" class="btn btn-accent center-btn">Anmeldung senden</button>
+        </form>
       </div>
     </div>
   </section>
@@ -87,10 +132,142 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
     margin-block: var(--space-2) var(--space-3);
   }
 
-  .anmeldung__actions {
+  .anmeldung a {
+    font-weight: 600;
+  }
+
+  .form-wrap {
+    text-align: left;
+    margin-top: var(--space-3);
+  }
+
+  .anmeldung-form {
     display: flex;
+    flex-direction: column;
     gap: var(--space-3);
-    justify-content: center;
-    flex-wrap: wrap;
+  }
+
+  /* Honeypot: visuell verborgen, aber im DOM für Bots auslesbar */
+  .hp-field {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .form-group label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .form-group input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-white);
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .form-check {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .form-check input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+  }
+
+  .form-check label {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .form-error {
+    font-size: var(--text-sm);
+    color: #dc2626;
+    padding: var(--space-2) var(--space-3);
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+  }
+
+  .form-success {
+    padding: var(--space-4);
+    background: var(--color-bg-subtle);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-3);
+  }
+
+  .form-success h3 {
+    margin-bottom: var(--space-1);
   }
 </style>
+
+<script>
+  const form = document.getElementById('anmeldung-form') as HTMLFormElement | null;
+  const formWrap = document.getElementById('form-wrap') as HTMLDivElement | null;
+  const formSuccess = document.getElementById('form-success') as HTMLDivElement | null;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const formError = document.getElementById('form-error') as HTMLParagraphElement | null;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!formError || !submitBtn || !formWrap || !formSuccess) return;
+    formError.style.display = 'none';
+
+    const formData = new FormData(form);
+    const originalText = submitBtn.textContent;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wird gesendet…';
+
+    try {
+      const response = await fetch('/php/mitgliedschaft-anmeldung.php', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        formWrap.style.display = 'none';
+        formSuccess.style.display = 'block';
+        formSuccess.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        formError.textContent = data.message || 'Bitte versuchen Sie es erneut.';
+        formError.style.display = 'block';
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    } catch {
+      formError.textContent = 'Verbindungsfehler. Bitte versuchen Sie es erneut.';
+      formError.style.display = 'block';
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  });
+</script>

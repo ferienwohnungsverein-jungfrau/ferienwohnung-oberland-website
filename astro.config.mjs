@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://ferienwohnung-oberland.ch',
+  site: 'https://ferienwohnungsverein-jungfrau.ch',
   integrations: [sitemap()],
   i18n: {
     defaultLocale: 'de',

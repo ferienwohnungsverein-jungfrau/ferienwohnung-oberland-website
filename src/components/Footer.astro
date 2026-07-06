@@ -5,6 +5,7 @@ interface Props {
 
 const { locale = 'de' } = Astro.props;
 const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
+const quellenHref = locale === 'en' ? '/en/sources/' : '/quellen/';
 ---
 
 <footer class="footer">
@@ -12,13 +13,15 @@ const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
     {locale === 'en' ? (
       <>
         <p>Responsible: Ferienwohnungsverein Jungfrau</p>
-        <p>Website by <a href="http://digy.ch" target="_blank" rel="noopener">🎲 DIGY.ch</a></p>
+        <p>Website by <a href="mailto:office@surfershome.ch">🎲 DIGY.ch</a></p>
+        <p><a href={quellenHref}>Sources</a></p>
         <p><a href={datenschutzHref}>Privacy Policy</a></p>
       </>
     ) : (
       <>
-        <p>Verantwortlich Ferienwohnungsverein Jungfrau</p>
-        <p>Website erstellt von <a href="http://digy.ch" target="_blank" rel="noopener">🎲 DIGY.ch</a></p>
+        <p>Verantwortlich: Ferienwohnungsverein Jungfrau</p>
+        <p>Website erstellt von <a href="mailto:office@surfershome.ch">🎲 DIGY.ch</a></p>
+        <p><a href={quellenHref}>Quellen</a></p>
         <p><a href={datenschutzHref}>Datenschutzerklärung</a></p>
       </>
     )}

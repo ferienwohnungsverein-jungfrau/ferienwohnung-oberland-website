@@ -7,25 +7,25 @@
 
 ## Wichtige Seiten
 
-- [Startseite](https://ferienwohnung-oberland.ch/): Zwei Wege – für Vermietende und für
+- [Startseite](https://ferienwohnungsverein-jungfrau.ch/): Zwei Wege – für Vermietende und für
   an der Airbnb-Debatte Interessierte.
-- [Für Vermietende / Mitgliedschaft](https://ferienwohnung-oberland.ch/mitgliedschaft/):
+- [Für Vermietende / Mitgliedschaft](https://ferienwohnungsverein-jungfrau.ch/mitgliedschaft/):
   Fachaustausch, gemeinsame Interessenvertretung, Qualitätslabel, Anmeldung.
-- [Unser Vorschlag](https://ferienwohnung-oberland.ch/unser-vorschlag/): Unsere Position
+- [Unser Vorschlag](https://ferienwohnungsverein-jungfrau.ch/unser-vorschlag/): Unsere Position
   zur Kurzzeitvermietung, das Wilderswil-Modell, Zahlen und Fakten zu Zweitwohnungen und
   Kurzzeitvermietung auf dem Bödeli.
-- [Wer wir sind](https://ferienwohnung-oberland.ch/ueber-uns/): Verein, Vorstand
+- [Wer wir sind](https://ferienwohnungsverein-jungfrau.ch/ueber-uns/): Verein, Vorstand
   (Präsident, Vize-Präsident, Kassier, Sekretariat, Medien/Kommunikation,
   Rechtsangelegenheiten), warum wir vermieten.
-- [Für Gemeinden & Medien](https://ferienwohnung-oberland.ch/fuer-gemeinden-medien/):
+- [Für Gemeinden & Medien](https://ferienwohnungsverein-jungfrau.ch/fuer-gemeinden-medien/):
   Factsheet und Kontakt für Gemeinderät:innen und Medienschaffende.
-- [Quellen](https://ferienwohnung-oberland.ch/quellen/): Alle Studien und Quellen, auf
+- [Quellen](https://ferienwohnungsverein-jungfrau.ch/quellen/): Alle Studien und Quellen, auf
   die sich unsere Position stützt.
-- [Kontakt](https://ferienwohnung-oberland.ch/kontakt/): Presseanfragen und Vereinstelefon.
-- [Datenschutz](https://ferienwohnung-oberland.ch/datenschutz/): Datenschutzerklärung.
+- [Kontakt](https://ferienwohnungsverein-jungfrau.ch/kontakt/): Presseanfragen und Vereinstelefon.
+- [Datenschutz](https://ferienwohnungsverein-jungfrau.ch/datenschutz/): Datenschutzerklärung.
 
 Die gesamte Website ist auch auf Englisch verfügbar unter demselben Pfad mit `/en/`-Präfix
-(z.B. https://ferienwohnung-oberland.ch/en/our-proposal/).
+(z.B. https://ferienwohnungsverein-jungfrau.ch/en/our-proposal/).
 
 ## Kernaussagen
 

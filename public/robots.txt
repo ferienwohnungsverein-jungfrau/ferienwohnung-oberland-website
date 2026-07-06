@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ferienwohnung-oberland.ch/sitemap-index.xml
+Sitemap: https://ferienwohnungsverein-jungfrau.ch/sitemap-index.xml

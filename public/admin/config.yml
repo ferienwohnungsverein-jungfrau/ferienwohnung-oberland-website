@@ -4,7 +4,7 @@ backend:
   branch: main
 
 # Live-Vorschau der Astro-Seite direkt im CMS (optional, kann leer bleiben)
-site_url: https://ferienwohnung-oberland.ch
+site_url: https://ferienwohnungsverein-jungfrau.ch
 
 media_folder: "public/images"
 public_folder: "/images"

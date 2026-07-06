@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
-import kontakt from '../../data/kontakt.json';
 ---
 
 <Layout
@@ -37,16 +36,7 @@ import kontakt from '../../data/kontakt.json';
     <div class="container text-center">
       <h2>Was wir anbieten</h2>
       <p class="lead">Aktive Mitarbeit in Workshops, um ein für Ihre Gemeinde realistisches Modell auszuarbeiten – nicht Verhinderung, sondern Mitgestaltung.</p>
-    </div>
-  </section>
-
-  <!-- Kontakt -->
-  <section class="section section--white">
-    <div class="container text-center">
-      <h2>Presseanfragen &amp; Kontakt für Gemeinden</h2>
-      <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">E-Mail</a>
-      <p class="spacer-top-sm">Oder telefonisch über unser Vereinstelefon:</p>
-      <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+      <a href="/kontakt/" class="btn btn-accent">Kontakt</a>
     </div>
   </section>
 </Layout>

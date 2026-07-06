@@ -1,7 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
-import kontakt from '../../../data/kontakt.json';
 ---
 
 <Layout
@@ -37,16 +36,7 @@ import kontakt from '../../../data/kontakt.json';
     <div class="container text-center">
       <h2>What We Offer</h2>
       <p class="lead">Active participation in workshops to develop a model that's realistic for your municipality – not obstruction, but collaboration.</p>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section class="section section--white">
-    <div class="container text-center">
-      <h2>Press Inquiries &amp; Contact for Municipalities</h2>
-      <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">Email</a>
-      <p class="spacer-top-sm">Or by phone via our association line:</p>
-      <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+      <a href="/en/contact/" class="btn btn-accent">Contact</a>
     </div>
   </section>
 </Layout>
