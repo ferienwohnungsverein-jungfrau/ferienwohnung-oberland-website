@@ -1,9 +1,12 @@
-name: Build und FTP-Deploy
+name: Build und Pull-Deploy
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
@@ -23,13 +26,21 @@ jobs:
       - name: Astro-Seite bauen
         run: npm run build
 
-      - name: Per FTP zu Hosttech hochladen
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
-          local-dir: ./dist/
-          protocol: ftp
-          dangerous-clean-slate: false
+      - name: Build als ZIP packen
+        run: cd dist && zip -r ../dist.zip . && cd ..
+
+      # Hosttech blockiert FTP/FTPS von GitHub-Actions-IPs (ECONNRESET auf der
+      # Datenverbindung). Deshalb Pull-Deploy: Build landet als GitHub Release,
+      # ein PHP-Skript auf dem Server (deploy-hook.php) holt es sich selbst per
+      # ausgehender Verbindung (wird von Hostern praktisch nie blockiert).
+      - name: GitHub Release "latest" aktualisieren
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest ./dist.zip --title "Latest Deploy" --notes "Automatisches Deployment $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Deploy-Hook auf Hosttech auslösen
+        run: |
+          curl -skf --resolve ferienwohnungsverein-jungfrau.ch:443:${{ secrets.DEPLOY_HOST_IP }} \
+            "https://ferienwohnungsverein-jungfrau.ch/deploy-hook.php?token=${{ secrets.DEPLOY_TOKEN }}"
