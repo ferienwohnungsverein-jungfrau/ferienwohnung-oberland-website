@@ -4,12 +4,37 @@ import Icon from '../../components/Icon.astro';
 import { Image } from 'astro:assets';
 import sujet5 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-5.jpg';
 import sujet6 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-6.jpg';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Schafft die Airbnb-Initiative von SP und JUSO neuen Wohnraum?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Nein. Die Initiative erzeugt nichts anderes als kalte Betten in den möblierten Wohnungen: Wohnungen stehen 9 Monate pro Jahr zwangsweise leer, das Reinigungspersonal hat 9 Monate lang keine Arbeit und Gästebetreuer:innen haben 9 Monate pro Jahr keine Arbeit. Das ist alles andere als nachhaltig und schafft keinen neuen Wohnraum, sondern erzeugt Arbeitslose und vermindert die Steuereinnahmen der Gemeinden.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Verdienen Kurzzeitvermietende das 4-Fache einer normalen Miete?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Nein. Der Betrieb einer Ferienwohnung beinhaltet einen erheblichen Anteil an Arbeit für Gästebetreuung rund um die Uhr, Reinigung und Bereitstellung der Wohnungen, Wäschewaschen, Gegenstände ersetzen und renovieren. Diese Arbeit ist nicht kostenlos. Die Einnahmen aus der Vermietung sind nicht einfach „Gewinn", sondern eine Mischung aus Mieteinnahmen und Arbeitsleistung. Nach Abzug der Lohnkosten und Unkosten verbleiben für Vermieterinnen und Vermieter normale Mieteinnahmen.',
+      },
+    },
+  ],
+};
 ---
 
 <Layout
   title="Warum wir die Airbnb Initiative von SP und JUSO ablehnen - Ferienwohnungsbetreibende Berner Oberland"
   description="Als Vermieter:innen im Berner Oberland zeigen wir, warum pauschale Verbote schaden – und die Wohnungsnot nicht gelöst wird. Die Initiative von SP und JUSO ist schädlich für die Region."
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
   <!-- Hero -->
   <section class="section page-hero">
     <div class="container">
