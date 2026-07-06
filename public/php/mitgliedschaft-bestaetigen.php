@@ -125,7 +125,9 @@ $leadBody = "Neue bestätigte Anmeldung über das Formular \"Mitglied werden\":\
     . "Bestätigt am: " . date('Y-m-d H:i:s') . "\n"
     . "Quelle: " . ($locale === 'en' ? '/en/membership/' : '/mitgliedschaft/') . "\n";
 
-$leadHeaders = "From: Website Anmeldeformular <office@surfershome.ch>\r\n"
+// From-Adresse MUSS zur sendenden Domain passen (SPF), siehe Kommentar in
+// mitgliedschaft-anmeldung.php.
+$leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
     . "Reply-To: {$emailSafe}\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n";
 

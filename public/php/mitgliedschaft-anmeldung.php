@@ -161,8 +161,12 @@ $htmlBody = <<<HTML
 </html>
 HTML;
 
+// From-Adresse MUSS zur sendenden Domain (ferienwohnungsverein-jungfrau.ch)
+// passen, sonst schlägt der SPF-Check beim Empfänger fehl und die Mail wird
+// von vielen Providern (Gmail etc.) stillschweigend verworfen statt
+// zugestellt. Antworten laufen trotzdem über Reply-To an die Testadresse.
 $boundary = 'fvj-' . bin2hex(random_bytes(8));
-$headers = "From: Ferienwohnungsverein Jungfrau <office@surfershome.ch>\r\n"
+$headers = "From: Ferienwohnungsverein Jungfrau <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
     . "Reply-To: office@surfershome.ch\r\n"
     . "MIME-Version: 1.0\r\n"
     . "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n";
