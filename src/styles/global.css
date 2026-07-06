@@ -120,6 +120,57 @@ a:hover {
   max-width: 65ch;
 }
 
+/* Hero-Varianten (siehe ux-plan-ferienwohnungsverein-jungfrau-hero-system) */
+
+/* Typ 1 – Statement-Hero: Startseite, Unser Vorschlag. Grosse Aussage, Bild-Overlay, keine Buttons/Blockquotes im Hero selbst. */
+.hero--statement {
+  position: relative;
+  padding-block: calc(76px + var(--space-8)) var(--space-8);
+  background-size: cover;
+  background-position: center;
+  isolation: isolate;
+}
+
+.hero--statement::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(0, 77, 122, 0.92) 0%, rgba(0, 77, 122, 0.75) 100%);
+  z-index: -1;
+}
+
+.hero--statement h1,
+.hero--statement h2,
+.hero--statement h3 {
+  color: var(--color-white);
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  max-width: 20ch;
+}
+
+.hero--statement .hero__subline {
+  color: var(--color-text-on-dark);
+  font-size: var(--text-lg);
+  max-width: 55ch;
+  margin-top: var(--space-2);
+}
+
+/* Typ 2 – Intro-Hero: alle Nicht-Startseiten (Über uns, Mitgliedschaft, Für Gemeinden & Medien, Quellen, Kontakt, Datenschutz). Kompakt, zentriert, max. 2 Zeilen Subline, keine Buttons. */
+.hero--intro {
+  padding-block: calc(76px + var(--space-4)) var(--space-4);
+}
+
+.hero--intro .container {
+  max-width: 680px;
+}
+
+.hero--intro h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.hero--intro p {
+  margin-top: var(--space-2);
+}
+
 /* ── Typografie ── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);

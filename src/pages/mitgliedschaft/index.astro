@@ -1,0 +1,96 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import kontakt from '../../data/kontakt.json';
+import { Image } from 'astro:assets';
+import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
+
+const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmail2}?subject=Anmeldung%20oder%20Anfrage%20f%C3%BCr%20Mitgliedschaft&body=Vielen%20Dank%2C%20dass%20ihr%20mit%20mir%20Kontakt%20aufnehmt.%20%0A%0AMein%20Name%20ist%3A%20%0AAnzahl%20Betten%3A%20`;
+---
+
+<Layout
+  title="Mitgliedschaft - Ferienwohnungsverein Jungfrau"
+  description="Fachaustausch, gemeinsame Interessenvertretung und ein Qualitätslabel: Werden Sie Mitglied im Ferienwohnungsverein Jungfrau."
+  langAlt="/en/membership/"
+>
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Werden Sie Mitglied</h1>
+      <p>Der Ferienwohnungsverein Jungfrau ist in erster Linie eine Gemeinschaft von Ferienwohnungsbetreiber:innen – der Austausch unter uns war der ursprüngliche und bleibt der wichtigste Zweck dieses Vereins.</p>
+    </div>
+  </section>
+
+  <!-- Warum Mitglied werden -->
+  <section class="section section--white">
+    <div class="container grid-3 text-center">
+      <div>
+        <Icon name="user" size={64} class="role-icon" />
+        <h2>Fachaustausch</h2>
+        <p>Erfahrungswissen unter Betreiber:innen: Gästebetreuung, Reinigung, rechtliche Fragen rund um die Kurzzeitvermietung – aus erster Hand statt aus der Theorie.</p>
+      </div>
+      <div>
+        <Icon name="puzzle-piece" size={64} class="role-icon" />
+        <h2>Gemeinsame Vertretung</h2>
+        <p>Gegenüber Gemeinden und Behörden sprechen wir mit einer Stimme – als organisierter Ansprechpartner statt als Einzelperson.</p>
+      </div>
+      <div>
+        <Icon name="check-square" size={64} class="role-icon" />
+        <h2>Qualitätslabel</h2>
+        <p>Als Mitglied profitieren Sie vom Aufbau eines Qualitätslabels für seriöse Ferienwohnungsbetreiber:innen – gut fürs eigene Image und für die ganze Branche.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fachaustausch & Vereinsleben -->
+  <section class="section section--subtle">
+    <div class="container grid-2">
+      <div>
+        <h2>Fachaustausch &amp; Vereinsleben</h2>
+        <p>Wir treffen uns regelmässig zum Erfahrungsaustausch und helfen einander mit Tipps rund um die Gästebetreuung.</p>
+        <p>Mitglieder erhalten laufend Updates zur rechtlichen Entwicklung rund um Kurzzeitvermietung und Zweitwohnungen in den Bödeli-Gemeinden – direkt von unserer Koordinationsstelle für Rechtsangelegenheiten.</p>
+        <p>Gegenüber Behörden können wir als Gruppe Ansprechpartner sein zum Thema Vermieten von Ferienwohnungen.</p>
+        <a href="/ueber-uns/" class="btn btn-accent">Wer wir sind</a>
+      </div>
+      <Image src={sujet7} alt="" width={1024} height={959} />
+    </div>
+  </section>
+
+  <!-- Anmeldung -->
+  <section class="section section--white" id="anmeldung">
+    <div class="container anmeldung">
+      <h2 class="text-center">Mitglied werden</h2>
+      <p class="text-center">Aktuell läuft die Anmeldung per E-Mail oder Telefon. Ein Online-Anmeldeformular mit direkter Zahlungsmöglichkeit (TWINT) ist in Vorbereitung.</p>
+      <div class="anmeldung__actions">
+        <a href={anmeldungHref} class="btn btn-accent center-btn">Per E-Mail anfragen</a>
+        <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .grid-3 p {
+    margin-inline: auto;
+  }
+
+  .grid-2 h2 { margin-bottom: var(--space-2); }
+  .grid-2 p { margin-bottom: var(--space-2); }
+  .grid-2 .btn { margin-top: var(--space-2); }
+
+  .anmeldung {
+    max-width: 640px;
+    text-align: center;
+  }
+
+  .anmeldung p {
+    margin-block: var(--space-2) var(--space-3);
+  }
+
+  .anmeldung__actions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

@@ -1,0 +1,114 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import { Image, getImage } from 'astro:assets';
+import sujet1 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-1.jpg';
+import sujet2 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-2.jpg';
+import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
+
+const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: 'webp' });
+---
+
+<Layout
+  title="Ferienwohnungsverein Jungfrau - Bernese Oberland"
+  description="We host, employ, and live in the Bernese Oberland – bundling our professional exchange and representing our interests to municipalities and the public."
+  langAlt="/"
+>
+  <!-- Hero -->
+  <section class="section hero--statement" style={`background-image: url(${heroBg.src})`}>
+    <div class="container">
+      <h1>Ferienwohnungsverein Jungfrau</h1>
+      <p class="hero__subline">We create guest experiences, jobs, and quality of life – for our region in the Bernese Oberland.</p>
+    </div>
+  </section>
+
+  <!-- Two-path hub -->
+  <section class="section section--white">
+    <div class="container grid-2 paths">
+      <a href="/en/membership/" class="path-card">
+        <Icon name="hotel" size={56} class="role-icon" />
+        <h2>I host</h2>
+        <p>Professional exchange, practical know-how, and a quality label – become part of an active community of holiday apartment hosts.</p>
+        <span class="btn btn-accent">Membership</span>
+      </a>
+      <a href="/en/our-proposal/" class="path-card">
+        <Icon name="puzzle-piece" size={56} class="role-icon" />
+        <h2>I'm interested in the Airbnb debate</h2>
+        <p>Municipal councillor, journalist, or simply interested in the regulation debate? We acknowledge the housing problem – and show a path that works.</p>
+        <span class="btn btn-accent">Our Proposal</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Why we rent out -->
+  <section class="section section--subtle">
+    <div class="container grid-2">
+      <Image src={sujet1} alt="" width={1024} height={768} />
+      <div>
+        <h2>Why we rent out</h2>
+        <p>The reasons vary: some of us offer holiday apartments in our own home. Others rent out separate units. What we share: we do this with commitment – and with responsibility towards our guests and our region.</p>
+        <a href="/en/about-us/" class="btn btn-accent">More about us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Membership teaser -->
+  <section class="section page-hero">
+    <div class="container grid-2">
+      <div>
+        <h2>Become a member</h2>
+        <p>Professional exchange with fellow hosts, joint representation towards municipalities, access to our quality label – membership brings real value to your everyday work as a host.</p>
+        <a href="/en/membership/" class="btn btn-accent">Learn more</a>
+      </div>
+      <Image src={sujet7} alt="" width={1024} height={959} />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .grid-3 p {
+    margin-inline: auto;
+  }
+
+  .grid-2 h2 { margin-bottom: var(--space-2); }
+  .grid-2 p { margin-bottom: var(--space-3); }
+
+  .paths {
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+
+  .path-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .path-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .path-card h2 {
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  .path-card p {
+    margin-bottom: var(--space-3);
+  }
+
+  .path-card .btn {
+    margin-top: auto;
+  }
+
+  @media (max-width: 700px) {
+    .paths { grid-template-columns: 1fr; }
+  }
+</style>

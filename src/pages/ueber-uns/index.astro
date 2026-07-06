@@ -8,18 +8,15 @@ import sujet4 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jp
 ---
 
 <Layout
-  title="Wer wir sind - Ferienwohnungsbetreibende Berner Oberland"
-  description="Wir sind Gastgeber:innen im Berner Oberland – engagiert, vernetzt und verantwortungsvoll. Gemeinsam vertreten wir die Interessen von Ferienwohnungsanbieter:innen vor Ort."
+  title="Wer wir sind - Ferienwohnungsverein Jungfrau"
+  description="Wir sind Gastgeber:innen im Berner Oberland – engagiert, vernetzt, verantwortungsvoll. Gemeinsam vertreten wir die Interessen lokaler Ferienwohnungsanbieter:innen."
+  langAlt="/en/about-us/"
 >
   <!-- Hero -->
-  <section class="section page-hero">
-    <div class="container text-center hero-narrow">
+  <section class="section page-hero hero--intro">
+    <div class="container">
       <h1>Wer wir sind</h1>
-      <p>Wir sind eine private Gruppe von Airbnb Anbietern im Grossraum Interlaken.</p>
-      <p>Unser Verein hat zum Ziel, den Austausch von Informationen und Erfahrungen zwischen den Mitgliedern zu fördern.</p>
-      <p>Gegenüber Behörden können wir als Gruppe Ansprechpartner sein zum Thema Vermieten von Ferienwohnungen.</p>
-      <p>Wir treffen uns regelmässig zum Erfahrungsaustausch und helfen einander mit Tipps rund um die Gästebetreuung.</p>
-      <a href="#unseretätigkeit" class="btn btn-accent">Unsere Tätigkeit</a>
+      <p>Eine private Gemeinschaft von Ferienwohnungsbetreiber:innen im Grossraum Interlaken.</p>
     </div>
   </section>
 
@@ -28,6 +25,7 @@ import sujet4 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jp
     <div class="container grid-2">
       <div>
         <h2>Unser Vorstand</h2>
+        <p class="intro-text">Unser Verein fördert den Austausch von Informationen und Erfahrungen zwischen den Mitgliedern und ist gegenüber Behörden Ansprechpartner zum Thema Vermieten von Ferienwohnungen.</p>
         <BoardAccordion />
       </div>
       <Image src={sujet3} alt="" width={500} />
@@ -42,7 +40,7 @@ import sujet4 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jp
         <p>Wir schätzen den Kontakt zu Gästen und freuen uns, wenn sie nach ihren Ferien zufrieden und erholt nach Hause zurückkehren.</p>
         <p>Einige von uns vermieten einzelne Zimmer in ihrer Wohnung. Damit haben sie den engsten Kontakt zu den Gästen.</p>
         <p>An den Bewertungen der Gäste sieht man, dass es auch für Gastgeber:innen eine schöne Erfahrung ist, mit anderen Menschen Kontakt zu haben.</p>
-        <a href="/airbnb-initiative/" class="btn btn-accent">Aktuelle Initiative von SP und JUSO</a>
+        <a href="/unser-vorschlag/" class="btn btn-accent">Unser Vorschlag zur Kurzzeitvermietung</a>
       </div>
       <Image src={sujet4} alt="" width={1024} height={739} />
     </div>
@@ -70,22 +68,15 @@ import sujet4 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jp
       <p>Alles in allem sind wir eine heterogene Gruppe mit verschiedenen Angeboten für Gäste, die den Kontakt mit einheimischen Gastgebern schätzen.</p>
       <p>Gemeinsam ist für uns alle: Wir lieben unsere Tätigkeit als Gastgeber und freuen uns über die Interaktion mit unseren Gästen.</p>
       <p>Gleichzeitig sind wir auch Arbeitgeber für Gästebetreuende und Reinigungspersonal oder machen diese Arbeiten selbst.</p>
-      <a href="/mitglied/" class="btn btn-accent">Mitglied werden</a>
+      <a href="/mitgliedschaft/" class="btn btn-accent">Mitglied werden</a>
     </div>
   </section>
 </Layout>
 
 <style>
-  .hero-narrow {
-    max-width: 640px;
-  }
-
-  .hero-narrow p {
-    margin-inline: auto;
-  }
-
-  .hero-narrow .btn {
-    margin-top: var(--space-3);
+  .intro-text {
+    font-size: var(--text-lg);
+    max-width: 60ch;
   }
 
   .grid-2 h2 {

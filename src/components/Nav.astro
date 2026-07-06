@@ -1,16 +1,38 @@
 ---
-const links = [
-  { href: '/', label: 'Start' },
-  { href: '/ueber-uns/', label: 'Über uns' },
-  { href: '/airbnb-initiative/', label: 'Unsere Positionen' },
-  { href: '/mitglied/', label: 'Mitglied werden' },
-  { href: '/kontakt/', label: 'Kontakt' },
-];
+interface Props {
+  locale?: 'de' | 'en';
+  langAlt?: string;
+}
 
+const { locale = 'de', langAlt } = Astro.props;
+
+const linksByLocale = {
+  de: [
+    { href: '/', label: 'Start' },
+    { href: '/mitgliedschaft/', label: 'Für Vermietende' },
+    { href: '/unser-vorschlag/', label: 'Unser Vorschlag' },
+    { href: '/ueber-uns/', label: 'Über uns' },
+    { href: '/fuer-gemeinden-medien/', label: 'Für Gemeinden & Medien' },
+    { href: '/kontakt/', label: 'Kontakt' },
+  ],
+  en: [
+    { href: '/en/', label: 'Home' },
+    { href: '/en/membership/', label: 'For Hosts' },
+    { href: '/en/our-proposal/', label: 'Our Proposal' },
+    { href: '/en/about-us/', label: 'About Us' },
+    { href: '/en/for-municipalities-media/', label: 'For Municipalities & Media' },
+    { href: '/en/contact/', label: 'Contact' },
+  ],
+};
+
+const links = linksByLocale[locale];
 const currentPath = Astro.url.pathname;
 function isActive(href: string) {
-  return href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+  return href === '/' || href === '/en/' ? currentPath === href : currentPath.startsWith(href);
 }
+
+const langSwitchHref = langAlt ?? (locale === 'en' ? '/' : '/en/');
+const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
 ---
 
 <header class="nav">
@@ -21,6 +43,7 @@ function isActive(href: string) {
           {link.label}
         </a>
       ))}
+      <a href={langSwitchHref} class="nav__lang" lang={locale === 'en' ? 'de' : 'en'}>{langSwitchLabel}</a>
     </nav>
 
     <button class="nav__toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
@@ -35,6 +58,7 @@ function isActive(href: string) {
           {link.label}
         </a>
       ))}
+      <a href={langSwitchHref} class="nav__mobile-link" lang={locale === 'en' ? 'de' : 'en'}>{langSwitchLabel}</a>
     </nav>
   </div>
 </header>
@@ -69,10 +93,33 @@ function isActive(href: string) {
     transition: color 0.2s;
   }
 
-  .nav__link:hover,
+  .nav__lang {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-on-dark);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.55rem;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .nav__lang:hover {
+    color: var(--color-white);
+    border-color: var(--color-white);
+  }
+
   .nav__link--active {
     color: var(--color-white);
     font-weight: 600;
+  }
+
+  /* Kein echtes font-weight beim Hover, da sich sonst die Breite ändert und
+     die ganze (rechtsbündige) Nav-Leiste seitlich verschiebt. Text-Shadow
+     täuscht "fett" optisch vor, ohne die Textbreite zu verändern. */
+  .nav__link:hover {
+    color: var(--color-white);
+    text-shadow: 0 0 0.4px currentColor, 0 0 0.4px currentColor;
   }
 
   .nav__toggle {

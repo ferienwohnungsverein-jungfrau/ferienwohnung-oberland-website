@@ -1,11 +1,27 @@
 ---
+interface Props {
+  locale?: 'de' | 'en';
+}
+
+const { locale = 'de' } = Astro.props;
+const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
 ---
 
 <footer class="footer">
   <div class="container footer__inner">
-    <p>Verantwortlich Verein IGFI</p>
-    <p>Website erstellt von <a href="http://digy.ch" target="_blank" rel="noopener">🎲 DIGY.ch</a></p>
-    <p><a href="/datenschutz/">Datenschutzerklärung</a></p>
+    {locale === 'en' ? (
+      <>
+        <p>Responsible: Ferienwohnungsverein Jungfrau</p>
+        <p>Website by <a href="http://digy.ch" target="_blank" rel="noopener">🎲 DIGY.ch</a></p>
+        <p><a href={datenschutzHref}>Privacy Policy</a></p>
+      </>
+    ) : (
+      <>
+        <p>Verantwortlich Ferienwohnungsverein Jungfrau</p>
+        <p>Website erstellt von <a href="http://digy.ch" target="_blank" rel="noopener">🎲 DIGY.ch</a></p>
+        <p><a href={datenschutzHref}>Datenschutzerklärung</a></p>
+      </>
+    )}
   </div>
 </footer>
 

@@ -1,0 +1,34 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout title="Privacy Policy - Ferienwohnungsverein Jungfrau" langAlt="/datenschutz/">
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Privacy</h1>
+      <p>Protecting your personal data is important to us – we handle it confidentially and in accordance with this privacy policy.</p>
+      <p class="note">Note: our full privacy policy is currently only available in German, in line with Swiss legal requirements for this document.</p>
+    </div>
+  </section>
+
+  <!-- Privacy policy (privacybee.io) -->
+  <section class="section section--white">
+    <div class="container">
+      <iframe
+        src="https://app.privacybee.io/v/cma57eytp00bv7xndoe78al9p?lang=de&type=dsg"
+        title="Datenschutzerklärung"
+        loading="lazy"
+        style="width: 100%; height: 1000px; border: 0"
+      ></iframe>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .note {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    font-style: italic;
+  }
+</style>

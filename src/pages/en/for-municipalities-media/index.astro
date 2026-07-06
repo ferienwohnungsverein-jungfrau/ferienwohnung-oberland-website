@@ -1,0 +1,81 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+import kontakt from '../../../data/kontakt.json';
+---
+
+<Layout
+  title="For Municipalities & Media - Ferienwohnungsverein Jungfrau"
+  description="Factsheet, contacts, and background for municipal councillors and journalists on the short-term rental debate in the Bernese Oberland."
+  langAlt="/fuer-gemeinden-medien/"
+>
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>For Municipalities &amp; Media</h1>
+      <p>We don't deny the housing problem – but we show that there are better paths than a rigid 90-day rule.</p>
+    </div>
+  </section>
+
+  <!-- Factsheet -->
+  <section class="section section--white">
+    <div class="container">
+      <h2>Factsheet at a Glance</h2>
+      <ul class="icon-list">
+        <li><Icon name="check-square" size={24} /><span><strong>Five Bödeli municipalities, five paths</strong> – not a uniform "ban wave," but different, in part already proven approaches.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>The Wilderswil model already works:</strong> 70% primary-residence quota + 5-night minimum stay, adopted with 83.5% approval. The SP subsequently withdrew its own initiative.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>Bans alone don't reliably solve housing shortages:</strong> New York's near-total Airbnb ban neither lowered rents nor increased vacancy.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>Enforcement is decisive:</strong> Even Bern's rule, adopted with 81% approval, is still not in force today; in Geneva, an analysis found nearly half of hosts violate the existing 90-day rule.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>The federal government is moving:</strong> SECO/SEM are preparing a nationwide, unified registration scheme (as of January 2025) – we support this development.</span></li>
+      </ul>
+      <p class="spacer-top">All figures and sources in detail: <a href="/en/sources/">Sources</a> and <a href="/en/our-proposal/">Our Proposal</a>.</p>
+    </div>
+  </section>
+
+  <!-- What we offer -->
+  <section class="section section--subtle">
+    <div class="container text-center">
+      <h2>What We Offer</h2>
+      <p class="lead">Active participation in workshops to develop a model that's realistic for your municipality – not obstruction, but collaboration.</p>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="section section--white">
+    <div class="container text-center">
+      <h2>Press Inquiries &amp; Contact for Municipalities</h2>
+      <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">Email</a>
+      <p class="spacer-top-sm">Or by phone via our association line:</p>
+      <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .icon-list {
+    margin-block: var(--space-3);
+  }
+
+  .icon-list li {
+    margin-bottom: var(--space-2);
+  }
+
+  .lead {
+    max-width: 65ch;
+    margin-inline: auto;
+    font-size: var(--text-lg);
+  }
+
+  .center-btn {
+    margin-inline: auto;
+  }
+
+  .spacer-top {
+    margin-top: var(--space-3);
+  }
+
+  .spacer-top-sm {
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+</style>

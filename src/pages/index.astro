@@ -1,49 +1,46 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import sujet1 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-1.jpg';
 import sujet2 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-2.jpg';
+import sujet7 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
+
+const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: 'webp' });
 ---
 
-<Layout title="Für unsere Region - Ferienwohnungsbetreibende Berner Oberland">
+<Layout
+  title="Ferienwohnungsverein Jungfrau - Berner Oberland"
+  langAlt="/en/"
+>
   <!-- Hero -->
-  <section class="section page-hero">
+  <section class="section hero--statement" style={`background-image: url(${heroBg.src})`}>
     <div class="container">
-      <h1>Ferienwohnungen Berner Oberland</h1>
-      <p>Wir betreiben Ferienwohnungen und sind Gastgeber:innen und Arbeitgeber:innen, aber auch engagierte Nachbarn, Mitgestaltende unserer Region, Investierende in die Zukunft des Berner Oberlands.</p>
-      <p>Mit persönlichem Einsatz, Verantwortung und Herzblut schaffen wir Erlebnisse für Gäste, Arbeit für Einheimische und Wertschöpfung für unsere Gemeinden.</p>
-      <p>Wir sagen <strong>Ja zu klaren Regeln</strong>. Aber <strong>Nein zu pauschalen Einschränkungen</strong>, die unsere Lebensrealität ignorieren.</p>
-      <div class="hero__actions">
-        <a href="#spinitiative" class="btn btn-accent">Unsere Positionen</a>
-        <a href="#mitgliedwerden" class="btn btn-accent">Mitgliedschaft</a>
-      </div>
+      <h1>Ferienwohnungsverein Jungfrau</h1>
+      <p class="hero__subline">Wir schaffen Gästeerlebnisse, Arbeitsplätze und Lebensqualität – für unsere Region im Berner Oberland.</p>
     </div>
   </section>
 
-  <!-- 3-Spalten: Rollen -->
-  <section class="section section--subtle">
-    <div class="container grid-3 text-center">
-      <div>
-        <Icon name="hotel" size={64} class="role-icon" />
-        <h2>Gastgeber:in</h2>
-        <p>Wir bieten Gästen individuelle und persönliche Unterkünfte und schaffen echte Erlebnisse.</p>
-      </div>
-      <div>
-        <Icon name="user" size={64} class="role-icon" />
-        <h2>Arbeitgeber:in</h2>
-        <p>Unsere Betriebe schaffen Arbeitsplätze – direkt in der Region.</p>
-      </div>
-      <div>
-        <Icon name="heart" size={64} class="role-icon" />
-        <h2>Nachbar:in</h2>
-        <p>Wir sind Teil unserer Gemeinden – engagiert, lokal verankert und nahbar.</p>
-      </div>
+  <!-- Zwei-Wege-Hub -->
+  <section class="section section--white">
+    <div class="container grid-2 paths">
+      <a href="/mitgliedschaft/" class="path-card">
+        <Icon name="hotel" size={56} class="role-icon" />
+        <h2>Ich vermiete</h2>
+        <p>Fachaustausch, Erfahrungswissen und ein Qualitätslabel – werden Sie Teil einer aktiven Gemeinschaft von Ferienwohnungsbetreibenden.</p>
+        <span class="btn btn-accent">Zur Mitgliedschaft</span>
+      </a>
+      <a href="/unser-vorschlag/" class="path-card">
+        <Icon name="puzzle-piece" size={56} class="role-icon" />
+        <h2>Ich interessiere mich für die Airbnb-Debatte</h2>
+        <p>Gemeinderät:in, Journalist:in oder einfach an der Regulierungsdebatte interessiert? Wir erkennen das Wohnraumproblem an – und zeigen einen Weg, der funktioniert.</p>
+        <span class="btn btn-accent">Unser Vorschlag</span>
+      </a>
     </div>
   </section>
 
   <!-- Warum wir vermieten -->
-  <section class="section section--white">
+  <section class="section section--subtle">
     <div class="container grid-2">
       <Image src={sujet1} alt="" width={1024} height={768} />
       <div>
@@ -54,83 +51,20 @@ import sujet2 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-2.jpg';
     </div>
   </section>
 
-  <!-- 3-Spalten: Werte -->
-  <section class="section section--white">
-    <div class="container grid-3 text-center">
-      <div>
-        <Icon name="puzzle-piece" size={64} class="role-icon" />
-        <h3>Mitgestaltende unserer Region</h3>
-        <p>Wir investieren in unsere Immobilien, erhalten Bausubstanz und schaffen Lebensraum.</p>
-      </div>
-      <div>
-        <Icon name="check" size={64} class="role-icon" />
-        <h3>Verantwortungsvolle Gastgeberinnen</h3>
-        <p>Wir zahlen Abgaben, bewerben unsere Region aktiv mit und tragen zur Vielfalt bei.</p>
-      </div>
-      <div>
-        <Icon name="cogs" size={64} class="role-icon" />
-        <h3>Engagierte Gemeindemitglieder</h3>
-        <p>Viele von uns engagieren sich ehrenamtlich – in Vereinen, bei Anlässen oder im Tourismus.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- SP/JUSO Initiative -->
-  <section class="section section--subtle" id="spinitiative">
+  <!-- Werde Mitglied Teaser -->
+  <section class="section page-hero">
     <div class="container grid-2">
       <div>
-        <ul class="icon-list">
-          <li>
-            <Icon name="arrow-circle-right" size={28} />
-            <span>Wir sind keine grossen Investoren – sondern lokale Einzelpersonen und Familien.</span>
-          </li>
-          <li>
-            <Icon name="thumbs-up" size={28} />
-            <span>Ferienwohnungen stärken das lokale Gewerbe – von Reinigung über Handwerk bis Gastronomie.</span>
-          </li>
-          <li>
-            <Icon name="dot-circle" size={28} />
-            <span>Pauschale Verbote zerstören Existenzen und schwächen die Wertschöpfungskette auf dem Bödeli.</span>
-          </li>
-        </ul>
-        <a href="/airbnb-initiative/" class="btn btn-accent">Aktuelle Initiative von SP und JUSO</a>
+        <h2>Werden Sie Mitglied</h2>
+        <p>Fachaustausch mit anderen Betreiber:innen, gemeinsame Interessenvertretung gegenüber Gemeinden, Zugang zu unserem Qualitätslabel – die Mitgliedschaft bietet echten Mehrwert für Ihren Alltag als Gastgeber:in.</p>
+        <a href="/mitgliedschaft/" class="btn btn-accent">Mehr erfahren</a>
       </div>
-      <Image src={sujet2} alt="" width={1024} height={569} />
-    </div>
-  </section>
-
-  <!-- Werde Mitglied -->
-  <section class="section page-hero" id="mitgliedwerden">
-    <div class="container">
-      <h2>Werde Mitglied</h2>
-      <p>im Verein für Immobilieneigentümer und Ferienwohnungsbetreiber Interlaken und Umgebung</p>
-      <ul class="icon-list">
-        <li>
-          <Icon name="check-square" size={26} />
-          <span>Setze dich ein für eine seriöse Parahotellerie.</span>
-        </li>
-        <li>
-          <Icon name="check-square" size={26} />
-          <span>Helfe Mitmenschen aufzuklären: Miteinander statt Gegeneinander.</span>
-        </li>
-        <li>
-          <Icon name="check-square" size={26} />
-          <span>Sei ein Mehrwert für Gäste, Nachbarn und das lokale Gewerbe.</span>
-        </li>
-      </ul>
-      <a href="/mitglied/" class="btn btn-accent">Mitglied werden</a>
+      <Image src={sujet7} alt="" width={1024} height={959} />
     </div>
   </section>
 </Layout>
 
 <style>
-  .hero__actions {
-    display: flex;
-    gap: var(--space-4);
-    margin-top: var(--space-4);
-    flex-wrap: wrap;
-  }
-
   .grid-3 p {
     margin-inline: auto;
   }
@@ -138,15 +72,42 @@ import sujet2 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-2.jpg';
   .grid-2 h2 { margin-bottom: var(--space-2); }
   .grid-2 p { margin-bottom: var(--space-3); }
 
-  .icon-list {
-    margin-block: var(--space-3);
+  .paths {
+    gap: var(--space-4);
+    align-items: stretch;
   }
 
-  #mitgliedwerden p {
-    margin-bottom: var(--space-2);
+  .path-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
-  #mitgliedwerden .btn {
+  .path-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .path-card h2 {
     margin-top: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  .path-card p {
+    margin-bottom: var(--space-3);
+  }
+
+  .path-card .btn {
+    margin-top: auto;
+  }
+
+  @media (max-width: 700px) {
+    .paths { grid-template-columns: 1fr; }
   }
 </style>

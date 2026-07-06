@@ -1,0 +1,104 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import BoardAccordion from '../../../components/BoardAccordion.astro';
+import YouTubeEmbed from '../../../components/YouTubeEmbed.astro';
+import { Image } from 'astro:assets';
+import sujet3 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-3.jpg';
+import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jpg';
+---
+
+<Layout
+  title="About Us - Ferienwohnungsverein Jungfrau"
+  description="We are hosts in the Bernese Oberland – engaged, connected, and responsible. Together we represent the interests of local holiday apartment providers."
+  langAlt="/ueber-uns/"
+>
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Who We Are</h1>
+      <p>A private community of holiday apartment hosts in the greater Interlaken area.</p>
+    </div>
+  </section>
+
+  <!-- Board -->
+  <section class="section section--white" id="our-work">
+    <div class="container grid-2">
+      <div>
+        <h2>Our Board</h2>
+        <p class="intro-text">Our association fosters the exchange of information and experience among members and acts as a group contact for authorities on the subject of renting out holiday apartments.</p>
+        <p class="board-note">Board member titles are given in German, the association's official working language.</p>
+        <BoardAccordion />
+      </div>
+      <Image src={sujet3} alt="" width={500} />
+    </div>
+  </section>
+
+  <!-- Why we rent -->
+  <section class="section section--subtle">
+    <div class="container grid-2">
+      <div>
+        <h2>Why We Rent Out Holiday Apartments</h2>
+        <p>We value contact with our guests and are happy when they return home satisfied and rested after their holiday.</p>
+        <p>Some of us rent out individual rooms in our own home. This gives them the closest contact with guests.</p>
+        <p>Guest reviews show that hosting is also a rewarding experience for us – meeting new people is part of the appeal.</p>
+        <a href="/en/our-proposal/" class="btn btn-accent">Our Proposal on Short-Term Rentals</a>
+      </div>
+      <Image src={sujet4} alt="" width={1024} height={739} />
+    </div>
+  </section>
+
+  <!-- Video -->
+  <section class="section section--white">
+    <div class="container grid-2">
+      <YouTubeEmbed id="oYg1nMOCFbs" title="Ferienwohnungsbetreibende Berner Oberland" />
+      <div>
+        <h2>More Effort Is Also Possible</h2>
+        <p>Others rent out furnished apartments and take on a bit more work: furnishing the unit, organising cleaning, round-the-clock guest care.</p>
+        <p>We all advise guests on activities in the Jungfrau region and sometimes put together excursions for them.</p>
+        <p>Our restaurant recommendations are very popular.</p>
+        <p>Additional activities are offered by some hosts on request: paragliding, hiking, mountain trekking.</p>
+        <p>Some hosts even pick guests up on foot from the train station, pointing out the Jungfrau and the nearest Coop along the way.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Variety of roles -->
+  <section class="section page-hero">
+    <div class="container">
+      <h2>The Variety of Our Roles</h2>
+      <p>All in all, we are a diverse group with different offerings for guests who value contact with local hosts.</p>
+      <p>What we all share: we love hosting and enjoy the interaction with our guests.</p>
+      <p>At the same time, we are employers for guest care staff and cleaning personnel, or do this work ourselves.</p>
+      <a href="/en/membership/" class="btn btn-accent">Become a Member</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .intro-text {
+    font-size: var(--text-lg);
+    max-width: 60ch;
+  }
+
+  .board-note {
+    font-size: var(--text-sm);
+    font-style: italic;
+    margin-bottom: var(--space-2);
+  }
+
+  .grid-2 h2 {
+    margin-bottom: var(--space-2);
+  }
+
+  .grid-2 p {
+    margin-bottom: var(--space-2);
+  }
+
+  .grid-2 .btn {
+    margin-top: var(--space-2);
+  }
+
+  .page-hero .btn {
+    margin-top: var(--space-3);
+  }
+</style>

@@ -1,0 +1,305 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import { Image } from 'astro:assets';
+import sujet5 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-5.jpg';
+import sujet6 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-6.jpg';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Löst die 90-Tage-Regel der Airbnb-Initiative die Wohnungsnot?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Erfahrungen aus anderen Städten zeigen: nicht zuverlässig. New York hat die Kurzzeitvermietung praktisch verboten (Listings -92%) – Mieten sind trotzdem weiter gestiegen, der Leerstand hat sich nicht verändert. Wir schlagen deshalb ein Modell vor, das sich in Wilderswil bereits bewährt hat: Erstwohnungsanteil plus Mindestaufenthaltsdauer statt starrem Tage-Deckel.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Verdienen Kurzzeitvermietende das 4-Fache einer normalen Miete?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Nein. Der Betrieb einer Ferienwohnung beinhaltet einen erheblichen Anteil an Arbeit für Gästebetreuung rund um die Uhr, Reinigung und Bereitstellung der Wohnungen, Wäschewaschen, Gegenstände ersetzen und renovieren. Diese Arbeit ist nicht kostenlos. Die Einnahmen aus der Vermietung sind nicht einfach „Gewinn", sondern eine Mischung aus Mieteinnahmen und Arbeitsleistung.',
+      },
+    },
+  ],
+};
+---
+
+<Layout
+  title="Unser Vorschlag - Ferienwohnungsverein Jungfrau"
+  description="Wir erkennen die Wohnraum-Anliegen der Bevölkerung an – und zeigen einen besseren Weg als die 90-Tage-Regel: das bewährte Wilderswil-Modell."
+  langAlt="/en/our-proposal/"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Wir bieten Hand</h1>
+      <p>Unsere Position zur Kurzzeitvermietung – und unser Vorschlag für eine bessere Lösung.</p>
+    </div>
+  </section>
+
+  <!-- Wilderswil-Modell -->
+  <section class="section section--white" id="wilderswil">
+    <div class="container grid-2">
+      <div>
+        <h2>Das Wilderswil-Modell: Ein Nachbardorf hat es vorgemacht</h2>
+        <p>In Wilderswil hat die Bevölkerung 2025 mit <strong>83,5% Ja-Stimmen</strong> eine eigene Lösung angenommen: ein Erstwohnungsanteil von 70% in allen Zonen, kombiniert mit einer Mindestaufenthaltsdauer von 5 Nächten statt eines starren Tage-Deckels. Die SP zog daraufhin ihre eigene Initiative zurück.</p>
+        <ul class="icon-list">
+          <li><Icon name="check-square" size={24} /><span>Schützt Wohnraum dort, wo neu gebaut oder umgenutzt wird.</span></li>
+          <li><Icon name="check-square" size={24} /><span>Lässt Ferienwohnungsbetreiber:innen weiterhin wirtschaften – mit klaren Regeln statt einem Berufsverbot durch die Hintertür.</span></li>
+          <li><Icon name="check-square" size={24} /><span>Wurde breit angenommen – nicht nur von einer politischen Seite.</span></li>
+        </ul>
+        <p><strong>Unser Vorschlag:</strong> Wir setzen uns dafür ein, dass auch die übrigen Bödeli-Gemeinden ein Modell nach diesem Vorbild prüfen.</p>
+      </div>
+      <Image src={sujet5} alt="" width={1024} height={683} />
+    </div>
+  </section>
+
+  <!-- Was andere Städte zeigen -->
+  <section class="section section--subtle">
+    <div class="container">
+      <h2>Was andere Städte und Länder zeigen</h2>
+      <div class="grid-2 spacer-top">
+        <div>
+          <h3>New York: Ein Verbot allein senkt die Mietpreise nicht</h3>
+          <p>New York hat 2023 mit dem "Local Law 18" die kommerzielle Kurzzeitvermietung praktisch verunmöglicht – die Zahl der Airbnb-Angebote sank um rund 92%. Die Mietpreise sind seither trotzdem weiter gestiegen, der Leerstand hat sich nicht verändert. Die Stadt selbst verweist dagegen darauf, tausende illegale Vermietungen beseitigt zu haben.</p>
+        </div>
+        <div>
+          <h3>Selbst strenge Regeln scheitern oft am Vollzug</h3>
+          <p>Die Stadt Bern hat 2022 mit 81% Zustimmung eine strenge Regel für die Altstadt beschlossen – sie ist bis heute nicht in Kraft, weil sie juristisch angefochten wurde. Im Kanton Genf verstossen laut einer Analyse rund 44% der betroffenen Anbieter gegen die geltende 90-Tage-Regel.</p>
+        </div>
+      </div>
+      <p class="spacer-top"><strong>Eine Regel ist nur so gut wie ihre Kontrolle.</strong> Genau deshalb setzen wir uns für praktikable, kontrollierbare Lösungen ein statt für Vorschriften, die auf dem Papier streng klingen, aber niemand durchsetzen kann.</p>
+    </div>
+  </section>
+
+  <!-- Zahlen und Fakten -->
+  <section class="section section--white" id="zahlenundfakten">
+    <div class="container grid-2">
+      <Image src={sujet6} alt="" width={683} height={1024} />
+      <div>
+        <h2>Zahlen und Fakten</h2>
+        <p>Wohnungen in Interlaken, Unterseen, Matten, Wilderswil, Bönigen gesamthaft:</p>
+        <table class="stats-table">
+          <thead>
+            <tr><th>Kategorie</th><th>Anzahl</th><th>Anteil</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Wohnungen total</td><td>12'475</td><td>100%</td></tr>
+            <tr><td>Erstwohnungen</td><td>10'270</td><td>82,3%</td></tr>
+            <tr><td>Private Ferienwohnungen</td><td>1'868</td><td>15,0%</td></tr>
+            <tr><td>Kurzzeitvermietung (Airbnb etc.)</td><td>337</td><td>2,7%</td></tr>
+          </tbody>
+        </table>
+        <p class="quelle">Quelle: <a href="https://www.are.admin.ch/are/de/home/raumentwicklung-und-raumplanung/raumplanungsrecht/zweitwohnungen.html">are.admin.ch</a>, <a href="http://interlaken.ch">interlaken.ch</a></p>
+        <ul class="icon-list">
+          <li>
+            <Icon name="arrow-circle-right-solid" size={30} />
+            <span>Zu beachten ist, dass auch Hotels zum Teil ihre Zimmer via Airbnb anbieten. Dabei handelt es sich <strong>nicht</strong> um Zweitwohnungen.</span>
+          </li>
+          <li>
+            <Icon name="arrow-circle-right-solid" size={30} />
+            <span>Je nach Zählmethode und Stichtag kommen andere Auswertungen (z.B. Plattform-Rohdaten) auf andere Prozentwerte. Wir stützen uns hier auf die amtliche Statistik.</span>
+          </li>
+        </ul>
+        <p class="spacer-top-sm">Auch in unserer Region wächst die Bedeutung von Ferienwohnungen als Übernachtungsform – die Logiernächte in Ferienwohnungen sind 2024 regional um über 10% gewachsen, stärker als in der klassischen Hotellerie. In Grindelwald übertreffen die Logiernächte in Zweitwohnungen (311'600) inzwischen jene der klassischen Hotellerie (278'200) – das Gastgewerbe ist mit 37% Anteil die grösste Beschäftigungsbranche der Gemeinde.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Qualitätslabel -->
+  <section class="section section--subtle">
+    <div class="container text-center">
+      <h2>Unser Beitrag: das Qualitätslabel</h2>
+      <p class="lead">Einzelne schwarze Schafe haben dem Ruf unserer Branche geschadet. Deshalb bauen wir ein Qualitätslabel für Ferienwohnungsbetreiber:innen auf – das ist unsere Antwort auf berechtigte Kritik: nicht Abwehr, sondern Eigenverantwortung.</p>
+      <div class="grid-3 quality-points">
+        <div>
+          <Icon name="check-square" size={48} class="role-icon" />
+          <h3>Standards für Nachbarschaft</h3>
+          <p>Klare Regeln für Rücksichtnahme auf Nachbar:innen.</p>
+        </div>
+        <div>
+          <Icon name="user" size={48} class="role-icon" />
+          <h3>Ansprechpersonen vor Ort</h3>
+          <p>Geregelte, erreichbare Kontaktpersonen für Gäste und Nachbarschaft.</p>
+        </div>
+        <div>
+          <Icon name="check-square" size={48} class="role-icon" />
+          <h3>Kontrollen</h3>
+          <p>Überprüfung der Standards statt reiner Selbstauskunft.</p>
+        </div>
+      </div>
+      <a href="/mitgliedschaft/" class="btn btn-accent">Mehr zur Mitgliedschaft</a>
+    </div>
+  </section>
+
+  <!-- Nationale Entwicklung -->
+  <section class="section section--white">
+    <div class="container">
+      <h2>Die nationale Entwicklung</h2>
+      <p>Der Bund bereitet aktuell (SECO/SEM, Stand Januar 2025) eine landesweit einheitliche Melderegelung für Kurzzeitvermietung vor – nach dem Vorbild einer neuen EU-Verordnung. Auch der Hotelverband HotellerieSuisse fordert "gleiche Spiesse für alle" statt eines kommunalen Flickenteppichs. <strong>Wir unterstützen diese Entwicklung</strong> – eine verhältnismässige, schweizweit einheitliche Lösung ist besser als fünf verschiedene Regeln auf fünf Quadratkilometern Bödeli.</p>
+    </div>
+  </section>
+
+  <!-- Argumente im Detail (FAQ) -->
+  <section class="section page-hero" id="unsereargumente">
+    <div class="container">
+      <h2 class="faq-title">Häufige Fragen im Detail</h2>
+      <div class="grid-2 faq-cards">
+        <div class="faq-card">
+          <p class="quote-heading"><Icon name="angle-double-right" size={26} /> Löst die 90-Tage-Regel die Wohnungsnot?</p>
+          <p>Erfahrungen aus anderen Städten zeigen: nicht zuverlässig. New York hat die Kurzzeitvermietung praktisch verboten – die Mieten sind trotzdem weiter gestiegen, der Leerstand hat sich nicht verändert.</p>
+        </div>
+        <div class="faq-card">
+          <p class="quote-heading"><Icon name="angle-double-right" size={26} /> Verdienen Kurzzeitvermietende das 4-Fache einer normalen Miete?</p>
+          <p>Nein. Der Betrieb einer Ferienwohnung beinhaltet einen erheblichen Anteil an Arbeit für Gästebetreuung, Reinigung und Bereitstellung der Wohnungen. Die Einnahmen sind nicht einfach „Gewinn", sondern eine Mischung aus Mieteinnahmen und Arbeitsleistung.</p>
+        </div>
+      </div>
+
+      <div class="closing-cta">
+        <h2>Wir wollen keine Blockierer sein.</h2>
+        <p>Es herrscht Wohnungsnot in der Schweiz – das ist real, und wir stellen das nicht in Abrede. Gleichzeitig lebt unsere Region vom Tourismus. Wir wollen zeigen, dass es einen Weg gibt, der Wohnraum schützt <strong>und</strong> unsere Region als Gastgeberin lebendig hält. Wilderswil hat es vorgemacht. Wir sind bereit, mitzuarbeiten.</p>
+        <div class="hero__actions">
+          <a href="/ueber-uns/" class="btn btn-accent">Über uns</a>
+          <a href="/fuer-gemeinden-medien/" class="btn btn-accent">Für Gemeinden &amp; Medien</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero__actions {
+    display: flex;
+    gap: var(--space-4);
+    margin: var(--space-3) 0;
+    flex-wrap: wrap;
+  }
+
+  .page-hero p,
+  .section--subtle p {
+    margin-bottom: var(--space-2);
+  }
+
+  .grid-2 h2, .grid-2 h3 { margin-bottom: var(--space-2); }
+
+  .lead {
+    max-width: 65ch;
+    margin-inline: auto;
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-4);
+  }
+
+  /* Qualitätslabel 3-Punkte-Grid */
+  .quality-points {
+    margin-block: var(--space-4);
+    text-align: center;
+  }
+
+  .quality-points h3 {
+    margin-block: var(--space-2) var(--space-1);
+  }
+
+  .quality-points p {
+    margin-inline: auto;
+  }
+
+  /* FAQ-Karten */
+  .faq-title {
+    color: var(--color-white);
+    margin-bottom: var(--space-3);
+  }
+
+  .faq-cards {
+    gap: var(--space-3);
+    align-items: stretch;
+  }
+
+  .faq-card {
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .faq-card .quote-heading {
+    color: var(--color-heading);
+    font-size: var(--text-lg);
+  }
+
+  .faq-card p:not(.quote-heading) {
+    color: var(--color-text);
+  }
+
+  .closing-cta {
+    margin-top: var(--space-8);
+    text-align: center;
+  }
+
+  .closing-cta p {
+    max-width: 65ch;
+    margin-inline: auto;
+  }
+
+  .closing-cta .hero__actions {
+    justify-content: center;
+  }
+
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-block: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .stats-table th {
+    background: var(--color-primary);
+    color: var(--color-white);
+    text-align: left;
+    padding: 0.6rem 0.9rem;
+    font-weight: 600;
+  }
+
+  .stats-table td {
+    padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .stats-table tbody tr:nth-child(even) {
+    background: var(--color-bg-subtle);
+  }
+
+  .quelle {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+  }
+
+  .icon-list {
+    margin-block: var(--space-2);
+  }
+
+  .quote-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 600;
+    color: var(--color-white);
+    max-width: none;
+  }
+
+  .spacer-top {
+    margin-top: var(--space-6);
+  }
+
+  .spacer-top-sm {
+    margin-top: var(--space-3);
+  }
+</style>

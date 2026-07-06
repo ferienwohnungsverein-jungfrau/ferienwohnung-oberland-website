@@ -1,30 +1,30 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import kontakt from '../../data/kontakt.json';
+import Layout from '../../../layouts/Layout.astro';
+import kontakt from '../../../data/kontakt.json';
 import { Image } from 'astro:assets';
-import sujet4 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jpg';
+import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jpg';
 ---
 
 <Layout
-  title="Kontakt - Ferienwohnungsverein Jungfrau"
-  description="Presseanfragen oder allgemeine Fragen an den Ferienwohnungsverein Jungfrau – per E-Mail oder Vereinstelefon erreichbar."
-  langAlt="/en/contact/"
+  title="Contact - Ferienwohnungsverein Jungfrau"
+  description="Press inquiries or general questions to the Ferienwohnungsverein Jungfrau – reachable by email or association phone."
+  langAlt="/kontakt/"
 >
   <!-- Hero -->
   <section class="section page-hero hero--intro">
     <div class="container">
-      <h1>Kontakt</h1>
-      <p>Für Presseanfragen und allgemeine Fragen sind wir per E-Mail oder Telefon erreichbar.</p>
+      <h1>Contact</h1>
+      <p>For press inquiries and general questions, we're reachable by email or phone.</p>
     </div>
   </section>
 
-  <!-- Kontaktdaten -->
+  <!-- Contact details -->
   <section class="section section--subtle">
     <div class="container grid-2">
       <div class="kontakt-col">
-        <h2>Presseanfragen</h2>
-        <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">E-Mail</a>
-        <h2>Vereinstelefon</h2>
+        <h2>Press Inquiries</h2>
+        <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">Email</a>
+        <h2>Association Phone</h2>
         <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
       </div>
       <Image src={sujet4} alt="" width={1024} height={739} />

@@ -1,0 +1,81 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import kontakt from '../../data/kontakt.json';
+---
+
+<Layout
+  title="Für Gemeinden & Medien - Ferienwohnungsverein Jungfrau"
+  description="Factsheet, Ansprechpersonen und Hintergrund für Gemeinderät:innen und Medienschaffende zur Kurzzeitvermietungs-Debatte im Berner Oberland."
+  langAlt="/en/for-municipalities-media/"
+>
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Für Gemeinden &amp; Medien</h1>
+      <p>Wir bestreiten das Wohnraumproblem nicht – aber wir zeigen, dass es bessere Wege gibt als eine starre 90-Tage-Regel.</p>
+    </div>
+  </section>
+
+  <!-- Factsheet -->
+  <section class="section section--white">
+    <div class="container">
+      <h2>Factsheet in Kürze</h2>
+      <ul class="icon-list">
+        <li><Icon name="check-square" size={24} /><span><strong>Fünf Bödeli-Gemeinden, fünf Lösungswege</strong> – keine einheitliche "Verbotswelle", sondern unterschiedliche, teils bereits erprobte Ansätze.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>Das Wilderswil-Modell funktioniert bereits:</strong> 70% Erstwohnungsanteil + 5-Nächte-Mindestdauer, mit 83,5% angenommen. Die SP hat ihre eigene Initiative daraufhin zurückgezogen.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>Verbote allein lösen die Wohnungsnot nicht zuverlässig:</strong> New Yorks fast vollständiges Airbnb-Verbot hat weder Mieten gesenkt noch den Leerstand erhöht.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>Vollzug ist entscheidend:</strong> Selbst die mit 81% angenommene Regel der Stadt Bern ist bis heute nicht in Kraft; in Genf verstösst laut einer Analyse fast die Hälfte der Anbietenden gegen die geltende 90-Tage-Regel.</span></li>
+        <li><Icon name="check-square" size={24} /><span><strong>Der Bund bewegt sich:</strong> SECO/SEM bereiten eine landesweit einheitliche Melderegelung vor (Stand Januar 2025) – wir unterstützen diese Entwicklung.</span></li>
+      </ul>
+      <p class="spacer-top">Alle Zahlen und Quellen im Detail: <a href="/quellen/">Quellenverzeichnis</a> und <a href="/unser-vorschlag/">Unser Vorschlag</a>.</p>
+    </div>
+  </section>
+
+  <!-- Gesprächsangebot -->
+  <section class="section section--subtle">
+    <div class="container text-center">
+      <h2>Was wir anbieten</h2>
+      <p class="lead">Aktive Mitarbeit in Workshops, um ein für Ihre Gemeinde realistisches Modell auszuarbeiten – nicht Verhinderung, sondern Mitgestaltung.</p>
+    </div>
+  </section>
+
+  <!-- Kontakt -->
+  <section class="section section--white">
+    <div class="container text-center">
+      <h2>Presseanfragen &amp; Kontakt für Gemeinden</h2>
+      <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">E-Mail</a>
+      <p class="spacer-top-sm">Oder telefonisch über unser Vereinstelefon:</p>
+      <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .icon-list {
+    margin-block: var(--space-3);
+  }
+
+  .icon-list li {
+    margin-bottom: var(--space-2);
+  }
+
+  .lead {
+    max-width: 65ch;
+    margin-inline: auto;
+    font-size: var(--text-lg);
+  }
+
+  .center-btn {
+    margin-inline: auto;
+  }
+
+  .spacer-top {
+    margin-top: var(--space-3);
+  }
+
+  .spacer-top-sm {
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+</style>

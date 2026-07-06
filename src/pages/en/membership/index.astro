@@ -1,0 +1,96 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+import kontakt from '../../../data/kontakt.json';
+import { Image } from 'astro:assets';
+import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
+
+const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmail2}?subject=Membership%20application%20or%20inquiry&body=Thank%20you%20for%20getting%20in%20touch.%20%0A%0AMy%20name%20is%3A%20%0ANumber%20of%20beds%3A%20`;
+---
+
+<Layout
+  title="For Hosts - Membership - Ferienwohnungsverein Jungfrau"
+  description="Professional exchange, joint representation, and a quality label: become a member of the Ferienwohnungsverein Jungfrau."
+  langAlt="/mitgliedschaft/"
+>
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Become a Member</h1>
+      <p>The Ferienwohnungsverein Jungfrau is first and foremost a community of holiday apartment hosts – exchange among us was the original, and remains the most important, purpose of this association.</p>
+    </div>
+  </section>
+
+  <!-- Why join -->
+  <section class="section section--white">
+    <div class="container grid-3 text-center">
+      <div>
+        <Icon name="user" size={64} class="role-icon" />
+        <h2>Professional Exchange</h2>
+        <p>Practical know-how among hosts: guest care, cleaning, legal questions around short-term rentals – from experience, not theory.</p>
+      </div>
+      <div>
+        <Icon name="puzzle-piece" size={64} class="role-icon" />
+        <h2>Joint Representation</h2>
+        <p>Towards municipalities and authorities, we speak with one voice – as an organised partner instead of individual owners.</p>
+      </div>
+      <div>
+        <Icon name="check-square" size={64} class="role-icon" />
+        <h2>Quality Label</h2>
+        <p>As a member, you benefit from our quality label for responsible holiday apartment hosts – good for your own reputation and for the whole sector.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Exchange & association life -->
+  <section class="section section--subtle">
+    <div class="container grid-2">
+      <div>
+        <h2>Professional Exchange &amp; Community</h2>
+        <p>We meet regularly to exchange experiences and help each other with tips on guest care.</p>
+        <p>Members receive ongoing updates on the legal developments around short-term rentals and second homes in the Bödeli municipalities – directly from our legal affairs coordinator.</p>
+        <p>Towards authorities, we can act as a group contact on the subject of renting out holiday apartments.</p>
+        <a href="/en/about-us/" class="btn btn-accent">Who we are</a>
+      </div>
+      <Image src={sujet7} alt="" width={1024} height={959} />
+    </div>
+  </section>
+
+  <!-- Sign up -->
+  <section class="section section--white" id="signup">
+    <div class="container anmeldung">
+      <h2 class="text-center">Become a Member</h2>
+      <p class="text-center">Applications currently run by email or phone. An online application form with direct payment (TWINT) is in preparation.</p>
+      <div class="anmeldung__actions">
+        <a href={anmeldungHref} class="btn btn-accent center-btn">Apply by email</a>
+        <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .grid-3 p {
+    margin-inline: auto;
+  }
+
+  .grid-2 h2 { margin-bottom: var(--space-2); }
+  .grid-2 p { margin-bottom: var(--space-2); }
+  .grid-2 .btn { margin-top: var(--space-2); }
+
+  .anmeldung {
+    max-width: 640px;
+    text-align: center;
+  }
+
+  .anmeldung p {
+    margin-block: var(--space-2) var(--space-3);
+  }
+
+  .anmeldung__actions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

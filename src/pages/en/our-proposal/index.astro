@@ -1,0 +1,304 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+import { Image } from 'astro:assets';
+import sujet5 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-5.jpg';
+import sujet6 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-6.jpg';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Does the 90-day rule of the Airbnb initiative solve the housing shortage?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Experience from other cities shows: not reliably. New York effectively banned short-term rentals (listings -92%) — rents kept rising regardless, and vacancy rates did not improve. We instead propose a model already proven in Wilderswil: a primary-residence quota plus a minimum stay duration, rather than a rigid day cap.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do short-term hosts earn four times a normal rent?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Running a holiday apartment involves substantial work: round-the-clock guest care, cleaning, laundry, replacing and renovating furnishings. This work is not free. Rental income is not simply "profit" but a mix of rent and labour compensation.',
+      },
+    },
+  ],
+};
+---
+
+<Layout
+  title="Our Proposal - Ferienwohnungsverein Jungfrau"
+  description="We acknowledge the population's housing concerns – and show a better path than the 90-day rule: the proven Wilderswil model."
+  langAlt="/unser-vorschlag/"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>We Offer to Help</h1>
+      <p>Our position on short-term rentals – and our proposal for a better solution.</p>
+    </div>
+  </section>
+
+  <!-- Wilderswil model -->
+  <section class="section section--white" id="wilderswil">
+    <div class="container grid-2">
+      <div>
+        <h2>The Wilderswil Model: A Neighbouring Village Showed the Way</h2>
+        <p>In 2025, Wilderswil's population adopted its own solution with <strong>83.5% approval</strong>: a 70% primary-residence quota in all zones, combined with a minimum stay of 5 nights instead of a rigid day cap. The SP subsequently withdrew its own initiative.</p>
+        <ul class="icon-list">
+          <li><Icon name="check-square" size={24} /><span>Protects housing where new building or conversion happens.</span></li>
+          <li><Icon name="check-square" size={24} /><span>Lets holiday apartment hosts keep operating – with clear rules instead of a de facto ban.</span></li>
+          <li><Icon name="check-square" size={24} /><span>Was broadly adopted – not only by one political side.</span></li>
+        </ul>
+        <p><strong>Our proposal:</strong> we advocate that the remaining Bödeli municipalities examine a model along these lines.</p>
+      </div>
+      <Image src={sujet5} alt="" width={1024} height={683} />
+    </div>
+  </section>
+
+  <!-- What other cities show -->
+  <section class="section section--subtle">
+    <div class="container">
+      <h2>What Other Cities and Countries Show</h2>
+      <div class="grid-2 spacer-top">
+        <div>
+          <h3>New York: A Ban Alone Does Not Lower Rents</h3>
+          <p>In 2023, New York's "Local Law 18" effectively ended commercial short-term rentals – listings dropped by about 92%. Rents kept rising regardless, and vacancy rates did not improve. The city itself counters that thousands of illegal rentals were eliminated.</p>
+        </div>
+        <div>
+          <h3>Even Strict Rules Often Fail on Enforcement</h3>
+          <p>The city of Bern passed a strict rule for its old town in 2022 with 81% approval – it is still not in force today, blocked by a legal challenge. In canton Geneva, an analysis found around 44% of affected hosts violate the existing 90-day rule.</p>
+        </div>
+      </div>
+      <p class="spacer-top"><strong>A rule is only as good as its enforcement.</strong> That is exactly why we advocate for practical, enforceable solutions rather than rules that sound strict on paper but nobody can enforce.</p>
+    </div>
+  </section>
+
+  <!-- Facts and figures -->
+  <section class="section section--white" id="facts">
+    <div class="container grid-2">
+      <Image src={sujet6} alt="" width={683} height={1024} />
+      <div>
+        <h2>Facts and Figures</h2>
+        <p>Housing units in Interlaken, Unterseen, Matten, Wilderswil, and Bönigen combined:</p>
+        <table class="stats-table">
+          <thead>
+            <tr><th>Category</th><th>Number</th><th>Share</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Housing units total</td><td>12,475</td><td>100%</td></tr>
+            <tr><td>Primary residences</td><td>10,270</td><td>82.3%</td></tr>
+            <tr><td>Private holiday apartments</td><td>1,868</td><td>15.0%</td></tr>
+            <tr><td>Short-term rentals (Airbnb etc.)</td><td>337</td><td>2.7%</td></tr>
+          </tbody>
+        </table>
+        <p class="quelle">Source: <a href="https://www.are.admin.ch/are/de/home/raumentwicklung-und-raumplanung/raumplanungsrecht/zweitwohnungen.html">are.admin.ch</a>, <a href="http://interlaken.ch">interlaken.ch</a></p>
+        <ul class="icon-list">
+          <li>
+            <Icon name="arrow-circle-right-solid" size={30} />
+            <span>Note that hotels also list some rooms via Airbnb. These are <strong>not</strong> second homes.</span>
+          </li>
+          <li>
+            <Icon name="arrow-circle-right-solid" size={30} />
+            <span>Depending on counting method and reference date, other analyses (e.g. raw platform data) arrive at different percentages. We rely here on official statistics.</span>
+          </li>
+        </ul>
+        <p class="spacer-top-sm">Holiday apartments are also growing in importance as a form of overnight stay in our region – overnight stays in holiday apartments grew by over 10% regionally in 2024, faster than classic hotels. In Grindelwald, overnight stays in second homes (311,600) now exceed those of classic hotels (278,200) – hospitality is the largest employment sector in the municipality, at 37%.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quality label -->
+  <section class="section section--subtle">
+    <div class="container text-center">
+      <h2>Our Contribution: The Quality Label</h2>
+      <p class="lead">A few bad actors have damaged our sector's reputation. That's why we are building a quality label for responsible holiday apartment hosts – our answer to legitimate criticism: not defensiveness, but taking responsibility.</p>
+      <div class="grid-3 quality-points">
+        <div>
+          <Icon name="check-square" size={48} class="role-icon" />
+          <h3>Neighbourhood Standards</h3>
+          <p>Clear rules for consideration towards neighbours.</p>
+        </div>
+        <div>
+          <Icon name="user" size={48} class="role-icon" />
+          <h3>Local Contact Persons</h3>
+          <p>Designated, reachable contacts for guests and neighbours.</p>
+        </div>
+        <div>
+          <Icon name="check-square" size={48} class="role-icon" />
+          <h3>Controls</h3>
+          <p>Verification of standards, not just self-declaration.</p>
+        </div>
+      </div>
+      <a href="/en/membership/" class="btn btn-accent">More about membership</a>
+    </div>
+  </section>
+
+  <!-- National development -->
+  <section class="section section--white">
+    <div class="container">
+      <h2>The National Development</h2>
+      <p>The federal government is currently preparing (SECO/SEM, as of January 2025) a nationwide, unified registration scheme for short-term rentals – modelled on a new EU regulation. The hotel association HotellerieSuisse likewise calls for a "level playing field" instead of a patchwork of municipal rules. <strong>We support this development</strong> – a proportionate, nationwide solution is better than five different rules across five square kilometres of Bödeli.</p>
+    </div>
+  </section>
+
+  <!-- Arguments in detail (FAQ) -->
+  <section class="section page-hero" id="arguments">
+    <div class="container">
+      <h2 class="faq-title">Frequently Asked Questions</h2>
+      <div class="grid-2 faq-cards">
+        <div class="faq-card">
+          <p class="quote-heading"><Icon name="angle-double-right" size={26} /> Does the 90-day rule solve the housing shortage?</p>
+          <p>Experience from other cities shows: not reliably. New York effectively banned short-term rentals – rents kept rising regardless, and vacancy rates did not improve.</p>
+        </div>
+        <div class="faq-card">
+          <p class="quote-heading"><Icon name="angle-double-right" size={26} /> Do short-term hosts earn four times a normal rent?</p>
+          <p>No. Running a holiday apartment involves substantial work: round-the-clock guest care, cleaning, laundry, replacing and renovating furnishings. This work is not free. Rental income is not simply "profit" but a mix of rent and labour compensation.</p>
+        </div>
+      </div>
+
+      <div class="closing-cta">
+        <h2>We Don't Want to Be Blockers.</h2>
+        <p>Switzerland has a real housing shortage – we don't dispute that. At the same time, our region depends on tourism. We want to show that there is a way to protect housing <strong>and</strong> keep our region a vibrant host to visitors. Wilderswil showed the way. We're ready to help build it.</p>
+        <div class="hero__actions">
+          <a href="/en/about-us/" class="btn btn-accent">About Us</a>
+          <a href="/en/for-municipalities-media/" class="btn btn-accent">For Municipalities &amp; Media</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero__actions {
+    display: flex;
+    gap: var(--space-4);
+    margin: var(--space-3) 0;
+    flex-wrap: wrap;
+  }
+
+  .page-hero p,
+  .section--subtle p {
+    margin-bottom: var(--space-2);
+  }
+
+  .grid-2 h2, .grid-2 h3 { margin-bottom: var(--space-2); }
+
+  .lead {
+    max-width: 65ch;
+    margin-inline: auto;
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-4);
+  }
+
+
+  .quality-points {
+    margin-block: var(--space-4);
+    text-align: center;
+  }
+
+  .quality-points h3 {
+    margin-block: var(--space-2) var(--space-1);
+  }
+
+  .quality-points p {
+    margin-inline: auto;
+  }
+
+  .faq-title {
+    color: var(--color-white);
+    margin-bottom: var(--space-3);
+  }
+
+  .faq-cards {
+    gap: var(--space-3);
+    align-items: stretch;
+  }
+
+  .faq-card {
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .faq-card .quote-heading {
+    color: var(--color-heading);
+    font-size: var(--text-lg);
+  }
+
+  .faq-card p:not(.quote-heading) {
+    color: var(--color-text);
+  }
+
+  .closing-cta {
+    margin-top: var(--space-8);
+    text-align: center;
+  }
+
+  .closing-cta p {
+    max-width: 65ch;
+    margin-inline: auto;
+  }
+
+  .closing-cta .hero__actions {
+    justify-content: center;
+  }
+
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-block: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .stats-table th {
+    background: var(--color-primary);
+    color: var(--color-white);
+    text-align: left;
+    padding: 0.6rem 0.9rem;
+    font-weight: 600;
+  }
+
+  .stats-table td {
+    padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .stats-table tbody tr:nth-child(even) {
+    background: var(--color-bg-subtle);
+  }
+
+  .quelle {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+  }
+
+  .icon-list {
+    margin-block: var(--space-2);
+  }
+
+  .quote-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 600;
+    color: var(--color-white);
+    max-width: none;
+  }
+
+  .spacer-top {
+    margin-top: var(--space-6);
+  }
+
+  .spacer-top-sm {
+    margin-top: var(--space-3);
+  }
+</style>
