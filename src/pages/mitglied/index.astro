@@ -2,6 +2,8 @@
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
 import kontakt from '../../data/kontakt.json';
+import { Image } from 'astro:assets';
+import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
 
 const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmail2}?subject=Anmeldung%20oder%20Anfrage%20f%C3%BCr%20Mitgliedschaft&body=Vielen%20Dank%2C%20dass%20ihr%20mit%20mir%20Kontakt%20aufnehmt.%20%0A%0AMein%20Name%20ist%3A%20%0AAnzahl%20Betten%3A%20`;
 ---
@@ -26,7 +28,7 @@ const anmeldungHref = `mailto:${kontakt.anmeldungEmail1},${kontakt.anmeldungEmai
   <!-- Anmeldung -->
   <section class="section section--subtle">
     <div class="container grid-2">
-      <img src="/images/meeting-mitglied.jpg" alt="" />
+      <Image src={sujet7} alt="" width={1024} height={959} />
       <div class="anmeldung">
         <h2 class="text-center">Mitglied werden</h2>
         <a href={anmeldungHref} class="btn btn-accent center-btn">Jetzt anfragen</a>

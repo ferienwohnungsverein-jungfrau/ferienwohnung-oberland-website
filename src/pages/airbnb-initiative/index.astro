@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
+import { Image } from 'astro:assets';
+import sujet5 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-5.jpg';
+import sujet6 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-6.jpg';
 ---
 
 <Layout
@@ -31,14 +34,14 @@ import Icon from '../../components/Icon.astro';
         <p>Dass Reinigungspersonal und die Gästebetreuer:innen 9 Monate pro Jahr <strong>ihre Arbeit verlieren</strong>, ist den Arbeiterparteien SP und JUSO offenbar egal.</p>
         <p><strong>Betroffen sind über 350 Teilzeit-Arbeitsplätze</strong> für Reinigungspersonal und Gästebetreuer:innen.</p>
       </div>
-      <img src="/images/frustrierte-frau.jpg" alt="" />
+      <Image src={sujet5} alt="" width={1024} height={683} />
     </div>
   </section>
 
   <!-- Zahlen und Fakten -->
   <section class="section section--white" id="zahlenundfakten">
     <div class="container grid-2">
-      <img src="/images/taschenrechner.jpg" alt="" />
+      <Image src={sujet6} alt="" width={683} height={1024} />
       <div>
         <h2>Zahlen und Fakten</h2>
         <p>Wohnungen in Interlaken, Unterseen, Matten, Wilderswil, Bönigen gesamthaft:</p>

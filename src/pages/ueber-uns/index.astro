@@ -2,6 +2,9 @@
 import Layout from '../../layouts/Layout.astro';
 import BoardAccordion from '../../components/BoardAccordion.astro';
 import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+import { Image } from 'astro:assets';
+import sujet3 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-3.jpg';
+import sujet4 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jpg';
 ---
 
 <Layout
@@ -27,7 +30,7 @@ import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
         <h2>Unser Vorstand</h2>
         <BoardAccordion />
       </div>
-      <img src="/images/vorstand-haende.jpg" alt="" />
+      <Image src={sujet3} alt="" width={500} />
     </div>
   </section>
 
@@ -41,7 +44,7 @@ import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
         <p>An den Bewertungen der Gäste sieht man, dass es auch für Gastgeber:innen eine schöne Erfahrung ist, mit anderen Menschen Kontakt zu haben.</p>
         <a href="/airbnb-initiative/" class="btn btn-accent">Aktuelle Initiative von SP und JUSO</a>
       </div>
-      <img src="/images/harder-kulm.jpg" alt="" />
+      <Image src={sujet4} alt="" width={1024} height={739} />
     </div>
   </section>
 

@@ -1,6 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
+import { Image } from 'astro:assets';
+import sujet1 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-1.jpg';
+import sujet2 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-2.jpg';
 ---
 
 <Layout title="Für unsere Region - Ferienwohnungsbetreibende Berner Oberland">
@@ -42,7 +45,7 @@ import Icon from '../components/Icon.astro';
   <!-- Warum wir vermieten -->
   <section class="section section--white">
     <div class="container grid-2">
-      <img src="/images/hero-region.jpg" alt="" width="1024" height="768" />
+      <Image src={sujet1} alt="" width={1024} height={768} />
       <div>
         <h2>Warum wir vermieten</h2>
         <p>Die Gründe sind vielfältig: Einige von uns bieten Ferienwohnungen im eigenen Haus an. Andere vermieten einzelne Wohnungen. Allen gemeinsam ist: Wir tun dies mit Engagement – und mit Verantwortung gegenüber unseren Gästen und unserer Region.</p>
@@ -92,7 +95,7 @@ import Icon from '../components/Icon.astro';
         </ul>
         <a href="/airbnb-initiative/" class="btn btn-accent">Aktuelle Initiative von SP und JUSO</a>
       </div>
-      <img src="/images/interlaken-see.jpg" alt="" width="1024" height="569" />
+      <Image src={sujet2} alt="" width={1024} height={569} />
     </div>
   </section>
 

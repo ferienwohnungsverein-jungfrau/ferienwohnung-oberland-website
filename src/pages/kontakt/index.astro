@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import kontakt from '../../data/kontakt.json';
+import { Image } from 'astro:assets';
+import sujet4 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jpg';
 ---
 
 <Layout
@@ -23,7 +25,7 @@ import kontakt from '../../data/kontakt.json';
         <h2>Vereinstelefon</h2>
         <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
       </div>
-      <img src="/images/harder-kulm.jpg" alt="" />
+      <Image src={sujet4} alt="" width={1024} height={739} />
     </div>
   </section>
 </Layout>
