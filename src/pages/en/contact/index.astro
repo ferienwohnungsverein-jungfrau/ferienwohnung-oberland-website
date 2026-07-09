@@ -23,6 +23,7 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
     <div class="container grid-2">
       <div class="kontakt-col">
         <h2>Press Inquiries</h2>
+        <p class="kontakt-person">Contact: <strong>Franz Hefti</strong>, Media &amp; Communications</p>
         <a href={`mailto:${kontakt.presseEmail}`} class="btn btn-accent center-btn">Email</a>
         <h2>Association Phone</h2>
         <a href={`tel:${kontakt.vereinsTelefonLink}`} class="btn btn-accent center-btn">{kontakt.vereinsTelefon}</a>
@@ -30,6 +31,19 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
         <a href="/en/membership/#signup" class="btn btn-accent center-btn">Go to Form</a>
       </div>
       <Image src={sujet4} alt="" width={1024} height={739} />
+    </div>
+  </section>
+
+  <!-- Further links: resolves the dead end for media/decision-makers -->
+  <section class="section section--white">
+    <div class="container weiter">
+      <h2>More Background</h2>
+      <div class="weiter-links">
+        <a href="/en/our-proposal/">Our proposal on short-term rentals →</a>
+        <a href="/en/for-municipalities-media/">For Municipalities &amp; Media →</a>
+        <a href="/en/sources/">Sources →</a>
+        <a href="/en/about-us/">Who we are →</a>
+      </div>
     </div>
   </section>
 </Layout>
@@ -49,5 +63,24 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
 
   .center-btn {
     margin-inline: auto;
+  }
+
+  .kontakt-person {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .weiter { text-align: center; }
+
+  .weiter-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    align-items: center;
+  }
+
+  .weiter-links a {
+    font-weight: 600;
   }
 </style>

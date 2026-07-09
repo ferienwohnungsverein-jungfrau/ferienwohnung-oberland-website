@@ -58,7 +58,7 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
   <section class="section section--white" id="signup">
     <div class="container anmeldung">
       <h2 class="text-center">Register Your Interest</h2>
-      <p class="text-center">Register your interest without obligation – we will get back to you personally. Alternatively, you can reach us by phone at <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
+      <p class="text-center">Register your interest without obligation. You'll first receive a confirmation email – only after clicking the link inside will your registration reach us. We'll then get back to you personally. Alternatively, you can reach us by phone at <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
 
       <!-- Success message (shown after submission) -->
       <div id="form-success" class="form-success" style="display:none">
@@ -84,18 +84,18 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
           </div>
 
           <div class="form-group">
-            <label for="betten">Number of Beds *</label>
-            <input type="number" id="betten" name="betten" min="1" step="1" required placeholder="e.g. 4" />
-          </div>
-
-          <div class="form-group">
             <label for="email">Email *</label>
             <input type="email" id="email" name="email" required placeholder="you@email.ch" />
           </div>
 
           <div class="form-group">
-            <label for="telefon">Phone Number *</label>
-            <input type="tel" id="telefon" name="telefon" required placeholder="079 000 00 00" />
+            <label for="telefon">Phone Number <span class="optional">(optional)</span></label>
+            <input type="tel" id="telefon" name="telefon" placeholder="079 000 00 00" />
+          </div>
+
+          <div class="form-group">
+            <label for="betten">Number of Guest Beds *</label>
+            <input type="number" id="betten" name="betten" min="1" step="1" required placeholder="e.g. 4" />
           </div>
 
           <div class="form-check">
@@ -180,9 +180,16 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
     width: 100%;
   }
 
-  .form-group input:focus {
+  .form-group input:focus-visible {
     outline: none;
     border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 77, 122, 0.2);
+  }
+
+  .optional {
+    font-weight: 400;
+    color: var(--color-text);
+    opacity: 0.7;
   }
 
   .form-check {

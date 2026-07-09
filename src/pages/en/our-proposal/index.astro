@@ -3,7 +3,6 @@ import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
 import { Image } from 'astro:assets';
 import sujet1 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-1.jpg';
-import sujet6 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-6.jpg';
 
 const faqSchema = {
   '@context': 'https://schema.org',
@@ -44,6 +43,25 @@ const faqSchema = {
     </div>
   </section>
 
+  <!-- Jump navigation for the long page -->
+  <nav class="jump-nav" aria-label="On this page">
+    <div class="container jump-nav__inner">
+      <a href="#starting-point">Starting Point</a>
+      <a href="#wilderswil">Wilderswil Model</a>
+      <a href="#facts">Facts &amp; Figures</a>
+      <a href="#arguments">FAQ</a>
+    </div>
+  </nav>
+
+  <!-- Starting point: acknowledge the problem first, then show the solution -->
+  <section class="section section--subtle" id="starting-point">
+    <div class="container">
+      <p class="eyebrow">The Starting Point</p>
+      <h2>We Take the Pressure on Housing Seriously</h2>
+      <p class="lead-intro">Affordable housing is getting scarce – anyone who lives and works here feels it. We don't dispute that. At the same time, our region depends on tourism, and holiday apartments are part of that fabric. For us, the question is therefore not <em>whether</em> to regulate, but <em>how</em> – in a way that genuinely protects housing without needlessly damaging structures that work.</p>
+    </div>
+  </section>
+
   <!-- Wilderswil model -->
   <section class="section section--white" id="wilderswil">
     <div class="container grid-2">
@@ -57,7 +75,7 @@ const faqSchema = {
         </ul>
         <p><strong>Our proposal:</strong> we advocate that the remaining Bödeli municipalities examine a model along these lines.</p>
       </div>
-      <Image src={sujet1} alt="" width={1024} height={768} />
+      <Image src={sujet1} alt="Homes and holiday apartments in a village in the Bernese Oberland against a mountain backdrop" width={1024} height={768} />
     </div>
   </section>
 
@@ -81,8 +99,7 @@ const faqSchema = {
 
   <!-- Facts and figures -->
   <section class="section section--white" id="facts">
-    <div class="container grid-2">
-      <Image src={sujet6} alt="" width={683} height={1024} />
+    <div class="container zahlen-col">
       <div>
         <h2>Facts and Figures</h2>
         <p>Housing units in Interlaken, Unterseen, Matten, Wilderswil, and Bönigen combined:</p>
@@ -163,7 +180,7 @@ const faqSchema = {
 
       <div class="closing-cta">
         <h2>We Don't Want to Be Blockers.</h2>
-        <p>Switzerland has a real housing shortage – we don't dispute that. At the same time, our region depends on tourism. We want to show that there is a way to protect housing <strong>and</strong> keep our region a vibrant host to visitors. Wilderswil showed the way. We're ready to help build it.</p>
+        <p>Wilderswil has shown that a broadly supported path is possible – one that protects housing <strong>and</strong> keeps our region a vibrant host to visitors. We're ready to walk that path: municipality by municipality, factually and with hands-on experience.</p>
         <div class="hero__actions">
           <a href="/en/about-us/" class="btn btn-accent">About Us</a>
           <a href="/en/for-municipalities-media/" class="btn btn-accent">For Municipalities &amp; Media</a>
@@ -221,9 +238,10 @@ const faqSchema = {
 
   .faq-card {
     background: var(--color-white);
+    border: var(--card-border);
     border-radius: var(--radius-md);
     padding: var(--space-3);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-card);
   }
 
   .faq-card .quote-heading {
@@ -299,5 +317,50 @@ const faqSchema = {
 
   .spacer-top-sm {
     margin-top: var(--space-3);
+  }
+
+  /* Jump navigation */
+  .jump-nav {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .jump-nav__inner {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding-block: 0.85rem;
+    scrollbar-width: none;
+  }
+
+  .jump-nav__inner::-webkit-scrollbar { display: none; }
+
+  .jump-nav a {
+    white-space: nowrap;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .eyebrow {
+    margin-bottom: 0.35rem;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .lead-intro {
+    font-size: var(--text-lg);
+    max-width: 70ch;
+  }
+
+  /* Facts and figures – single column, table as focal point (image removed) */
+  .zahlen-col {
+    max-width: 760px;
   }
 </style>

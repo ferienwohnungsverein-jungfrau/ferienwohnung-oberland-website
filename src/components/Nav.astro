@@ -99,7 +99,7 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
   .nav__links {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
 
   .nav__link {
@@ -185,7 +185,9 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
     font-weight: 600;
   }
 
-  @media (max-width: 700px) {
+  /* Hamburger greift, bevor die volle Nav (Wortmarke + lange Labels) überläuft –
+     so ist das Menü bei jeder Breite und auf jeder Seite konsistent (DE wie EN). */
+  @media (max-width: 1080px) {
     .nav__links { display: none; }
     .nav__toggle { display: flex; }
   }

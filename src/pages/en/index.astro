@@ -18,7 +18,7 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
   <section class="section hero--statement" style={`background-image: url(${heroBg.src})`}>
     <div class="container">
       <h1>Ferienwohnungsverein Jungfrau</h1>
-      <p class="hero__subline">We create guest experiences, jobs, and quality of life – for our region in the Bernese Oberland.</p>
+      <p class="hero__subline">An association of holiday apartment hosts in the Bernese Oberland. We foster professional exchange among ourselves – and contribute constructively to the debate on fair rules for short-term rentals.</p>
     </div>
   </section>
 
@@ -49,6 +49,35 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
         <p>The reasons vary: some of us offer holiday apartments in our own home. Others rent out separate units. What we share: we do this with commitment – and with responsibility towards our guests and our region.</p>
         <a href="/en/about-us/" class="btn btn-accent">More about us</a>
       </div>
+    </div>
+  </section>
+
+  <!-- Position / Persona B: keeps the debate path present while scrolling -->
+  <section class="section section--white">
+    <div class="container">
+      <div class="position-band">
+        <div>
+          <p class="eyebrow">Our Position</p>
+          <h2>At the Heart of the Debate on Fair Rules</h2>
+          <p>Five Bödeli municipalities are deciding on the future of short-term rentals. We acknowledge the pressure on housing – and show, with the proven Wilderswil model, that protecting housing and a vibrant tourism sector can go hand in hand.</p>
+          <div class="position-actions">
+            <a href="/en/our-proposal/" class="btn btn-accent">Our Proposal</a>
+            <a href="/en/for-municipalities-media/" class="text-link-strong">For Municipalities &amp; Media →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Member voice -->
+  <section class="section section--subtle">
+    <div class="container">
+      <figure class="testimonial">
+        <blockquote>
+          “For over a year I've been a member of the Ferienwohnungsverein Jungfrau. The connections enrich me greatly. I'm glad that, as a member, I can actively help shape how the para-hotel sector is perceived.”
+        </blockquote>
+        <figcaption>Stefan Sterchi · <a href="https://surfershome.ch" target="_blank" rel="noopener">surfershome.ch</a></figcaption>
+      </figure>
     </div>
   </section>
 
@@ -110,5 +139,55 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
 
   @media (max-width: 700px) {
     .paths { grid-template-columns: 1fr; }
+  }
+
+  /* Position / Persona-B band */
+  .eyebrow {
+    margin-bottom: 0.35rem;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .position-band h2 { margin-bottom: var(--space-2); }
+  .position-band p { margin-bottom: var(--space-3); max-width: 68ch; }
+
+  .position-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .text-link-strong {
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  /* Member voice */
+  .testimonial {
+    max-width: 60ch;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .testimonial blockquote {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+    line-height: 1.4;
+    color: var(--color-heading);
+  }
+
+  .testimonial figcaption {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+
+  .testimonial figcaption a {
+    font-weight: 600;
   }
 </style>
