@@ -12,61 +12,212 @@ import Icon from '../../components/Icon.astro';
   <section class="section page-hero hero--intro">
     <div class="container">
       <h1>Für Gemeinden &amp; Medien</h1>
-      <p>Wir bestreiten das Wohnraumproblem nicht – aber wir zeigen, dass es bessere Wege gibt als eine starre 90-Tage-Regel.</p>
+      <p>Wohnraum schützen, Tourismus erhalten und Regeln so gestalten, dass sie vor Ort wirklich funktionieren: Dafür bringen wir Fakten, Praxiserfahrung und Gesprächsbereitschaft in die Debatte ein.</p>
     </div>
   </section>
 
-  <!-- Factsheet -->
+  <!-- Einordnung -->
   <section class="section section--white">
     <div class="container">
-      <h2>Factsheet in Kürze</h2>
-      <ul class="icon-list">
-        <li><Icon name="check-square" size={24} /><span><strong>Fünf Bödeli-Gemeinden, fünf Lösungswege</strong> – keine einheitliche "Verbotswelle", sondern unterschiedliche, teils bereits erprobte Ansätze.</span></li>
-        <li><Icon name="check-square" size={24} /><span><strong>Das Wilderswil-Modell funktioniert bereits:</strong> 70% Erstwohnungsanteil + 5-Nächte-Mindestdauer, mit 83,5% angenommen. Die SP hat ihre eigene Initiative daraufhin zurückgezogen.</span></li>
-        <li><Icon name="check-square" size={24} /><span><strong>Verbote allein lösen die Wohnungsnot nicht zuverlässig:</strong> New Yorks fast vollständiges Airbnb-Verbot hat weder Mieten gesenkt noch den Leerstand erhöht.</span></li>
-        <li><Icon name="check-square" size={24} /><span><strong>Vollzug ist entscheidend:</strong> Selbst die mit 81% angenommene Regel der Stadt Bern ist bis heute nicht in Kraft; in Genf verstösst laut einer Analyse fast die Hälfte der Anbietenden gegen die geltende 90-Tage-Regel.</span></li>
-        <li><Icon name="check-square" size={24} /><span><strong>Der Bund bewegt sich:</strong> SECO/SEM bereiten eine landesweit einheitliche Melderegelung vor (Stand Januar 2025) – wir unterstützen diese Entwicklung.</span></li>
-      </ul>
-      <p class="spacer-top">Alle Zahlen und Quellen im Detail: <a href="/quellen/">Quellenverzeichnis</a> und <a href="/unser-vorschlag/">Unser Vorschlag</a>.</p>
+      <div class="intro-grid">
+        <div>
+          <p class="eyebrow">Unsere Haltung</p>
+          <h2>Eine gute Regel muss mehr leisten als ein starkes Signal.</h2>
+          <p>Die Wohnraumfrage im Bödeli ist real. Wer hier lebt, arbeitet oder eine Familie gründet, soll bezahlbaren Wohnraum finden können. Gleichzeitig sind Ferienwohnungen Teil der lokalen Tourismusstruktur: Sie bringen Gäste in Restaurants, Läden, Bergbahnen und Freizeitangebote und sie sichern Einkommen für viele private Eigentümer:innen.</p>
+          <p>Deshalb geht es aus unserer Sicht nicht um ein Entweder-oder. Entscheidend ist, ob eine Regel Wohnraum tatsächlich schützt, rechtlich tragfähig ist, kontrolliert werden kann und die regionalen Unterschiede respektiert. Genau dort möchten wir konstruktiv mitarbeiten.</p>
+        </div>
+        <aside class="summary-panel" aria-label="Kurzfassung">
+          <p class="summary-panel__label">Kurz gesagt</p>
+          <p>Wir unterstützen wirksame Regeln gegen Wohnraumdruck. Wir lehnen aber starre Verbote ab, wenn mildere, überprüfbare und bereits erprobte Lösungen denselben Zweck besser erreichen.</p>
+          <a href="/unser-vorschlag/" class="text-link">Unser Vorschlag im Detail</a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Argumente -->
+  <section class="section section--subtle">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">Factsheet</p>
+        <h2>Fünf Punkte für eine nüchterne Debatte</h2>
+        <p>Die Abstimmungen und Beispiele der letzten Monate zeigen vor allem eines: Die Frage ist nicht, ob Gemeinden handeln dürfen. Die Frage ist, welches Instrument vor Ort am meisten Wirkung entfaltet.</p>
+      </div>
+
+      <div class="argument-grid">
+        <article class="argument-card">
+          <Icon name="dot-circle" size={28} />
+          <h3>Die Ausgangslage ist nicht überall gleich.</h3>
+          <p>Fünf Bödeli-Gemeinden diskutieren fünf unterschiedliche Lösungswege. Das spricht gegen eine pauschale "Verbotswelle" und für Modelle, die Gemeindegrösse, Wohnungsstruktur, Tourismusintensität und Vollzugsmöglichkeiten ernst nehmen.</p>
+        </article>
+
+        <article class="argument-card">
+          <Icon name="check-square" size={28} />
+          <h3>Wilderswil zeigt einen pragmatischen Weg.</h3>
+          <p>Das Wilderswil-Modell kombiniert einen 70% Erstwohnungsanteil mit einer 5-Nächte-Mindestdauer. Es wurde mit 83,5% angenommen; die SP zog ihre eigene Initiative danach zurück. Das ist ein starkes Zeichen für eine breit akzeptierte, verhältnismässige Lösung.</p>
+        </article>
+
+        <article class="argument-card">
+          <Icon name="exclamation-triangle" size={28} />
+          <h3>Verbote sind kein Garant gegen Wohnungsnot.</h3>
+          <p>Internationale Beispiele mahnen zur Vorsicht. New Yorks weitgehendes Airbnb-Verbot hat weder die Mieten gesenkt noch den Leerstand erhöht. Wer Wohnraum schützen will, braucht mehr als eine einfache Obergrenze auf dem Papier.</p>
+        </article>
+
+        <article class="argument-card">
+          <Icon name="cogs" size={28} />
+          <h3>Der Vollzug entscheidet über die Wirkung.</h3>
+          <p>Selbst eine klare Regel nützt wenig, wenn sie nicht umgesetzt werden kann. In der Stadt Bern ist die mit 81% angenommene Regel bis heute nicht in Kraft; in Genf verstösst laut einer Analyse fast die Hälfte der Anbietenden gegen die geltende 90-Tage-Regel.</p>
+        </article>
+
+        <article class="argument-card argument-card--wide">
+          <Icon name="puzzle-piece" size={28} />
+          <h3>Einheitliche Grundlagen helfen allen.</h3>
+          <p>SECO und SEM bereiten eine landesweit einheitliche Melderegelung vor (Stand Januar 2025). Wir unterstützen diese Entwicklung, weil bessere Daten und einheitliche Verfahren Gemeinden mehr bringen als ein Flickenteppich kaum vergleichbarer Einzelregeln.</p>
+        </article>
+      </div>
+
+      <p class="source-note">Alle Zahlen und Quellen im Detail: <a href="/quellen/">Quellenverzeichnis</a> und <a href="/unser-vorschlag/">Unser Vorschlag</a>.</p>
     </div>
   </section>
 
   <!-- Gesprächsangebot -->
-  <section class="section section--subtle">
-    <div class="container text-center">
-      <h2>Was wir anbieten</h2>
-      <p class="lead">Aktive Mitarbeit in Workshops, um ein für Ihre Gemeinde realistisches Modell auszuarbeiten – nicht Verhinderung, sondern Mitgestaltung.</p>
-      <a href="/kontakt/" class="btn btn-accent">Kontakt</a>
+  <section class="section section--white">
+    <div class="container">
+      <div class="offer-band">
+        <div>
+          <p class="eyebrow">Gesprächsangebot</p>
+          <h2>Wir möchten nicht blockieren, sondern mitgestalten.</h2>
+          <p>Gemeinden stehen unter Druck, rasch sichtbare Antworten zu geben. Wir bringen die Perspektive der Vermietungspraxis ein: Welche Regeln sind kontrollierbar? Wo entstehen unbeabsichtigte Nebenwirkungen? Und wie lässt sich Wohnraum schützen, ohne funktionierende touristische Strukturen unnötig zu schwächen?</p>
+          <p>Gerne arbeiten wir in Workshops, Anhörungen oder Hintergrundgesprächen mit und helfen, ein Modell auszuarbeiten, das zur jeweiligen Gemeinde passt.</p>
+        </div>
+        <div class="offer-actions">
+          <a href="/kontakt/" class="btn btn-accent">Kontakt aufnehmen</a>
+          <a href="/quellen/" class="text-link">Quellen ansehen</a>
+        </div>
+      </div>
     </div>
   </section>
 </Layout>
 
 <style>
-  .icon-list {
-    margin-block: var(--space-3);
+  .intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.8fr);
+    gap: var(--space-6);
+    align-items: start;
   }
 
-  .icon-list li {
-    margin-bottom: var(--space-2);
+  .eyebrow {
+    margin-bottom: 0.35rem;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
   }
 
-  .lead {
-    max-width: 65ch;
-    margin-inline: auto;
-    margin-bottom: var(--space-3);
-    font-size: var(--text-lg);
+  .summary-panel,
+  .offer-band,
+  .argument-card {
+    border: 1px solid rgba(0, 77, 122, 0.14);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
   }
 
-  .center-btn {
-    margin-inline: auto;
+  .summary-panel {
+    padding: var(--space-4);
+    border-top: 4px solid var(--color-accent);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
   }
 
-  .spacer-top {
-    margin-top: var(--space-3);
+  .summary-panel p {
+    max-width: none;
   }
 
-  .spacer-top-sm {
+  .summary-panel__label {
+    margin-bottom: var(--space-1);
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+
+  .text-link {
+    display: inline-flex;
+    width: fit-content;
     margin-top: var(--space-2);
+    font-weight: 600;
+  }
+
+  .section-heading {
+    margin-bottom: var(--space-3);
+    max-width: 760px;
+  }
+
+  .section-heading p:last-child {
+    max-width: 70ch;
+  }
+
+  .argument-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .argument-card {
+    padding: var(--space-3);
+  }
+
+  .argument-card svg {
+    color: var(--color-primary);
     margin-bottom: var(--space-2);
+  }
+
+  .argument-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .argument-card p {
+    max-width: none;
+  }
+
+  .argument-card--wide {
+    grid-column: 1 / -1;
+  }
+
+  .argument-card--wide p {
+    max-width: 82ch;
+  }
+
+  .source-note {
+    margin-top: var(--space-4);
+  }
+
+  .offer-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-4);
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-subtle) 100%);
+  }
+
+  .offer-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  @media (max-width: 860px) {
+    .intro-grid,
+    .argument-grid,
+    .offer-band {
+      grid-template-columns: 1fr;
+    }
+
+    .offer-actions {
+      width: 100%;
+    }
   }
 </style>
