@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -42,5 +46,6 @@ jobs:
 
       - name: Deploy-Hook auf Hosttech auslösen
         run: |
-          curl -skf --resolve ferienwohnungsverein-jungfrau.ch:443:${{ secrets.DEPLOY_HOST_IP }} \
+          sleep 5
+          curl -skS --fail-with-body --retry 5 --retry-delay 5 --retry-all-errors --resolve ferienwohnungsverein-jungfrau.ch:443:${{ secrets.DEPLOY_HOST_IP }} \
             "https://ferienwohnungsverein-jungfrau.ch/deploy-hook.php?token=${{ secrets.DEPLOY_TOKEN }}"
