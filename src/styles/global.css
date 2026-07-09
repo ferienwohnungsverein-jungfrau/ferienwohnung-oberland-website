@@ -47,6 +47,11 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-full: 9999px;
+
+  /* Elevation (einheitliches Karten-System) */
+  --shadow-card: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-card-hover: 0 16px 36px rgba(15, 23, 42, 0.12);
+  --card-border: 1px solid rgba(0, 77, 122, 0.14);
 }
 
 /* ── Reset ── */
@@ -60,6 +65,18 @@ html {
   font-size: 16px;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Sicherheitsnetz gegen horizontales Scrollen (v.a. lange Kompositum-Wörter auf Mobile) */
+body {
+  overflow-x: hidden;
+}
+
+/* Sichtbarer Fokus-Ring für alle interaktiven Elemente (WCAG 2.4.7) */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 body {
@@ -169,6 +186,8 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.25;
   color: var(--color-heading);
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 h1 { font-size: clamp(2rem, 4.5vw, 3rem); margin-bottom: var(--space-2); }
@@ -209,14 +228,24 @@ p { max-width: 65ch; }
   white-space: nowrap;
 }
 
+/* Dunkler Text auf Orange: weiss ergab nur 2.06:1 (WCAG-Fail),
+   #1e293b auf #F4A261 = 7.1:1 (AA + AAA). Orange-Markenfarbe bleibt erhalten. */
 .btn-accent {
   background: var(--color-accent);
-  color: var(--color-white);
+  color: var(--color-heading);
 }
 
 .btn-accent:hover {
   background: var(--color-accent-dark);
-  color: var(--color-white);
+  color: var(--color-heading);
+}
+
+/* ── Karten-System (einheitlich) ── */
+.card {
+  background: var(--color-white);
+  border: var(--card-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
 }
 
 /* ── Icon-Liste ── */

@@ -3,7 +3,6 @@ import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
 import { Image } from 'astro:assets';
 import sujet1 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-1.jpg';
-import sujet6 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-6.jpg';
 
 const faqSchema = {
   '@context': 'https://schema.org',
@@ -44,6 +43,25 @@ const faqSchema = {
     </div>
   </section>
 
+  <!-- Sprungnavigation für die lange Seite -->
+  <nav class="jump-nav" aria-label="Auf dieser Seite">
+    <div class="container jump-nav__inner">
+      <a href="#ausgangspunkt">Ausgangspunkt</a>
+      <a href="#wilderswil">Wilderswil-Modell</a>
+      <a href="#zahlenundfakten">Zahlen &amp; Fakten</a>
+      <a href="#unsereargumente">Häufige Fragen</a>
+    </div>
+  </nav>
+
+  <!-- Ausgangspunkt: Problem zuerst anerkennen, dann die Lösung zeigen -->
+  <section class="section section--subtle" id="ausgangspunkt">
+    <div class="container">
+      <p class="eyebrow">Der Ausgangspunkt</p>
+      <h2>Wir nehmen den Wohnraumdruck ernst</h2>
+      <p class="lead-intro">Bezahlbarer Wohnraum wird knapp – wer hier lebt und arbeitet, spürt das. Wir stellen das nicht in Abrede. Gleichzeitig lebt unsere Region vom Tourismus, und Ferienwohnungen sind Teil dieser Struktur. Für uns ist die Frage darum nicht <em>ob</em> reguliert wird, sondern <em>wie</em> – so, dass Wohnraum wirklich geschützt wird, ohne funktionierende Strukturen unnötig zu beschädigen.</p>
+    </div>
+  </section>
+
   <!-- Wilderswil-Modell -->
   <section class="section section--white" id="wilderswil">
     <div class="container grid-2">
@@ -57,7 +75,7 @@ const faqSchema = {
         </ul>
         <p><strong>Unser Vorschlag:</strong> Wir setzen uns dafür ein, dass auch die übrigen Bödeli-Gemeinden ein Modell nach diesem Vorbild prüfen.</p>
       </div>
-      <Image src={sujet1} alt="" width={1024} height={768} />
+      <Image src={sujet1} alt="Wohnhäuser und Ferienwohnungen in einem Dorf im Berner Oberland vor Bergkulisse" width={1024} height={768} />
     </div>
   </section>
 
@@ -81,8 +99,7 @@ const faqSchema = {
 
   <!-- Zahlen und Fakten -->
   <section class="section section--white" id="zahlenundfakten">
-    <div class="container grid-2">
-      <Image src={sujet6} alt="" width={683} height={1024} />
+    <div class="container zahlen-col">
       <div>
         <h2>Zahlen und Fakten</h2>
         <p>Wohnungen in Interlaken, Unterseen, Matten, Wilderswil, Bönigen gesamthaft:</p>
@@ -163,7 +180,7 @@ const faqSchema = {
 
       <div class="closing-cta">
         <h2>Wir wollen keine Blockierer sein.</h2>
-        <p>Es herrscht Wohnungsnot in der Schweiz – das ist real, und wir stellen das nicht in Abrede. Gleichzeitig lebt unsere Region vom Tourismus. Wir wollen zeigen, dass es einen Weg gibt, der Wohnraum schützt <strong>und</strong> unsere Region als Gastgeberin lebendig hält. Wilderswil hat es vorgemacht. Wir sind bereit, mitzuarbeiten.</p>
+        <p>Wilderswil hat gezeigt, dass ein breit getragener Weg möglich ist – einer, der Wohnraum schützt <strong>und</strong> unsere Region als Gastgeberin lebendig hält. Wir sind bereit, diesen Weg mitzugehen: Gemeinde für Gemeinde, sachlich und mit Praxiswissen.</p>
         <div class="hero__actions">
           <a href="/ueber-uns/" class="btn btn-accent">Über uns</a>
           <a href="/fuer-gemeinden-medien/" class="btn btn-accent">Für Gemeinden &amp; Medien</a>
@@ -222,9 +239,10 @@ const faqSchema = {
 
   .faq-card {
     background: var(--color-white);
+    border: var(--card-border);
     border-radius: var(--radius-md);
     padding: var(--space-3);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-card);
   }
 
   .faq-card .quote-heading {
@@ -300,5 +318,50 @@ const faqSchema = {
 
   .spacer-top-sm {
     margin-top: var(--space-3);
+  }
+
+  /* Sprungnavigation */
+  .jump-nav {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .jump-nav__inner {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding-block: 0.85rem;
+    scrollbar-width: none;
+  }
+
+  .jump-nav__inner::-webkit-scrollbar { display: none; }
+
+  .jump-nav a {
+    white-space: nowrap;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .eyebrow {
+    margin-bottom: 0.35rem;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .lead-intro {
+    font-size: var(--text-lg);
+    max-width: 70ch;
+  }
+
+  /* Zahlen und Fakten – einspaltig, Tabelle als Blickfang (Bild entfernt) */
+  .zahlen-col {
+    max-width: 760px;
   }
 </style>

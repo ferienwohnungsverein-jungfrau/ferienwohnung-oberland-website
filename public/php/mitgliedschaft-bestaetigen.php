@@ -113,13 +113,14 @@ $nameSafe = str_replace(["\r", "\n"], '', (string) $payload['name']);
 $bettenSafe = str_replace(["\r", "\n"], '', (string) $payload['betten']);
 $emailSafe = str_replace(["\r", "\n"], '', (string) $payload['email']);
 $telefonSafe = str_replace(["\r", "\n"], '', (string) $payload['telefon']);
+$telefonAnzeige = $telefonSafe !== '' ? $telefonSafe : '(nicht angegeben)';
 
 $leadSubject = 'Neue Mitglied-Anmeldung – ' . $nameSafe;
 $leadBody = "Neue bestätigte Anmeldung über das Formular \"Mitglied werden\":\n\n"
     . "Name: {$nameSafe}\n"
-    . "Anzahl Betten: {$bettenSafe}\n"
+    . "Anzahl Gästebetten: {$bettenSafe}\n"
     . "E-Mail: {$emailSafe}\n"
-    . "Telefon: {$telefonSafe}\n"
+    . "Telefon: {$telefonAnzeige}\n"
     . "Sprache: " . strtoupper($locale) . "\n"
     . "Bestätigt am: " . date('Y-m-d H:i:s') . "\n"
     . "Quelle: " . ($locale === 'en' ? '/en/membership/' : '/mitgliedschaft/') . "\n";

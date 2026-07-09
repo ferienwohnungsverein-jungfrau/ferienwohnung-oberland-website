@@ -48,7 +48,7 @@ import Icon from '../../components/Icon.astro';
         <article class="argument-card">
           <Icon name="dot-circle" size={28} />
           <h3>Die Ausgangslage ist nicht überall gleich.</h3>
-          <p>Fünf Bödeli-Gemeinden diskutieren fünf unterschiedliche Lösungswege. Das spricht gegen eine pauschale "Verbotswelle" und für Modelle, die Gemeindegrösse, Wohnungsstruktur, Tourismusintensität und Vollzugsmöglichkeiten ernst nehmen.</p>
+          <p>Die fünf Bödeli-Gemeinden Interlaken, Unterseen, Matten, Wilderswil und Bönigen diskutieren fünf unterschiedliche Lösungswege. Das spricht gegen eine pauschale "Verbotswelle" und für Modelle, die Gemeindegrösse, Wohnungsstruktur, Tourismusintensität und Vollzugsmöglichkeiten ernst nehmen.</p>
         </article>
 
         <article class="argument-card">
@@ -91,6 +91,7 @@ import Icon from '../../components/Icon.astro';
           <p>Gerne arbeiten wir in Workshops, Anhörungen oder Hintergrundgesprächen mit und helfen, ein Modell auszuarbeiten, das zur jeweiligen Gemeinde passt.</p>
         </div>
         <div class="offer-actions">
+          <p class="offer-contact">Ihre Ansprechperson für Medien:<br /><strong>Franz Hefti</strong> · Medien &amp; Kommunikation</p>
           <a href="/kontakt/" class="btn btn-accent">Kontakt aufnehmen</a>
           <a href="/quellen/" class="text-link">Quellen ansehen</a>
         </div>
@@ -166,6 +167,14 @@ import Icon from '../../components/Icon.astro';
 
   .argument-card {
     padding: var(--space-3);
+    box-shadow: var(--shadow-card);
+  }
+
+  .offer-contact {
+    margin-bottom: var(--space-1);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-text);
   }
 
   .argument-card svg {

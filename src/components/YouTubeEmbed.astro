@@ -6,14 +6,17 @@ interface Props {
 const { id, title } = Astro.props;
 ---
 
-<div class="yt-embed">
-  <iframe
-    src={`https://www.youtube-nocookie.com/embed/${id}`}
-    title={title}
-    loading="lazy"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen
-  ></iframe>
+<div
+  class="yt-embed"
+  data-yt-id={id}
+  data-yt-title={title}
+>
+  <button type="button" class="yt-facade" aria-label={`Video abspielen: ${title}`}>
+    <span class="yt-play" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </span>
+    <span class="yt-facade__label">{title}</span>
+  </button>
 </div>
 
 <style>
@@ -21,12 +24,55 @@ const { id, title } = Astro.props;
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: #000;
     border-radius: var(--radius-sm);
     overflow: hidden;
   }
 
-  .yt-embed iframe {
+  /* Branded Facade statt rohem schwarzem iframe-Block */
+  .yt-facade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-white);
+    transition: filter 0.2s ease;
+  }
+
+  .yt-facade:hover {
+    filter: brightness(1.08);
+  }
+
+  .yt-play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-heading);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    padding-left: 4px;
+  }
+
+  .yt-facade__label {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--text-base);
+    text-align: center;
+    max-width: 30ch;
+  }
+
+  .yt-embed :global(iframe) {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -34,3 +80,21 @@ const { id, title } = Astro.props;
     border: none;
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.yt-embed').forEach((embed) => {
+    const btn = embed.querySelector('.yt-facade');
+    btn?.addEventListener('click', () => {
+      const id = embed.dataset.ytId;
+      const title = embed.dataset.ytTitle ?? '';
+      if (!id) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+      iframe.title = title;
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      embed.replaceChildren(iframe);
+    });
+  });
+</script>

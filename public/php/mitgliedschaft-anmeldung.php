@@ -57,7 +57,8 @@ $messages = [
 ];
 $m = $messages[$locale];
 
-if ($name === '' || $betten === '' || $email === '' || $telefon === '' || $datenschutz === '') {
+// Telefon ist optional (E-Mail genügt für das Double-Opt-in)
+if ($name === '' || $betten === '' || $email === '' || $datenschutz === '') {
     http_response_code(422);
     echo json_encode(['success' => false, 'message' => $m['missing']]);
     exit;
