@@ -1,0 +1,35 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout
+  title="Imprint - Ferienwohnungsverein Jungfrau"
+  description="Legal notice (Impressum) for the Ferienwohnungsverein Jungfrau."
+  langAlt="/impressum/"
+>
+  <script src="https://app.privacybee.io/imprint-widget.js" slot="head"></script>
+
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Imprint</h1>
+      <p>Legal notice for the Ferienwohnungsverein Jungfrau under Swiss law (Art. 3 UWG).</p>
+      <p class="note">Note: the legal notice is only available in German, in line with Swiss legal requirements for this document.</p>
+    </div>
+  </section>
+
+  <!-- Imprint (privacybee.io) -->
+  <section class="section section--white">
+    <div class="container">
+      <imprint-widget website-id="cma57eytp00bv7xndoe78al9p" lang="de"></imprint-widget>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .note {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    font-style: italic;
+  }
+</style>

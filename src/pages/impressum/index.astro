@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  title="Impressum - Ferienwohnungsverein Jungfrau"
+  description="Impressum und rechtliche Angaben zum Ferienwohnungsverein Jungfrau."
+  langAlt="/en/imprint/"
+>
+  <script src="https://app.privacybee.io/imprint-widget.js" slot="head"></script>
+
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Impressum</h1>
+      <p>Rechtliche Angaben zum Ferienwohnungsverein Jungfrau gemäss Art. 3 UWG.</p>
+    </div>
+  </section>
+
+  <!-- Impressum (privacybee.io) -->
+  <section class="section section--white">
+    <div class="container">
+      <imprint-widget website-id="cma57eytp00bv7xndoe78al9p" lang="de"></imprint-widget>
+    </div>
+  </section>
+</Layout>
