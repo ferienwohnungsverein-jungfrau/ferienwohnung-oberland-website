@@ -5,8 +5,7 @@ declare(strict_types=1);
 // mail aufgerufen. Prüft die Signatur, prüft das Alter des Links (max. 48h)
 // und verschickt erst dann die eigentliche Anmeldung an den Verein.
 //
-// TESTPHASE: Zielpostfach ist aktuell office@surfershome.ch statt der
-// echten Vereinsadresse.
+// Zielpostfach für Lead-Benachrichtigungen: it@ferienwohnungsverein-jungfrau.ch
 
 function renderPage(string $title, string $message, bool $success, string $locale = 'de'): void
 {
@@ -131,7 +130,7 @@ $leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jung
     . "Reply-To: {$emailSafe}\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n";
 
-$mailSent = @mail('office@surfershome.ch', $leadSubject, $leadBody, $leadHeaders);
+$mailSent = @mail('it@ferienwohnungsverein-jungfrau.ch', $leadSubject, $leadBody, $leadHeaders);
 
 if (!$mailSent) {
     http_response_code(500);

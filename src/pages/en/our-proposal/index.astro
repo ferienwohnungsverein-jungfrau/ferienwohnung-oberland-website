@@ -93,11 +93,10 @@ const faqSchema = {
           <tbody>
             <tr><td>Housing units total</td><td>12,475</td><td>100%</td></tr>
             <tr><td>Primary residences</td><td>10,270</td><td>82.3%</td></tr>
-            <tr><td>Private holiday apartments</td><td>1,868</td><td>15.0%</td></tr>
-            <tr><td>Short-term rentals (Airbnb etc.)</td><td>337</td><td>2.7%</td></tr>
+            <tr><td>Second homes</td><td>2,205</td><td>17.7%</td></tr>
           </tbody>
         </table>
-        <p class="quelle">Source: <a href="https://www.are.admin.ch/are/de/home/raumentwicklung-und-raumplanung/raumplanungsrecht/zweitwohnungen.html">are.admin.ch</a>, <a href="http://interlaken.ch">interlaken.ch</a></p>
+        <p class="quelle">Source: <a href="https://www.are.admin.ch/de/wohnungsinventar">are.admin.ch (housing inventory)</a></p>
         <ul class="icon-list">
           <li>
             <Icon name="arrow-circle-right-solid" size={30} />
@@ -105,10 +104,9 @@ const faqSchema = {
           </li>
           <li>
             <Icon name="arrow-circle-right-solid" size={30} />
-            <span>Depending on counting method and reference date, other analyses (e.g. raw platform data) arrive at different percentages.</span>
+            <span>Not every second home is rented short-term: official statistics don't distinguish between privately used and short-term-rented holiday apartments.</span>
           </li>
         </ul>
-        <p class="spacer-top-sm">Holiday apartments are also growing in importance as a form of overnight stay in our region – overnight stays in holiday apartments grew by over 10% regionally in 2024, faster than classic hotels. In Grindelwald, overnight stays in second homes (311,600) now exceed those of classic hotels (278,200) – hospitality is the largest employment sector in the municipality, at 37%.</p>
       </div>
     </div>
   </section>
@@ -296,9 +294,5 @@ const faqSchema = {
 
   .spacer-top {
     margin-top: var(--space-6);
-  }
-
-  .spacer-top-sm {
-    margin-top: var(--space-3);
   }
 </style>

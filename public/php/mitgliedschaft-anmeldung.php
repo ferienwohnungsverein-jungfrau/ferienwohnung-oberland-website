@@ -8,9 +8,7 @@ declare(strict_types=1);
 // dass die angegebene E-Mail-Adresse wirklich der interessierten Person
 // gehört, bevor wir eine Anfrage erhalten.
 //
-// TESTPHASE: Zielpostfach ist aktuell office@surfershome.ch statt der
-// echten Vereinsadresse – auf Wunsch von Stefan umzustellen, sobald der
-// Ablauf geprüft ist.
+// Zielpostfach für Rückfragen/Antworten: it@ferienwohnungsverein-jungfrau.ch
 //
 // TODO (bewusst zurückgestellt, siehe Konversation vom 2026-07-06):
 // Für die Signatur des Bestätigungslinks sollte ein echtes Secret über die
@@ -164,10 +162,10 @@ HTML;
 // From-Adresse MUSS zur sendenden Domain (ferienwohnungsverein-jungfrau.ch)
 // passen, sonst schlägt der SPF-Check beim Empfänger fehl und die Mail wird
 // von vielen Providern (Gmail etc.) stillschweigend verworfen statt
-// zugestellt. Antworten laufen trotzdem über Reply-To an die Testadresse.
+// zugestellt. Antworten laufen über Reply-To an die Vereinsadresse.
 $boundary = 'fvj-' . bin2hex(random_bytes(8));
 $headers = "From: Ferienwohnungsverein Jungfrau <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
-    . "Reply-To: office@surfershome.ch\r\n"
+    . "Reply-To: it@ferienwohnungsverein-jungfrau.ch\r\n"
     . "MIME-Version: 1.0\r\n"
     . "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n";
 

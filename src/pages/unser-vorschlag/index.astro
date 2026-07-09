@@ -93,11 +93,10 @@ const faqSchema = {
           <tbody>
             <tr><td>Wohnungen total</td><td>12'475</td><td>100%</td></tr>
             <tr><td>Erstwohnungen</td><td>10'270</td><td>82,3%</td></tr>
-            <tr><td>Private Ferienwohnungen</td><td>1'868</td><td>15,0%</td></tr>
-            <tr><td>Kurzzeitvermietung (Airbnb etc.)</td><td>337</td><td>2,7%</td></tr>
+            <tr><td>Zweitwohnungen</td><td>2'205</td><td>17,7%</td></tr>
           </tbody>
         </table>
-        <p class="quelle">Quelle: <a href="https://www.are.admin.ch/are/de/home/raumentwicklung-und-raumplanung/raumplanungsrecht/zweitwohnungen.html">are.admin.ch</a>, <a href="http://interlaken.ch">interlaken.ch</a></p>
+        <p class="quelle">Quelle: <a href="https://www.are.admin.ch/de/wohnungsinventar">are.admin.ch (Wohnungsinventar)</a></p>
         <ul class="icon-list">
           <li>
             <Icon name="arrow-circle-right-solid" size={30} />
@@ -105,10 +104,9 @@ const faqSchema = {
           </li>
           <li>
             <Icon name="arrow-circle-right-solid" size={30} />
-            <span>Je nach Zählmethode und Stichtag kommen andere Auswertungen (z.B. Plattform-Rohdaten) auf andere Prozentwerte.</span>
+            <span>Nicht jede Zweitwohnung wird kurzzeitvermietet: Die amtliche Statistik unterscheidet nicht zwischen privat genutzten und kurzzeitvermieteten Ferienwohnungen.</span>
           </li>
         </ul>
-        <p class="spacer-top-sm">Auch in unserer Region wächst die Bedeutung von Ferienwohnungen als Übernachtungsform – die Logiernächte in Ferienwohnungen sind 2024 regional um über 10% gewachsen, stärker als in der klassischen Hotellerie. In Grindelwald übertreffen die Logiernächte in Zweitwohnungen (311'600) inzwischen jene der klassischen Hotellerie (278'200) – das Gastgewerbe ist mit 37% Anteil die grösste Beschäftigungsbranche der Gemeinde.</p>
       </div>
     </div>
   </section>
@@ -297,9 +295,5 @@ const faqSchema = {
 
   .spacer-top {
     margin-top: var(--space-6);
-  }
-
-  .spacer-top-sm {
-    margin-top: var(--space-3);
   }
 </style>
