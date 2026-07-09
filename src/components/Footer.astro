@@ -13,19 +13,13 @@ const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
   <div class="container footer__inner">
     {locale === 'en' ? (
       <>
-        <p>Responsible: Ferienwohnungsverein Jungfrau</p>
-        <p>Website by <a href="mailto:office@surfershome.ch">🎲 DIGY.ch</a></p>
-        <p><a href={quellenHref}>Sources</a></p>
-        <p><a href={impressumHref}>Imprint</a></p>
-        <p><a href={datenschutzHref}>Privacy Policy</a></p>
+        <p>Website © 2026 <a href="mailto:office@surfershome.ch">DIGY.CH</a></p>
+        <p><a href={quellenHref}>Sources</a> · <a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></p>
       </>
     ) : (
       <>
-        <p>Verantwortlich: Ferienwohnungsverein Jungfrau</p>
-        <p>Website erstellt von <a href="mailto:office@surfershome.ch">🎲 DIGY.ch</a></p>
-        <p><a href={quellenHref}>Quellen</a></p>
-        <p><a href={impressumHref}>Impressum</a></p>
-        <p><a href={datenschutzHref}>Datenschutzerklärung</a></p>
+        <p>Website © 2026 <a href="mailto:office@surfershome.ch">DIGY.CH</a></p>
+        <p><a href={quellenHref}>Quellen</a> · <a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></p>
       </>
     )}
   </div>
