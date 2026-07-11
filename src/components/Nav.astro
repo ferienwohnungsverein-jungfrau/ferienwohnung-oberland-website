@@ -8,19 +8,19 @@ const { locale = 'de', langAlt } = Astro.props;
 
 const linksByLocale = {
   de: [
-    { href: '/', label: 'Start' },
     { href: '/mitgliedschaft/', label: 'Für Vermietende' },
     { href: '/unser-vorschlag/', label: 'Unser Vorschlag' },
     { href: '/ueber-uns/', label: 'Über uns' },
     { href: '/fuer-gemeinden-medien/', label: 'Für Gemeinden & Medien' },
+    { href: '/quellen/', label: 'Quellen' },
     { href: '/kontakt/', label: 'Kontakt' },
   ],
   en: [
-    { href: '/en/', label: 'Home' },
     { href: '/en/membership/', label: 'For Hosts' },
     { href: '/en/our-proposal/', label: 'Our Proposal' },
     { href: '/en/about-us/', label: 'About Us' },
     { href: '/en/for-municipalities-media/', label: 'For Municipalities & Media' },
+    { href: '/en/sources/', label: 'Sources' },
     { href: '/en/contact/', label: 'Contact' },
   ],
 };
@@ -37,7 +37,16 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
 
 <header class="nav">
   <div class="container nav__inner">
-    <a href={locale === 'en' ? '/en/' : '/'} class="nav__brand">Ferienwohnungsverein&nbsp;Jungfrau</a>
+    <a
+      href={locale === 'en' ? '/en/' : '/'}
+      class="nav__brand"
+      aria-label={locale === 'en'
+        ? 'Ferienwohnungsverein Jungfrau – to homepage'
+        : 'Ferienwohnungsverein Jungfrau – zur Startseite'}
+    >
+      <span>Ferienwohnungsverein</span>
+      <span>Jungfrau</span>
+    </a>
 
     <nav class="nav__links" aria-label="Hauptnavigation">
       {links.map((link) => (
@@ -83,6 +92,9 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
   }
 
   .nav__brand {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
     font-family: var(--font-heading);
     font-size: 1.05rem;
     font-weight: 600;
@@ -106,6 +118,7 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
     font-family: var(--font-sans);
     font-size: 0.95rem;
     font-weight: 400;
+    white-space: nowrap;
     color: var(--color-text-on-dark);
     /* Reservierter, transparenter Unterstrich: verhindert Layout-Shift beim Hover/Aktiv */
     border-bottom: 2px solid transparent;
@@ -187,7 +200,7 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
 
   /* Hamburger greift, bevor die volle Nav (Wortmarke + lange Labels) überläuft –
      so ist das Menü bei jeder Breite und auf jeder Seite konsistent (DE wie EN). */
-  @media (max-width: 1080px) {
+  @media (max-width: 1180px) {
     .nav__links { display: none; }
     .nav__toggle { display: flex; }
   }

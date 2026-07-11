@@ -11,7 +11,7 @@ import Layout from '../../layouts/Layout.astro';
   <section class="section page-hero hero--intro">
     <div class="container">
       <h1>Unsere Quellen</h1>
-      <p>Transparenz ist uns wichtig. Hier finden Sie alle Studien, amtlichen Quellen und Medienartikel, auf die sich unsere Position stützt.</p>
+      <p>Transparenz ist uns wichtig. Hier finden Sie alle Studien, amtlichen Quellen und Medienartikel, auf die sich unsere Position stützt. Jede Zahl auf dieser Website lässt sich hier bis zur Originalquelle zurückverfolgen – die Links führen direkt zu den externen Dokumenten.</p>
     </div>
   </section>
 
@@ -20,10 +20,10 @@ import Layout from '../../layouts/Layout.astro';
     <div class="container">
       <h2>Zentrale Studien und Berichte</h2>
       <ul class="source-list">
-        <li>SAB (Schweizerische Arbeitsgemeinschaft für die Berggebiete) – <a href="https://www.sab.ch/wp-content/uploads/2025/11/Aktuelle-Ansaetze-zur-Regulierung-von-Airbnb_Version-2.pdf">"Aktuelle Ansätze zur Regulierung von Airbnb in der Schweiz"</a>, 25.11.2025</li>
-        <li>ARE / Rütter Soceco AG (im Auftrag SECO) – <a href="https://www.are.admin.ch/dam/de/sd-web/qQ6V9lgU8Vs1/wirkungsanalyse-zwg-vertiefungsanalyse-volkswirtschaft.pdf">"Wirkungsanalyse Zweitwohnungsgesetz"</a>, 09.12.2020</li>
-        <li>BFS (Bundesamt für Statistik) – <a href="https://www.bfs.admin.ch/bfs/de/home/statistiken/tourismus/beherbergung/parahotellerie.html">Parahotellerie-Statistik</a></li>
-        <li>Martin Falk, Miriam Scaglione (2023) – "Effects of regulations on the Airbnb market in Geneva", <em>Tourism Economics</em>, 30(3)</li>
+        <li id="sab-airbnb">SAB (Schweizerische Arbeitsgemeinschaft für die Berggebiete) – <a href="https://www.sab.ch/wp-content/uploads/2025/11/Aktuelle-Ansaetze-zur-Regulierung-von-Airbnb_Version-2.pdf" target="_blank" rel="noopener noreferrer">"Aktuelle Ansätze zur Regulierung von Airbnb in der Schweiz"</a>, 25.11.2025</li>
+        <li id="are-wirkungsanalyse">ARE / Rütter Soceco AG (im Auftrag SECO) – <a href="https://www.are.admin.ch/dam/de/sd-web/qQ6V9lgU8Vs1/wirkungsanalyse-zwg-vertiefungsanalyse-volkswirtschaft.pdf" target="_blank" rel="noopener noreferrer">"Wirkungsanalyse Zweitwohnungsgesetz"</a>, 09.12.2020</li>
+        <li id="bfs-parahotellerie">BFS (Bundesamt für Statistik) – <a href="https://www.bfs.admin.ch/bfs/de/home/statistiken/tourismus/beherbergung/parahotellerie.html" target="_blank" rel="noopener noreferrer">Parahotellerie-Statistik</a></li>
+        <li id="falk-scaglione-geneva">Martin Falk, Miriam Scaglione (2023) – "Effects of regulations on the Airbnb market in Geneva", <em>Tourism Economics</em>, 30(3)</li>
       </ul>
     </div>
   </section>
@@ -33,13 +33,14 @@ import Layout from '../../layouts/Layout.astro';
     <div class="container">
       <h2>Amtliche Quellen</h2>
       <ul class="source-list">
-        <li><a href="https://www.are.admin.ch/are/de/home/raumentwicklung-und-raumplanung/raumplanungsrecht/zweitwohnungen.html">ARE – Zweitwohnungen, Raumplanungsrecht</a></li>
-        <li><a href="https://www.news.admin.ch/de/nsb?id=103780">SECO/SEM-Bericht zum Meldewesen in der Beherbergung</a> (17.01.2025)</li>
-        <li><a href="https://www.belex.sites.be.ch/app/de/texts_of_law/721.0">Kanton Bern – Baugesetz BSG 721.0</a></li>
-        <li><a href="https://www.hev-be.ch/vermieten/statistiken/leerwohnungsziffer/">HEV Kanton Bern – Leerwohnungsziffer</a></li>
-        <li><a href="https://www.interlaken.ch/info-und-service/ueber-interlaken-tourismus/berichte-statistiken/logiernaechtestatistiken">Gemeinde Interlaken – Logiernächtestatistiken</a></li>
-        <li><a href="https://jahresbericht.interlaken.swiss/">Tourismus-Organisation Interlaken – Jahresberichte</a></li>
-        <li><a href="https://www.hotelleriesuisse.ch/de/branche-und-politik/wirtschaftspolitik/digitale-wirtschaft/sharing-economy">HotellerieSuisse – "Sharing Economy und Airbnb"</a></li>
+        <li id="are-wohnungsinventar"><a href="https://www.are.admin.ch/de/wohnungsinventar" target="_blank" rel="noopener noreferrer">ARE – Wohnungsinventar (Erst- und Zweitwohnungen)</a></li>
+        <li id="are-zweitwohnungen"><a href="https://www.are.admin.ch/are/de/home/raumentwicklung-und-raumplanung/raumplanungsrecht/zweitwohnungen.html" target="_blank" rel="noopener noreferrer">ARE – Zweitwohnungen, Raumplanungsrecht</a></li>
+        <li id="seco-sem-meldewesen"><a href="https://www.news.admin.ch/de/nsb?id=103780" target="_blank" rel="noopener noreferrer">SECO/SEM-Bericht zum Meldewesen in der Beherbergung</a> (17.01.2025)</li>
+        <li id="be-baugesetz"><a href="https://www.belex.sites.be.ch/app/de/texts_of_law/721.0" target="_blank" rel="noopener noreferrer">Kanton Bern – Baugesetz BSG 721.0</a></li>
+        <li id="hev-leerwohnungsziffer"><a href="https://www.hev-be.ch/vermieten/statistiken/leerwohnungsziffer/" target="_blank" rel="noopener noreferrer">HEV Kanton Bern – Leerwohnungsziffer</a></li>
+        <li id="interlaken-logiernaechte"><a href="https://www.interlaken.ch/info-und-service/ueber-interlaken-tourismus/berichte-statistiken/logiernaechtestatistiken" target="_blank" rel="noopener noreferrer">Gemeinde Interlaken – Logiernächtestatistiken</a></li>
+        <li id="toi-jahresberichte"><a href="https://jahresbericht.interlaken.swiss/" target="_blank" rel="noopener noreferrer">Tourismus-Organisation Interlaken – Jahresberichte</a></li>
+        <li id="hotelleriesuisse"><a href="https://www.hotelleriesuisse.ch/de/branche-und-politik/wirtschaftspolitik/digitale-wirtschaft/sharing-economy" target="_blank" rel="noopener noreferrer">HotellerieSuisse – "Sharing Economy und Airbnb"</a></li>
       </ul>
     </div>
   </section>
@@ -49,12 +50,12 @@ import Layout from '../../layouts/Layout.astro';
     <div class="container">
       <h2>Presseartikel (Auswahl)</h2>
       <ul class="source-list">
-        <li><a href="https://www.bernerzeitung.ch/wilderswil-sp-zieht-airbnb-initiative-zurueck-360616072283">Berner Zeitung – "Nach Abstimmung in Wilderswil: SP zieht Airbnb-Initiative zurück"</a></li>
-        <li><a href="https://www.bernerzeitung.ch/boenigen-gemeinde-will-airbnb-in-wohngebieten-verbieten-753348313841">Berner Zeitung – "Bönigen will Airbnb und Co. massiv einschränken"</a></li>
-        <li><a href="https://www.swissinfo.ch/ger/airbnb-initiativen-auf-dem-b%C3%B6deli-bleiben-g%C3%BCltig/89948272">swissinfo.ch – "Airbnb-Initiativen auf dem Bödeli bleiben gültig"</a></li>
-        <li><a href="https://medium.com/chamber-of-progress/new-nyc-data-shows-that-airbnb-restrictions-arent-solving-housing-crunch-b835803d0040">Chamber of Progress – "New NYC Data Shows that Airbnb Restrictions Aren't Solving Housing Crunch"</a></li>
-        <li><a href="https://www.nzz.ch/schweiz/tourismus-tessin-ferienwohnungen-duerfen-nur-noch-waehrend-90-tagen-im-jahr-vermietet-werden-ld.1739335">NZZ – "Tourismus Tessin: Ferienwohnungen dürfen nur noch während 90 Tagen vermietet werden"</a></li>
-        <li><a href="https://www.plattformj.ch/artikel/231162/">Plattform J – "SP Bödeli-Jungfrau: fünf Gemeinden, fünf Lösungswege"</a></li>
+        <li id="bz-wilderswil"><a href="https://www.bernerzeitung.ch/wilderswil-sp-zieht-airbnb-initiative-zurueck-360616072283" target="_blank" rel="noopener noreferrer">Berner Zeitung – "Nach Abstimmung in Wilderswil: SP zieht Airbnb-Initiative zurück"</a></li>
+        <li id="bz-boenigen"><a href="https://www.bernerzeitung.ch/boenigen-gemeinde-will-airbnb-in-wohngebieten-verbieten-753348313841" target="_blank" rel="noopener noreferrer">Berner Zeitung – "Bönigen will Airbnb und Co. massiv einschränken"</a></li>
+        <li id="swissinfo-boedeli"><a href="https://www.swissinfo.ch/ger/airbnb-initiativen-auf-dem-b%C3%B6deli-bleiben-g%C3%BCltig/89948272" target="_blank" rel="noopener noreferrer">swissinfo.ch – "Airbnb-Initiativen auf dem Bödeli bleiben gültig"</a></li>
+        <li id="chamber-progress-nyc"><a href="https://medium.com/chamber-of-progress/new-nyc-data-shows-that-airbnb-restrictions-arent-solving-housing-crunch-b835803d0040" target="_blank" rel="noopener noreferrer">Chamber of Progress – "New NYC Data Shows that Airbnb Restrictions Aren't Solving Housing Crunch"</a></li>
+        <li id="nzz-tessin"><a href="https://www.nzz.ch/schweiz/tourismus-tessin-ferienwohnungen-duerfen-nur-noch-waehrend-90-tagen-im-jahr-vermietet-werden-ld.1739335" target="_blank" rel="noopener noreferrer">NZZ – "Tourismus Tessin: Ferienwohnungen dürfen nur noch während 90 Tagen vermietet werden"</a></li>
+        <li id="plattformj-boedeli"><a href="https://www.plattformj.ch/artikel/231162/" target="_blank" rel="noopener noreferrer">Plattform J – "SP Bödeli-Jungfrau: fünf Gemeinden, fünf Lösungswege"</a></li>
       </ul>
       <p class="spacer-top">Diese Liste ist eine Auswahl der wichtigsten Quellen, nicht abschliessend. Bei Fragen zu einzelnen Quellen: <a href="/kontakt/">Kontakt</a>.</p>
     </div>
@@ -69,6 +70,21 @@ import Layout from '../../layouts/Layout.astro';
 
   .source-list li {
     margin-bottom: var(--space-2);
+  }
+
+  /* Zielmarkierung beim Deep-Link aus dem Fliesstext */
+  .source-list li:target {
+    background: var(--color-bg-subtle);
+    box-shadow: -0.6rem 0 0 var(--color-bg-subtle), 0.6rem 0 0 var(--color-bg-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Externe Links klar als extern kennzeichnen */
+  .source-list a[href^="http"]::after {
+    content: " ↗";
+    font-size: 0.85em;
+    color: var(--color-primary);
+    white-space: nowrap;
   }
 
   .spacer-top {

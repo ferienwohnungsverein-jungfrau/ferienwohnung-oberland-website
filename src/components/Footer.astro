@@ -5,7 +5,6 @@ interface Props {
 
 const { locale = 'de' } = Astro.props;
 const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
-const quellenHref = locale === 'en' ? '/en/sources/' : '/quellen/';
 const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
 ---
 
@@ -14,12 +13,12 @@ const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
     {locale === 'en' ? (
       <>
         <p>Website © 2026 <a href="mailto:office@surfershome.ch">DIGY.CH</a></p>
-        <p><a href={quellenHref}>Sources</a> · <a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></p>
+        <p><a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></p>
       </>
     ) : (
       <>
         <p>Website © 2026 <a href="mailto:office@surfershome.ch">DIGY.CH</a></p>
-        <p><a href={quellenHref}>Quellen</a> · <a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></p>
+        <p><a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></p>
       </>
     )}
   </div>
