@@ -64,6 +64,7 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
             <a href="/en/our-proposal/" class="btn btn-accent">Our Proposal</a>
             <a href="/en/for-municipalities-media/" class="text-link-strong">For Municipalities &amp; Media →</a>
           </div>
+          <p class="trust-note"><Icon name="check-square" size={18} /><span>Fact-based and transparent: our statements rest on studies and official data. <a href="/en/sources/">Go to Sources →</a></span></p>
         </div>
       </div>
     </div>
@@ -164,6 +165,29 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
   .text-link-strong {
     font-weight: 600;
     color: var(--color-primary);
+  }
+
+  .trust-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted, var(--color-text));
+    max-width: 68ch;
+  }
+
+  .trust-note :global(svg) {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    color: var(--color-primary);
+  }
+
+  .trust-note a {
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   /* Member voice */
