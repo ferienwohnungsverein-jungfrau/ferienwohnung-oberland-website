@@ -1,0 +1,44 @@
+---
+// Dezenter Website-Credit für digy.ch – erbt die Footer-Textfarbe (hell & dunkel),
+// leicht gedämpft, ohne Unterstreichung, dofollow. Wiederverwendbar über alle Seiten.
+interface Props {
+  /** Domain DIESER Seite – landet in den UTM-Parametern (ohne Protokoll). */
+  domain: string;
+  /** Vorangestelltes Label, je nach Sprache. */
+  label?: string;
+}
+
+const { domain, label = 'Website:' } = Astro.props;
+const href = `https://digy.ch/?utm_source=${domain}&utm_medium=footer&utm_campaign=website-credit`;
+---
+
+<a class="digy-credit" href={href} target="_blank" rel="noopener">
+  {label} <span aria-hidden="true">🧊</span> <strong>digy.ch</strong>
+</a>
+
+<style>
+  .digy-credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-size: 0.82rem;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.16s ease;
+  }
+
+  .digy-credit,
+  .digy-credit:hover,
+  .digy-credit:focus {
+    text-decoration: none;
+  }
+
+  .digy-credit:hover {
+    opacity: 1;
+  }
+
+  .digy-credit strong {
+    font-weight: 700;
+  }
+</style>

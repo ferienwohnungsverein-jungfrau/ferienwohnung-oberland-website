@@ -1,4 +1,6 @@
 ---
+import DigyCredit from './DigyCredit.astro';
+
 interface Props {
   locale?: 'de' | 'en';
 }
@@ -10,17 +12,17 @@ const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
 
 <footer class="footer">
   <div class="container footer__inner">
-    {locale === 'en' ? (
-      <>
-        <p>Website © 2026 <a href="mailto:office@surfershome.ch">DIGY.CH</a></p>
-        <p><a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></p>
-      </>
-    ) : (
-      <>
-        <p>Website © 2026 <a href="mailto:office@surfershome.ch">DIGY.CH</a></p>
-        <p><a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></p>
-      </>
-    )}
+    <div class="footer__brand">
+      <p>© 2026 Ferienwohnungsverein Jungfrau</p>
+      <DigyCredit domain="ferienwohnungsverein-jungfrau.ch" />
+    </div>
+    <p>
+      {locale === 'en' ? (
+        <><a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></>
+      ) : (
+        <><a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></>
+      )}
+    </p>
   </div>
 </footer>
 
@@ -39,6 +41,14 @@ const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
     flex-wrap: wrap;
     font-size: var(--text-sm);
     color: var(--color-text);
+  }
+
+  /* © und Credit gehören zusammen, sind aber zwei eigene Zeilen –
+     der Credit ist die kleinere Zeile darunter (siehe DigyCredit.astro). */
+  .footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
   }
 
   .footer__inner a {
