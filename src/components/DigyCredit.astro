@@ -21,8 +21,11 @@ const href = `https://digy.ch/?utm_source=${domain}&utm_medium=footer&utm_campai
     display: inline-flex;
     align-items: center;
     gap: 0.3em;
-    font-size: 0.82rem;
-    line-height: 1;
+    /* Gleiche Groesse wie die Copyright-Zeile darueber – der Credit wird
+       nur ueber die Deckkraft (0.7) als leisere, zweite Zeile abgesetzt,
+       nicht ueber eine kleinere Schrift (wirkte sonst uneinheitlich). */
+    font-size: inherit;
+    line-height: 1.2;
     color: inherit;
     opacity: 0.7;
     transition: opacity 0.16s ease;
