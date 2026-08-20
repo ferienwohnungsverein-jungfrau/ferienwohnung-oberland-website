@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="himmel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#85BFEA"/>
+      <stop offset="1" stop-color="#5B9FD6"/>
+    </linearGradient>
+    <clipPath id="kachel">
+      <rect width="512" height="512" rx="115"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#kachel)">
+    <!-- Himmel -->
+    <rect width="512" height="512" fill="url(#himmel)"/>
+
+    <!-- Massiv: breite, kuppelige Basis-Silhouette, Basis tief (wird von Flanken verdeckt) -->
+    <polygon points="18,430 60,270 120,190 165,205 215,140 250,96 294,104 330,150 375,135 425,195 470,260 496,430" fill="#DDEBF6"/>
+
+    <!-- Massiv-Facetten (Licht von links oben) -->
+    <polygon points="60,270 120,190 130,280" fill="#F6FAFD"/>
+    <polygon points="18,430 60,270 130,280" fill="#E2EFF8"/>
+    <polygon points="18,430 130,280 120,430" fill="#C6DDEF"/>
+    <polygon points="120,190 165,205 175,290 130,280" fill="#FFFFFF"/>
+    <polygon points="165,205 215,140 220,290 175,290" fill="#F0F7FC"/>
+    <polygon points="130,280 175,290 160,430 120,430" fill="#B7D3E9"/>
+    <polygon points="215,140 250,96 246,295 220,290" fill="#FFFFFF"/>
+    <polygon points="250,96 294,104 262,300 246,295" fill="#F3F9FD"/>
+    <polygon points="294,104 330,150 305,300 262,300" fill="#DFEDF8"/>
+    <polygon points="175,290 220,290 262,300 250,430 160,430" fill="#CBE0F0"/>
+    <polygon points="330,150 375,135 370,290 305,300" fill="#D8E9F5"/>
+    <polygon points="375,135 425,195 415,300 370,290" fill="#EDF5FB"/>
+    <polygon points="262,300 305,300 330,430 250,430" fill="#B4D2E9"/>
+    <polygon points="305,300 370,290 380,430 330,430" fill="#A9CCE6"/>
+    <polygon points="425,195 470,260 450,320 415,300" fill="#CFE3F2"/>
+    <polygon points="370,290 415,300 450,320 460,430 380,430" fill="#9CC3E0"/>
+    <polygon points="450,320 470,260 496,430 460,430" fill="#8FB9D9"/>
+
+    <!-- Talflanken vorn: V-Form, Treffpunkt Mitte, alles darunter dunkel -->
+    <polygon points="0,240 256,392 512,255 512,512 0,512" fill="#1C4C7C"/>
+    <polygon points="0,240 180,347 60,512 0,512" fill="#245A8E"/>
+    <polygon points="60,512 180,347 256,392 230,512" fill="#1A4270"/>
+    <polygon points="512,255 350,342 452,512 512,512" fill="#215487"/>
+    <polygon points="452,512 350,342 256,392 300,512" fill="#153E67"/>
+
+    <!-- J -->
+    <path d="M 296 352 L 296 440 Q 296 482 254 482 Q 218 482 212 450"
+          fill="none" stroke="#FFFFFF" stroke-width="50" stroke-linecap="round"/>
+  </g>
+</svg>
