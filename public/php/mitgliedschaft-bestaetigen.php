@@ -5,8 +5,8 @@ declare(strict_types=1);
 // mail aufgerufen. Prüft die Signatur, prüft das Alter des Links (max. 48h)
 // und verschickt erst dann die eigentliche Anmeldung an den Verein.
 //
-// Zielpostfächer für Lead-Benachrichtigungen: sekretariat@ + vorstand@
-// (vorstand@ wird evtl. später entfernt — dann hier nur die Adresse rausnehmen)
+// Zielpostfach für Lead-Benachrichtigungen: anmeldung@ — die Verteilung an
+// sekretariat@ und vorstand@ ist in Plesk als Weiterleitung hinterlegt.
 
 function renderPage(string $title, string $message, bool $success, string $locale = 'de'): void
 {
@@ -136,7 +136,7 @@ $leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jung
     . "Reply-To: {$emailSafe}\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n";
 
-$mailSent = @mail('sekretariat@ferienwohnungsverein-jungfrau.ch, vorstand@ferienwohnungsverein-jungfrau.ch', $leadSubject, $leadBody, $leadHeaders);
+$mailSent = @mail('anmeldung@ferienwohnungsverein-jungfrau.ch', $leadSubject, $leadBody, $leadHeaders);
 
 if (!$mailSent) {
     http_response_code(500);

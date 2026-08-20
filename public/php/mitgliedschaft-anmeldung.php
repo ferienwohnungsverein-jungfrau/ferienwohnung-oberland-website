@@ -8,7 +8,7 @@ declare(strict_types=1);
 // dass die angegebene E-Mail-Adresse wirklich der interessierten Person
 // gehört, bevor wir eine Anfrage erhalten.
 //
-// Zielpostfach für Rückfragen/Antworten: sekretariat@ferienwohnungsverein-jungfrau.ch
+// Zielpostfach für Rückfragen/Antworten: anmeldung@ferienwohnungsverein-jungfrau.ch
 //
 // Härtung: Das echte Secret liegt in der nicht versionierten Datei
 // form-signing-secret.key eine Ebene über httpdocs (oder alternativ in der
@@ -170,7 +170,7 @@ HTML;
 // zugestellt. Antworten laufen über Reply-To an die Vereinsadresse.
 $boundary = 'fvj-' . bin2hex(random_bytes(8));
 $headers = "From: Ferienwohnungsverein Jungfrau <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
-    . "Reply-To: sekretariat@ferienwohnungsverein-jungfrau.ch\r\n"
+    . "Reply-To: anmeldung@ferienwohnungsverein-jungfrau.ch\r\n"
     . "MIME-Version: 1.0\r\n"
     . "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n";
 
