@@ -37,5 +37,3 @@ collections:
           - { label: "E-Mail Presseanfragen", name: "presseEmail", widget: "string" }
           - { label: "Vereinstelefon (Anzeige, z.B. 078 319 59 71)", name: "vereinsTelefon", widget: "string" }
           - { label: "Vereinstelefon (Link-Format, z.B. +41783195971)", name: "vereinsTelefonLink", widget: "string" }
-          - { label: "Anmeldung E-Mail 1", name: "anmeldungEmail1", widget: "string" }
-          - { label: "Anmeldung E-Mail 2", name: "anmeldungEmail2", widget: "string" }

@@ -10,12 +10,10 @@ declare(strict_types=1);
 //
 // Zielpostfach für Rückfragen/Antworten: it@ferienwohnungsverein-jungfrau.ch
 //
-// TODO (bewusst zurückgestellt, siehe Konversation vom 2026-07-06):
-// Für die Signatur des Bestätigungslinks sollte ein echtes Secret über die
-// Server-Umgebungsvariable FORM_SIGNING_SECRET gesetzt werden (z.B. via
-// Hosttech-Panel oder einer nicht versionierten .htaccess/php.ini). Ohne
-// gesetzte Umgebungsvariable wird ein Platzhalter-Secret verwendet – das
-// funktioniert, ist aber vor dem produktiven Realbetrieb zu härten.
+// Härtung: Das echte Secret liegt in der nicht versionierten Datei
+// form-signing-secret.key eine Ebene über httpdocs (oder alternativ in der
+// Server-Umgebungsvariable FORM_SIGNING_SECRET). Fehlen beide, greift ein
+// Platzhalter – dann sind Bestätigungslinks fälschbar.
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: https://ferienwohnungsverein-jungfrau.ch');
@@ -82,7 +80,13 @@ $emailSafe = str_replace(["\r", "\n"], '', $email);
 $telefonSafe = str_replace(["\r", "\n"], '', $telefon);
 $bettenSafe = str_replace(["\r", "\n"], '', $betten);
 
-$secret = getenv('FORM_SIGNING_SECRET') ?: 'ferienwohnungsverein-jungfrau-platzhalter-secret';
+// Secret-Auflösung: 1. Server-Umgebungsvariable, 2. Schlüsseldatei eine Ebene
+// über httpdocs (übersteht den Release-Tausch des Deploy-Hooks), 3. Platzhalter.
+// Muss identisch sein mit mitgliedschaft-bestaetigen.php.
+$secretFile = dirname(__DIR__, 2) . '/form-signing-secret.key';
+$secret = getenv('FORM_SIGNING_SECRET')
+    ?: (is_readable($secretFile) ? trim((string) file_get_contents($secretFile)) : '')
+    ?: 'ferienwohnungsverein-jungfrau-platzhalter-secret';
 
 $payload = [
     'name' => $nameSafe,
