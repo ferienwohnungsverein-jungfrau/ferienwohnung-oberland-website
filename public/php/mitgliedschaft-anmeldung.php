@@ -85,8 +85,18 @@ $bettenSafe = str_replace(["\r", "\n"], '', $betten);
 // Muss identisch sein mit mitgliedschaft-bestaetigen.php.
 $secretFile = dirname(__DIR__, 2) . '/form-signing-secret.key';
 $secret = getenv('FORM_SIGNING_SECRET')
-    ?: (is_readable($secretFile) ? trim((string) file_get_contents($secretFile)) : '')
-    ?: 'ferienwohnungsverein-jungfrau-platzhalter-secret';
+    ?: (is_readable($secretFile) ? trim((string) file_get_contents($secretFile)) : '');
+if ($secret === '') {
+    // Erstlauf: Secret einmalig auf dem Server erzeugen (liegt ausserhalb von
+    // httpdocs, uebersteht Deploys und verlaesst den Server nie).
+    $generiert = bin2hex(random_bytes(32));
+    if (@file_put_contents($secretFile, $generiert . "\n", LOCK_EX) !== false) {
+        @chmod($secretFile, 0600);
+        $secret = $generiert;
+    } else {
+        $secret = 'ferienwohnungsverein-jungfrau-platzhalter-secret';
+    }
+}
 
 $payload = [
     'name' => $nameSafe,

@@ -85,8 +85,18 @@ if ($data === '' || $signature === '') {
 // Secret-Auflösung identisch mit mitgliedschaft-anmeldung.php (siehe dort).
 $secretFile = dirname(__DIR__, 2) . '/form-signing-secret.key';
 $secret = getenv('FORM_SIGNING_SECRET')
-    ?: (is_readable($secretFile) ? trim((string) file_get_contents($secretFile)) : '')
-    ?: 'ferienwohnungsverein-jungfrau-platzhalter-secret';
+    ?: (is_readable($secretFile) ? trim((string) file_get_contents($secretFile)) : '');
+if ($secret === '') {
+    // Erstlauf: Secret einmalig auf dem Server erzeugen (liegt ausserhalb von
+    // httpdocs, uebersteht Deploys und verlaesst den Server nie).
+    $generiert = bin2hex(random_bytes(32));
+    if (@file_put_contents($secretFile, $generiert . "\n", LOCK_EX) !== false) {
+        @chmod($secretFile, 0600);
+        $secret = $generiert;
+    } else {
+        $secret = 'ferienwohnungsverein-jungfrau-platzhalter-secret';
+    }
+}
 $expectedSignature = hash_hmac('sha256', $data, $secret);
 
 if (!hash_equals($expectedSignature, $signature)) {
