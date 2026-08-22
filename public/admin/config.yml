@@ -2,6 +2,22 @@ backend:
   name: github
   repo: ferienwohnungsverein-jungfrau/ferienwohnung-oberland-website
   branch: main
+  # Login läuft über den eigenen OAuth-Vermittler auf dem CH-Server
+  # (public/admin/oauth/), erreichbar über die Redaktions-Subdomain.
+  base_url: https://login.ferienwohnungsverein-jungfrau.ch
+  auth_endpoint: oauth/auth.php
+
+# Bild-Standard: beim Upload auf max. 1920 px verkleinern und als WebP ablegen.
+media_libraries:
+  default:
+    config:
+      max_file_size: 10485760
+      transformations:
+        raster_image:
+          format: webp
+          quality: 75
+          width: 1920
+          height: 1920
 
 # Live-Vorschau der Astro-Seite direkt im CMS (optional, kann leer bleiben)
 site_url: https://ferienwohnungsverein-jungfrau.ch

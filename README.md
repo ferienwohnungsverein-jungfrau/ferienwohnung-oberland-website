@@ -48,13 +48,30 @@ verworfenen Ansatz und werden nicht mehr verwendet.
 ## Redaktion (Sveltia CMS)
 
 Vorstand (`src/data/vorstand.json`) und Kontaktdaten (`src/data/kontakt.json`) sind für den
-Vereinsvorstand ohne Coding-Kenntnisse editierbar über eine Weboberfläche unter `/admin/`.
+Vereinsvorstand ohne Coding-Kenntnisse editierbar über eine Weboberfläche.
 
-**Noch offen, bevor die Redaktion nutzbar ist:**
+**Adresse für den Vorstand:** `https://login.ferienwohnungsverein-jungfrau.ch/`
+(Subdomain, Dokumentstamm = `httpdocs/admin`; die Dateien liegen im Repo unter `public/admin/`).
+Dieselben Dateien sind auch unter `/admin/` der Hauptdomain erreichbar.
 
-Ein OAuth-Zugang für Sveltia CMS, damit sich Redakteur:innen mit ihrem GitHub-Account anmelden
-können (GitHub OAuth App + kleiner Auth-Worker, z.B. auf Cloudflare Workers – kostenlos,
-einmalige Einrichtung). GitHub-Repo und `config.yml`-Repo-Pfad sind bereits eingerichtet.
+**Login:** GitHub-OAuth über einen eigenen Vermittler in `public/admin/oauth/` (PHP, läuft auf dem
+hosttech-Server – kein Cloudflare/Drittanbieter). Zugangsdaten der GitHub-OAuth-App liegen **nicht**
+im Repo, sondern in `github-oauth.key` eine Ebene über `httpdocs` (zwei Zeilen `CLIENT_ID=` /
+`CLIENT_SECRET=`), analog zum Formular-Secret. Fehlt die Datei, meldet `/oauth/auth.php` das
+klartextlich, statt zu scheitern.
 
-Danach läuft der Ablauf komplett automatisch: Redakteur:in speichert im CMS → Commit auf
-GitHub → Pull-Deploy (siehe oben) → Seite ist live.
+Einmalige Einrichtung (Browser, ca. 15 Min.):
+1. hosttech/Plesk: Subdomain `login` anlegen, Dokumentstamm `httpdocs/admin`, Let's-Encrypt aktivieren
+   (DNS löst per Wildcard bereits auf).
+2. GitHub → Org `ferienwohnungsverein-jungfrau` → Settings → Developer settings → OAuth Apps → New:
+   Homepage `https://login.ferienwohnungsverein-jungfrau.ch`, Callback
+   `https://login.ferienwohnungsverein-jungfrau.ch/oauth/callback.php`.
+3. Client-ID + Secret in `github-oauth.key` neben `httpdocs` ablegen (chmod 600).
+4. Redaktionspersonen brauchen ein GitHub-Konto und Schreibrecht (Collaborator) auf diesem Repo.
+
+Sveltia ist lokal gepinnt (`public/admin/sveltia-cms.js`, Version im `index.html`-Kommentar);
+Update = Datei von `https://unpkg.com/@sveltia/cms@<version>/dist/sveltia-cms.js` ersetzen.
+Bild-Uploads werden vom CMS auf 1920 px verkleinert und als WebP abgelegt.
+
+Ablauf danach: Redakteur:in speichert im CMS → Commit auf GitHub → Pull-Deploy (siehe oben)
+→ Seite ist nach ca. 2–3 Minuten live. Rückgängig = Git-Revert.
