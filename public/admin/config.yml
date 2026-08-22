@@ -19,6 +19,10 @@ media_libraries:
           width: 1920
           height: 1920
 
+# Oberfläche auf Deutsch, Vereins-Logo auf dem Login-Bildschirm
+locale: de
+logo_url: https://ferienwohnungsverein-jungfrau.ch/favicon-192.png
+
 # Live-Vorschau der Astro-Seite direkt im CMS (optional, kann leer bleiben)
 site_url: https://ferienwohnungsverein-jungfrau.ch
 
