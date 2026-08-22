@@ -1,0 +1,8 @@
+{
+  "titel": "Beispiel-Dokument (Entwurf)",
+  "datei": "/downloads/beispiel.pdf",
+  "kategorie": "sonstiges",
+  "datum": "2026-08-23",
+  "beschreibung": "Zeigt, wie ein Dokument erfasst wird. Wird nicht angezeigt, solange «Entwurf» gesetzt ist.",
+  "entwurf": true
+}

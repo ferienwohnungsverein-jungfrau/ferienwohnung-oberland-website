@@ -1,10 +1,13 @@
 ---
+import { getLokalisiert } from '../lib/inhalte';
 interface Props {
   locale?: 'de' | 'en';
   langAlt?: string;
 }
 
 const { locale = 'de', langAlt } = Astro.props;
+// «Aktuelles» erst zeigen, wenn mindestens ein Beitrag oder Anlass veröffentlicht ist.
+const hatAktuelles = (await getLokalisiert('aktuelles', locale)).length > 0 || (await getLokalisiert('veranstaltungen', locale)).length > 0;
 
 const linksByLocale = {
   de: [
@@ -12,6 +15,7 @@ const linksByLocale = {
     { href: '/unser-vorschlag/', label: 'Unser Vorschlag' },
     { href: '/ueber-uns/', label: 'Über uns' },
     { href: '/fuer-gemeinden-medien/', label: 'Für Gemeinden & Medien' },
+    { href: '/aktuelles/', label: 'Aktuelles' },
     { href: '/quellen/', label: 'Quellen' },
     { href: '/kontakt/', label: 'Kontakt' },
   ],
@@ -20,12 +24,13 @@ const linksByLocale = {
     { href: '/en/our-proposal/', label: 'Our Proposal' },
     { href: '/en/about-us/', label: 'About Us' },
     { href: '/en/for-municipalities-media/', label: 'For Municipalities & Media' },
+    { href: '/en/news/', label: 'News' },
     { href: '/en/sources/', label: 'Sources' },
     { href: '/en/contact/', label: 'Contact' },
   ],
 };
 
-const links = linksByLocale[locale];
+const links = linksByLocale[locale].filter((l) => hatAktuelles || !['/aktuelles/', '/en/news/'].includes(l.href));
 const currentPath = Astro.url.pathname;
 function isActive(href: string) {
   return href === '/' || href === '/en/' ? currentPath === href : currentPath.startsWith(href);

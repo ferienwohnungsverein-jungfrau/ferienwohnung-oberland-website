@@ -1,0 +1,35 @@
+---
+// Einzelner Beitrag unter «Aktuelles».
+import { render, type CollectionEntry } from 'astro:content';
+import { formatDatum, type Locale } from '../lib/inhalte';
+
+interface Props { locale: Locale; beitrag: CollectionEntry<'aktuelles'> }
+const { locale, beitrag } = Astro.props;
+const { Content } = await render(beitrag);
+const zurueck = locale === 'en' ? { href: '/en/news/', label: '← All news' } : { href: '/aktuelles/', label: '← Alle Beiträge' };
+---
+
+<section class="section page-hero hero--intro">
+  <div class="container">
+    <p class="eyebrow"><time datetime={beitrag.data.datum.toISOString()}>{formatDatum(beitrag.data.datum, locale)}</time></p>
+    <h1>{beitrag.data.titel}</h1>
+    <p>{beitrag.data.teaser}</p>
+  </div>
+</section>
+
+<section class="section section--white">
+  <div class="container prose">
+    {beitrag.data.bild && <img src={beitrag.data.bild} alt={beitrag.data.bild_alt ?? ''} class="lead-image" />}
+    <Content />
+    <p class="back"><a href={zurueck.href} class="text-link-strong">{zurueck.label}</a></p>
+  </div>
+</section>
+
+<style>
+  .prose { max-width: 72ch; }
+  .prose :global(p), .prose :global(ul), .prose :global(ol) { margin-bottom: var(--space-2); }
+  .prose :global(h2) { margin-top: var(--space-4); margin-bottom: var(--space-1); }
+  .lead-image { width: 100%; height: auto; border-radius: var(--radius-md); margin-bottom: var(--space-3); }
+  .back { margin-top: var(--space-4); }
+  .page-hero .eyebrow { color: var(--color-text-on-dark); opacity: 0.85; }
+</style>

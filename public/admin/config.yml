@@ -6,6 +6,34 @@ backend:
   # (public/admin/oauth/), erreichbar über die Redaktions-Subdomain.
   base_url: https://login.ferienwohnungsverein-jungfrau.ch
   auth_endpoint: oauth/auth.php
+  commit_messages:
+    create: "Redaktion: {{collection}} «{{slug}}» erstellt"
+    update: "Redaktion: {{collection}} «{{slug}}» geändert"
+    delete: "Redaktion: {{collection}} «{{slug}}» gelöscht"
+    uploadMedia: "Redaktion: Datei {{path}} hochgeladen"
+    deleteMedia: "Redaktion: Datei {{path}} gelöscht"
+
+# Oberfläche auf Deutsch, Vereins-Logo auf dem Login-Bildschirm
+locale: de
+logo_url: https://ferienwohnungsverein-jungfrau.ch/favicon-192.png
+
+# Live-Vorschau der Astro-Seite direkt im CMS (optional, kann leer bleiben)
+site_url: https://ferienwohnungsverein-jungfrau.ch
+display_url: https://ferienwohnungsverein-jungfrau.ch
+
+# Zweisprachig: jeder Eintrag hat eine deutsche und eine englische Fassung
+# (Umschalter oben im Eintrag). Dateien liegen unter <ordner>/de/ und <ordner>/en/.
+i18n:
+  structure: multiple_folders
+  locales: [de, en]
+  default_locale: de
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+media_folder: "public/images"
+public_folder: "/images"
 
 # Bild-Standard: beim Upload auf max. 1920 px verkleinern und als WebP ablegen.
 media_libraries:
@@ -19,19 +47,111 @@ media_libraries:
           width: 1920
           height: 1920
 
-# Oberfläche auf Deutsch, Vereins-Logo auf dem Login-Bildschirm
-locale: de
-logo_url: https://ferienwohnungsverein-jungfrau.ch/favicon-192.png
-
-# Live-Vorschau der Astro-Seite direkt im CMS (optional, kann leer bleiben)
-site_url: https://ferienwohnungsverein-jungfrau.ch
-
-media_folder: "public/images"
-public_folder: "/images"
-
 collections:
+  - name: "aktuelles"
+    label: "Aktuelles"
+    label_singular: "Beitrag"
+    description: "Neuigkeiten aus dem Verein. Erscheinen unter /aktuelles/ und als Kacheln auf der Startseite (die drei neusten)."
+    folder: "src/content/aktuelles"
+    create: true
+    i18n: true
+    extension: "md"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    summary: "{{datum}} – {{titel}}"
+    sortable_fields: [datum, titel]
+    fields:
+      - { label: "Titel", name: "titel", widget: "string", i18n: true }
+      - { label: "Datum", name: "datum", widget: "datetime", time_format: false, format: "YYYY-MM-DD", i18n: "duplicate" }
+      - { label: "Teaser (1–2 Sätze für Übersicht und Startseite)", name: "teaser", widget: "text", i18n: true }
+      - { label: "Bild (optional)", name: "bild", widget: "image", required: false, i18n: "duplicate" }
+      - { label: "Bildbeschreibung (für Screenreader)", name: "bild_alt", widget: "string", required: false, i18n: true }
+      - { label: "Entwurf (nicht veröffentlichen)", name: "entwurf", widget: "boolean", default: true, i18n: "duplicate", hint: "Haken entfernen = veröffentlichen" }
+      - { label: "Text", name: "body", widget: "markdown", i18n: true }
+
+  - name: "veranstaltungen"
+    label: "Veranstaltungen"
+    label_singular: "Anlass"
+    description: "Kommende Anlässe erscheinen unter /aktuelles/ und der nächste auf der Startseite. Vergangene wandern automatisch ins Archiv."
+    folder: "src/content/veranstaltungen"
+    create: true
+    i18n: true
+    extension: "md"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    summary: "{{beginn}} – {{titel}}"
+    sortable_fields: [beginn, titel]
+    fields:
+      - { label: "Titel", name: "titel", widget: "string", i18n: true }
+      - { label: "Beginn", name: "beginn", widget: "datetime", format: "YYYY-MM-DDTHH:mm:ss", i18n: "duplicate" }
+      - { label: "Ende (optional)", name: "ende", widget: "datetime", format: "YYYY-MM-DDTHH:mm:ss", required: false, i18n: "duplicate" }
+      - { label: "Ort", name: "ort", widget: "string", required: false, i18n: true }
+      - { label: "Anmeldelink (optional, mit https://)", name: "anmeldelink", widget: "string", required: false, i18n: "duplicate" }
+      - { label: "Entwurf (nicht veröffentlichen)", name: "entwurf", widget: "boolean", default: true, i18n: "duplicate" }
+      - { label: "Beschreibung", name: "body", widget: "markdown", i18n: true, required: false }
+
+  - name: "downloads"
+    label: "Downloads"
+    label_singular: "Dokument"
+    description: "Statuten, Protokolle, Medienmaterial – erscheinen unter /downloads/ (Link im Seitenfuss)."
+    folder: "src/content/downloads"
+    create: true
+    i18n: true
+    extension: "json"
+    format: "json"
+    slug: "{{slug}}"
+    summary: "{{datum}} – {{titel}}"
+    media_folder: "/public/downloads"
+    public_folder: "/downloads"
+    fields:
+      - { label: "Titel", name: "titel", widget: "string", i18n: true }
+      - { label: "Datei (PDF)", name: "datei", widget: "file", i18n: "duplicate", media_library: { config: { max_file_size: 20971520 } } }
+      - label: "Kategorie"
+        name: "kategorie"
+        widget: "select"
+        i18n: "duplicate"
+        default: "sonstiges"
+        options:
+          - { label: "Statuten", value: "statuten" }
+          - { label: "Protokolle", value: "protokolle" }
+          - { label: "Medien", value: "medien" }
+          - { label: "Sonstiges", value: "sonstiges" }
+      - { label: "Datum", name: "datum", widget: "datetime", time_format: false, format: "YYYY-MM-DD", i18n: "duplicate" }
+      - { label: "Kurzbeschreibung (optional)", name: "beschreibung", widget: "string", required: false, i18n: true }
+      - { label: "Entwurf (nicht veröffentlichen)", name: "entwurf", widget: "boolean", default: true, i18n: "duplicate" }
+
+  - name: "seiten"
+    label: "Seiten-Texte"
+    description: "Textblöcke fest gestalteter Seiten. Layout, Bilder und Knöpfe bleiben wie sie sind."
+    i18n:
+      structure: multiple_folders
+    files:
+      - name: "startseite"
+        label: "Startseite"
+        file: "src/content/seiten/{{locale}}/startseite.json"
+        i18n: true
+        fields:
+          - { label: "Einleitungssatz unter dem Titel", name: "hero_subline", widget: "text", i18n: true }
+          - { label: "Mitglieder-Zitat", name: "zitat", widget: "text", i18n: true }
+          - { label: "Zitat – Name/Betrieb", name: "zitat_autor", widget: "string", i18n: true }
+          - { label: "Zitat – Link (optional)", name: "zitat_link", widget: "string", required: false, i18n: "duplicate" }
+      - name: "ueber-uns"
+        label: "Über uns"
+        file: "src/content/seiten/{{locale}}/ueber-uns.json"
+        i18n: true
+        fields:
+          - { label: "Satz unter «Wer wir sind»", name: "hero_text", widget: "text", i18n: true }
+          - { label: "Einleitung zum Vorstand", name: "vorstand_intro", widget: "markdown", i18n: true, minimal: true, buttons: [bold, italic, link] }
+          - { label: "Abschnitt 1 – Titel", name: "warum_titel", widget: "string", i18n: true }
+          - { label: "Abschnitt 1 – Text", name: "warum_text", widget: "markdown", i18n: true, minimal: true, buttons: [bold, italic, link, bulleted-list] }
+          - { label: "Abschnitt 2 (neben Video) – Titel", name: "einsatz_titel", widget: "string", i18n: true }
+          - { label: "Abschnitt 2 – Text", name: "einsatz_text", widget: "markdown", i18n: true, minimal: true, buttons: [bold, italic, link, bulleted-list] }
+          - { label: "Abschnitt 3 – Titel", name: "rollen_titel", widget: "string", i18n: true }
+          - { label: "Abschnitt 3 – Text", name: "rollen_text", widget: "markdown", i18n: true, minimal: true, buttons: [bold, italic, link, bulleted-list] }
+
   - name: "vorstand"
     label: "Vorstand"
+    description: "Wird unter «Über uns» angezeigt (Reihenfolge wie hier)."
     files:
       - name: "vorstand"
         label: "Vorstandsmitglieder"
@@ -49,6 +169,7 @@ collections:
 
   - name: "kontakt"
     label: "Kontakt"
+    description: "Telefon und Presse-Mail; erscheinen auf Kontakt, Mitgliedschaft und in den Suchmaschinen-Daten."
     files:
       - name: "kontakt"
         label: "Kontaktdaten"
@@ -56,4 +177,4 @@ collections:
         fields:
           - { label: "E-Mail Presseanfragen", name: "presseEmail", widget: "string" }
           - { label: "Vereinstelefon (Anzeige, z.B. 078 319 59 71)", name: "vereinsTelefon", widget: "string" }
-          - { label: "Vereinstelefon (Link-Format, z.B. +41783195971)", name: "vereinsTelefonLink", widget: "string" }
+          - { label: "Vereinstelefon (Link-Format, z.B. +41783195971)", name: "vereinsTelefonLink", widget: "string", pattern: ['^\+\d{6,15}$', 'Format: +41 gefolgt von den Ziffern ohne Leerzeichen'] }

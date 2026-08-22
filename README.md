@@ -47,8 +47,21 @@ verworfenen Ansatz und werden nicht mehr verwendet.
 
 ## Redaktion (Sveltia CMS)
 
-Vorstand (`src/data/vorstand.json`) und Kontaktdaten (`src/data/kontakt.json`) sind für den
-Vereinsvorstand ohne Coding-Kenntnisse editierbar über eine Weboberfläche.
+Der Vereinsvorstand pflegt ohne Coding-Kenntnisse über eine Weboberfläche:
+
+| Bereich im CMS | Dateien | erscheint |
+|---|---|---|
+| Aktuelles (Beiträge) | `src/content/aktuelles/{de,en}/*.md` | `/aktuelles/`, `/aktuelles/<slug>/`, Kacheln Startseite |
+| Veranstaltungen | `src/content/veranstaltungen/{de,en}/*.md` | `/aktuelles/#anlaesse`, nächster Anlass Startseite |
+| Downloads | `src/content/downloads/{de,en}/*.json` + PDFs in `public/downloads/` | `/downloads/` (Link im Footer) |
+| Seiten-Texte | `src/content/seiten/{de,en}/{startseite,ueber-uns}.json` | Startseite (Einleitung, Zitat), Über uns (alle Textblöcke) |
+| Vorstand / Kontakt | `src/data/vorstand.json`, `src/data/kontakt.json` | Über uns, Kontakt, Mitgliedschaft, Schema.org |
+
+Alles zweisprachig (DE/EN-Umschalter im Eintrag; fehlt EN, wird DE gezeigt). Einträge mit
+`entwurf: true` werden nie gebaut. Schemas: `src/content.config.ts` (Collections) und
+`src/lib/daten.ts` (Vorstand/Kontakt) – ein ungültiger Eintrag lässt den Build scheitern, statt
+eine kaputte Seite zu veröffentlichen. Nav-Link «Aktuelles» und Footer-Link «Downloads» erscheinen
+automatisch, sobald der erste Eintrag veröffentlicht ist.
 
 **Adresse für den Vorstand:** `https://login.ferienwohnungsverein-jungfrau.ch/`
 (Subdomain, Dokumentstamm = `httpdocs/admin`; die Dateien liegen im Repo unter `public/admin/`).

@@ -1,0 +1,52 @@
+---
+// Dokumente & Downloads (Statuten, Protokolle, Medien, Sonstiges).
+import { getLokalisiert, formatDatum, type Locale } from '../lib/inhalte';
+import Icon from './Icon.astro';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = locale === 'en'
+  ? { h1: 'Documents & Downloads', lead: 'Statutes, minutes and media material of the association.', none: 'No documents published yet.', kat: { statuten: 'Statutes', protokolle: 'Minutes', medien: 'Media', sonstiges: 'Other' } as Record<string, string>, open: 'Open PDF' }
+  : { h1: 'Dokumente & Downloads', lead: 'Statuten, Protokolle und Medienmaterial des Vereins.', none: 'Noch keine Dokumente veröffentlicht.', kat: { statuten: 'Statuten', protokolle: 'Protokolle', medien: 'Medien', sonstiges: 'Sonstiges' } as Record<string, string>, open: 'PDF öffnen' };
+
+const alle = (await getLokalisiert('downloads', locale)).sort((a, b) => b.data.datum.getTime() - a.data.datum.getTime());
+const reihenfolge = ['statuten', 'protokolle', 'medien', 'sonstiges'];
+const gruppen = reihenfolge.map((k) => ({ k, label: t.kat[k], eintraege: alle.filter((d) => d.data.kategorie === k) })).filter((g) => g.eintraege.length > 0);
+---
+
+<section class="section page-hero hero--intro">
+  <div class="container">
+    <h1>{t.h1}</h1>
+    <p>{t.lead}</p>
+  </div>
+</section>
+
+<section class="section section--white">
+  <div class="container">
+    {gruppen.length === 0 && <p>{t.none}</p>}
+    {gruppen.map((g) => (
+      <div class="group">
+        <h2>{g.label}</h2>
+        <ul class="downloads">
+          {g.eintraege.map((d) => (
+            <li>
+              <Icon name="file-text" size={22} />
+              <div>
+                <a href={d.data.datei} target="_blank" rel="noopener"><strong>{d.data.titel}</strong></a>
+                <span class="meta">{formatDatum(d.data.datum, locale)}{d.data.beschreibung && ` · ${d.data.beschreibung}`}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .group + .group { margin-top: var(--space-4); }
+  .downloads { list-style: none; padding: 0; margin-top: var(--space-2); display: grid; gap: var(--space-2); }
+  .downloads li { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-subtle); }
+  .downloads li :global(svg) { flex: none; color: var(--color-primary); margin-top: 0.15em; }
+  .meta { display: block; font-size: var(--text-sm, 0.875rem); color: var(--color-text); }
+</style>

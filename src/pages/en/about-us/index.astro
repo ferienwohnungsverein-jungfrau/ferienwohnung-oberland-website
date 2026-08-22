@@ -5,6 +5,8 @@ import YouTubeEmbed from '../../../components/YouTubeEmbed.astro';
 import { Image } from 'astro:assets';
 import sujet3 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-3.jpg';
 import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4.jpg';
+import { getSeitenTexte, md } from '../../../lib/inhalte';
+const t = await getSeitenTexte('ueber-uns', 'en');
 ---
 
 <Layout
@@ -16,7 +18,7 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
   <section class="section page-hero hero--intro">
     <div class="container">
       <h1>Who We Are</h1>
-      <p>A private community of holiday apartment hosts in the greater Interlaken area.</p>
+      <p>{t.hero_text}</p>
     </div>
   </section>
 
@@ -25,7 +27,7 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
     <div class="container grid-2">
       <div>
         <h2>Our Board</h2>
-        <p class="intro-text">Our association fosters the exchange of information and experience among members and acts as a group contact for authorities on the subject of renting out holiday apartments. Our positions rest on facts and studies – traceable in our <a href="/en/sources/">Sources</a>.</p>
+        <div class="intro-text" set:html={md(t.vorstand_intro)} />
         <p class="board-note">Board member titles are given in German, the association's official working language.</p>
         <BoardAccordion />
       </div>
@@ -37,10 +39,8 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
   <section class="section section--subtle">
     <div class="container grid-2">
       <div>
-        <h2>Why We Rent Out Holiday Apartments</h2>
-        <p>We value contact with our guests and are happy when they return home satisfied and rested after their holiday.</p>
-        <p>Some of us rent out individual rooms in our own home. This gives them the closest contact with guests.</p>
-        <p>Guest reviews show that hosting is also a rewarding experience for us – meeting new people is part of the appeal.</p>
+        <h2>{t.warum_titel}</h2>
+        <div class="md" set:html={md(t.warum_text)} />
         <a href="/en/our-proposal/" class="btn btn-accent">Our Proposal on Short-Term Rentals</a>
       </div>
       <Image src={sujet4} alt="" width={1024} height={739} />
@@ -52,12 +52,8 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
     <div class="container grid-2">
       <YouTubeEmbed id="oYg1nMOCFbs" title="Ferienwohnungsbetreibende Berner Oberland" />
       <div>
-        <h2>More Effort Is Also Possible</h2>
-        <p>Others rent out furnished apartments and take on a bit more work: furnishing the unit, organising cleaning, round-the-clock guest care.</p>
-        <p>We all advise guests on activities in the Jungfrau region and sometimes put together excursions for them.</p>
-        <p>Our restaurant recommendations are very popular.</p>
-        <p>Additional activities are offered by some hosts on request: paragliding, hiking, mountain trekking.</p>
-        <p>Some hosts even pick guests up on foot from the train station, pointing out the Jungfrau and the nearest Coop along the way.</p>
+        <h2>{t.einsatz_titel}</h2>
+        <div class="md" set:html={md(t.einsatz_text)} />
       </div>
     </div>
   </section>
@@ -65,16 +61,17 @@ import sujet4 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-4
   <!-- Variety of roles -->
   <section class="section page-hero">
     <div class="container">
-      <h2>The Variety of Our Roles</h2>
-      <p>All in all, we are a diverse group with different offerings for guests who value contact with local hosts.</p>
-      <p>What we all share: we love hosting and enjoy the interaction with our guests.</p>
-      <p>At the same time, we are employers for guest care staff and cleaning personnel, or do this work ourselves.</p>
+      <h2>{t.rollen_titel}</h2>
+        <div class="md" set:html={md(t.rollen_text)} />
       <a href="/en/membership/" class="btn btn-accent">Become a Member</a>
     </div>
   </section>
 </Layout>
 
 <style>
+  .md :global(p) { margin-bottom: var(--space-2); }
+  .intro-text :global(p) { margin: 0; }
+
   .intro-text {
     font-size: var(--text-lg);
     max-width: 60ch;
