@@ -6,10 +6,8 @@ import sujet1 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-1.jpg';
 import sujet2 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-2.jpg';
 import sujet7 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jpg';
 
-import { getSeitenTexte, getLokalisiert, slugOf, formatDatum } from '../lib/inhalte';
+import { getSeitenTexte } from '../lib/inhalte';
 const texte = await getSeitenTexte('startseite', 'de');
-const beitraege = (await getLokalisiert('aktuelles', 'de')).sort((a, b) => b.data.datum.getTime() - a.data.datum.getTime()).slice(0, 3);
-const naechster = (await getLokalisiert('veranstaltungen', 'de')).filter((a) => (a.data.ende ?? a.data.beginn) >= new Date()).sort((a, b) => a.data.beginn.getTime() - b.data.beginn.getTime())[0];
 const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: 'webp' });
 ---
 
@@ -74,37 +72,11 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
     </div>
   </section>
 
-  <!-- Aktuell: erscheint nur, wenn Beiträge oder Anlässe vorhanden sind -->
-  {(beitraege.length > 0 || naechster) && (
-    <section class="section section--white">
-      <div class="container">
-        <p class="eyebrow">Aktuell</p>
-        <div class="aktuell">
-          {beitraege.map((b) => (
-            <a href={`/aktuelles/${slugOf(b.id)}/`} class="aktuell__card">
-              <time datetime={b.data.datum.toISOString()}>{formatDatum(b.data.datum, 'de')}</time>
-              <h3>{b.data.titel}</h3>
-              <p>{b.data.teaser}</p>
-            </a>
-          ))}
-          {naechster && (
-            <a href="/aktuelles/#anlaesse" class="aktuell__card aktuell__card--event">
-              <time datetime={naechster.data.beginn.toISOString()}>Nächster Anlass · {formatDatum(naechster.data.beginn, 'de', true)}</time>
-              <h3>{naechster.data.titel}</h3>
-              {naechster.data.ort && <p>{naechster.data.ort}</p>}
-            </a>
-          )}
-        </div>
-        <p class="aktuell__more"><a href="/aktuelles/" class="text-link-strong">Alle Beiträge und Anlässe →</a></p>
-      </div>
-    </section>
-  )}
-
   <!-- Mitglieder-Stimme -->
   <section class="section section--subtle">
     <div class="container">
       <figure class="testimonial">
-        <blockquote>„{texte.zitat}“</blockquote>
+        <blockquote>„{texte.zitat}"</blockquote>
         <figcaption>{texte.zitat_link ? <a href={texte.zitat_link} target="_blank" rel="noopener">{texte.zitat_autor}</a> : texte.zitat_autor}</figcaption>
       </figure>
     </div>
@@ -124,14 +96,6 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
 </Layout>
 
 <style>
-  .aktuell { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: var(--space-2); }
-  .aktuell__card { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-subtle); text-decoration: none; color: var(--color-text); transition: transform 0.15s ease, box-shadow 0.15s ease; }
-  .aktuell__card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-  .aktuell__card time { font-size: var(--text-sm, 0.875rem); color: var(--color-primary); font-weight: 600; }
-  .aktuell__card h3 { margin: 0; color: var(--color-heading); }
-  .aktuell__card p { margin: 0; }
-  .aktuell__card--event { background: var(--color-white); border-color: var(--color-secondary); }
-  .aktuell__more { margin-top: var(--space-3); }
 
   .grid-3 p {
     margin-inline: auto;

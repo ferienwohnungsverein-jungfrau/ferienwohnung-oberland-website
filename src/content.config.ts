@@ -7,42 +7,6 @@ import { glob } from 'astro/loaders';
 // Zweisprachig: Dateien liegen unter <collection>/de/... und <collection>/en/...
 // Die ID eines Eintrags ist damit z.B. "de/generalversammlung-2026".
 
-const aktuelles = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/aktuelles' }),
-  schema: z.object({
-    titel: z.string().min(1),
-    datum: z.coerce.date(),
-    teaser: z.string().min(1),
-    bild: z.string().optional(),
-    bild_alt: z.string().optional(),
-    entwurf: z.boolean().default(false),
-  }),
-});
-
-const veranstaltungen = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/veranstaltungen' }),
-  schema: z.object({
-    titel: z.string().min(1),
-    beginn: z.coerce.date(),
-    ende: z.coerce.date().optional(),
-    ort: z.string().optional(),
-    anmeldelink: z.string().url().optional().or(z.literal('')),
-    entwurf: z.boolean().default(false),
-  }),
-});
-
-const downloads = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/downloads' }),
-  schema: z.object({
-    titel: z.string().min(1),
-    datei: z.string().min(1),
-    kategorie: z.enum(['statuten', 'protokolle', 'medien', 'sonstiges']).default('sonstiges'),
-    datum: z.coerce.date(),
-    beschreibung: z.string().optional(),
-    entwurf: z.boolean().default(false),
-  }),
-});
-
 // Editierbare Textblöcke fest gestalteter Seiten (Layout bleibt im Code).
 const seiten = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/seiten' }),
@@ -64,4 +28,4 @@ const seiten = defineCollection({
   }),
 });
 
-export const collections = { aktuelles, veranstaltungen, downloads, seiten };
+export const collections = { seiten };

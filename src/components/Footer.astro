@@ -1,6 +1,5 @@
 ---
 import DigyCredit from './DigyCredit.astro';
-import { getLokalisiert } from '../lib/inhalte';
 
 interface Props {
   locale?: 'de' | 'en';
@@ -9,8 +8,6 @@ interface Props {
 const { locale = 'de' } = Astro.props;
 const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
 const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
-const downloadsHref = locale === 'en' ? '/en/downloads/' : '/downloads/';
-const hatDownloads = (await getLokalisiert('downloads', locale)).length > 0;
 ---
 
 <footer class="footer">
@@ -21,9 +18,9 @@ const hatDownloads = (await getLokalisiert('downloads', locale)).length > 0;
     </div>
     <p>
       {locale === 'en' ? (
-        <>{hatDownloads && <><a href={downloadsHref}>Downloads</a> · </>}<a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></>
+        <><a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></>
       ) : (
-        <>{hatDownloads && <><a href={downloadsHref}>Downloads</a> · </>}<a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></>
+        <><a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></>
       )}
     </p>
   </div>
