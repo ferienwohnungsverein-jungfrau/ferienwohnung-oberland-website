@@ -60,6 +60,16 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
       <h2 class="text-center">Register Your Interest</h2>
       <p class="text-center">Register your interest without obligation. You'll first receive a confirmation email – only after clicking the link inside will your registration reach us. We'll then get back to you personally. Alternatively, you can reach us by phone at <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
 
+      <!-- Membership fee -->
+      <div class="beitrag">
+        <h3>No fee until the next General Assembly</h3>
+        <p>You join free of charge: the first membership fee is only due from the next General Assembly onwards, giving you time to get to know the association and fellow hosts first. After that, the annual fee is:</p>
+        <ul>
+          <li>CHF 100 for up to 10 guest beds</li>
+          <li>CHF 200 for 11 guest beds or more</li>
+        </ul>
+      </div>
+
       <!-- Success message (shown after submission) -->
       <div id="form-success" class="form-success" style="display:none">
         <h3>Almost done.</h3>
@@ -220,6 +230,28 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
     background: #fff5f5;
     border: 1px solid #fecaca;
     border-radius: var(--radius-sm);
+  }
+
+  .beitrag {
+    text-align: left;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-subtle);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-3);
+  }
+
+  .beitrag h3 {
+    margin-bottom: var(--space-1);
+  }
+
+  .beitrag p {
+    margin-block: var(--space-1);
+  }
+
+  .beitrag ul {
+    margin: var(--space-1) 0 0;
+    padding-left: 1.25rem;
   }
 
   .form-success {

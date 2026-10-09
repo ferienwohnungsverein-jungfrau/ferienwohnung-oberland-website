@@ -60,6 +60,16 @@ import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jp
       <h2 class="text-center">Interesse anmelden</h2>
       <p class="text-center">Melden Sie unverbindlich Ihr Interesse an. Sie erhalten zuerst eine Bestätigungs-E-Mail – erst nach einem Klick auf den Link darin geht Ihre Anmeldung bei uns ein. Danach melden wir uns persönlich bei Ihnen. Alternativ erreichen Sie uns telefonisch unter <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
 
+      <!-- Mitgliederbeitrag -->
+      <div class="beitrag">
+        <h3>Beitragsfrei bis zur nächsten GV</h3>
+        <p>Sie steigen ohne Mitgliederbeitrag ein: Der erste Beitrag wird erst ab der nächsten Generalversammlung fällig. So lernen Sie den Verein und die anderen Betreiber:innen zuerst in Ruhe kennen. Danach beträgt der Jahresbeitrag:</p>
+        <ul>
+          <li>CHF 100 bis 10 Gästebetten</li>
+          <li>CHF 200 ab 11 Gästebetten</li>
+        </ul>
+      </div>
+
       <!-- Danke-Meldung (wird nach Absenden eingeblendet) -->
       <div id="form-success" class="form-success" style="display:none">
         <h3>Fast geschafft.</h3>
@@ -220,6 +230,28 @@ import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jp
     background: #fff5f5;
     border: 1px solid #fecaca;
     border-radius: var(--radius-sm);
+  }
+
+  .beitrag {
+    text-align: left;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-subtle);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-3);
+  }
+
+  .beitrag h3 {
+    margin-bottom: var(--space-1);
+  }
+
+  .beitrag p {
+    margin-block: var(--space-1);
+  }
+
+  .beitrag ul {
+    margin: var(--space-1) 0 0;
+    padding-left: 1.25rem;
   }
 
   .form-success {

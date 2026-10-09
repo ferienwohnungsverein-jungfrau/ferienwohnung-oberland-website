@@ -88,7 +88,7 @@ collections:
             fields:
               - { label: "Rolle", name: "rolle", widget: "string" }
               - { label: "Name", name: "name", widget: "string" }
-              - { label: "Ort (PLZ Ort)", name: "ort", widget: "string" }
+              - { label: "Ort (PLZ Ort, optional)", name: "ort", widget: "string", required: false }
               - { label: "Standardmässig geöffnet anzeigen", name: "offen", widget: "boolean", default: false }
 
   - name: "kontakt"

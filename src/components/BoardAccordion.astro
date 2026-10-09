@@ -10,7 +10,7 @@ import { vorstand as members } from '../lib/daten';
         <span class="board-accordion__icon" aria-hidden="true"></span>
       </summary>
       <div class="board-accordion__body">
-        <p>{m.name}<br />{m.ort}</p>
+        <p>{m.name}{m.ort && <><br />{m.ort}</>}</p>
       </div>
     </details>
   ))}

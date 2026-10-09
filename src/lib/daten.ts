@@ -10,7 +10,7 @@ const VorstandSchema = z.object({
       z.object({
         rolle: z.string().min(1, 'Rolle fehlt'),
         name: z.string().min(1, 'Name fehlt'),
-        ort: z.string().min(1, 'Ort fehlt'),
+        ort: z.string().default(''),
         offen: z.boolean().default(false),
       }),
     )
