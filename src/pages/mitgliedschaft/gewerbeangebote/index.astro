@@ -1,0 +1,20 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Gewerbeangebote from '../../../components/Gewerbeangebote.astro';
+---
+
+<Layout
+  title="Gewerbeangebote für Mitglieder - Ferienwohnungsverein Jungfrau"
+  description="Spezialkonditionen bei grüneisen küchen und kostenlose Erstberatung bei Hobeda Interlaken: Angebote lokaler Betriebe für Mitglieder des Ferienwohnungsvereins Jungfrau."
+  langAlt="/en/membership/business-offers/"
+>
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Gewerbeangebote für Mitglieder</h1>
+      <p>Betriebe aus der Region unterstützen unsere Mitglieder mit besonderen Konditionen – so profitieren Sie als Gastgeber:in direkt von Ihrer Mitgliedschaft.</p>
+    </div>
+  </section>
+
+  <Gewerbeangebote locale="de" />
+</Layout>

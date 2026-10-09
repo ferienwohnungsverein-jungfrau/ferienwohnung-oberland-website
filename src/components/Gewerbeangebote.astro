@@ -1,0 +1,492 @@
+---
+// Gewerbeangebote für Mitglieder: Partnerkarten + Anfrageformular (DE/EN).
+// Die Anfrage geht an sekretariat@ (public/php/gewerbeangebot-anfrage.php),
+// das die Mitgliedschaft prüft und an den Partnerbetrieb weiterleitet.
+// Neuer Partner: hier in `partner` ergänzen UND in der PHP-Datei ($partner).
+import { Image } from 'astro:assets';
+import { kontakt } from '../lib/daten';
+import grueneisenLogo from '../assets/images/partner/grueneisen-kuechen-logo.png';
+import hobedaLogo from '../assets/images/partner/hobeda-logo.png';
+
+interface Props {
+  locale?: 'de' | 'en';
+}
+const { locale = 'de' } = Astro.props;
+const en = locale === 'en';
+
+const partner = [
+  {
+    key: 'grueneisen',
+    logo: grueneisenLogo,
+    logoWidth: 280,
+    name: 'grüneisen küchenstudio ag',
+    ort: 'Unterseen & Interlaken',
+    angebot: en ? 'Special terms on selected products' : 'Spezialkonditionen auf ausgewählte Produkte',
+    text: en
+      ? 'Kitchen design, construction and appliances from a local specialist. Members benefit from special terms on selected products.'
+      : 'Küchenplanung, Küchenbau und Geräte vom Fachgeschäft aus der Region. Mitglieder profitieren von Spezialkonditionen auf ausgewählte Produkte.',
+    url: 'https://www.grueneisen-kuechen.ch',
+  },
+  {
+    key: 'hobeda',
+    logo: hobedaLogo,
+    logoWidth: 190,
+    name: 'Hobeda – Hotelbedarf Interlaken',
+    ort: 'Showroom in Interlaken',
+    angebot: en ? 'Free initial consultation' : 'Kostenlose Erstberatung',
+    text: en
+      ? 'Crockery, cutlery, glassware and kitchen equipment for hotels, restaurants and holiday apartments. Members receive a free initial consultation on equipping their apartment.'
+      : 'Geschirr, Besteck, Gläser und Küchenzubehör für Hotellerie, Gastronomie und Ferienwohnungen. Mitglieder erhalten eine kostenlose Erstberatung zur Ausstattung ihrer Wohnung.',
+    url: 'https://www.hobeda.ch',
+  },
+];
+
+const t = en
+  ? {
+      cta: 'Request offer',
+      website: 'Website',
+      stepsTitle: 'How it works',
+      steps: [
+        'Fill in the request form below.',
+        'Our secretariat confirms your membership.',
+        'We forward your request to the partner business, which will get back to you.',
+      ],
+      formTitle: 'Request an offer',
+      formIntro: 'Offers are reserved for members of the Ferienwohnungsverein Jungfrau.',
+      notMember: 'Not a member yet?',
+      notMemberLink: 'Register your interest',
+      notMemberRest: '– membership is free of charge until the next General Assembly.',
+      partner: 'Partner business',
+      partnerPick: 'Please choose',
+      vorname: 'First name',
+      name: 'Last name',
+      email: 'Email',
+      telefon: 'Phone number',
+      optional: '(optional)',
+      objekt: 'About your property',
+      objektPh: 'e.g. location of the holiday apartment, number of apartments and guest beds',
+      bestellung: 'Order / request',
+      bestellungPh: 'What would you like to order or discuss? e.g. new kitchen, crockery for 6 guests …',
+      consentPre: 'I agree that the secretariat checks my details and forwards them to the selected partner business. I have read the',
+      consentLink: 'privacy policy',
+      privacyHref: '/en/privacy/',
+      membershipHref: '/en/membership/#signup',
+      submit: 'Send request',
+      sending: 'Sending…',
+      successTitle: 'Thank you – your request has been sent.',
+      successText: 'Our secretariat will check your membership and forward your request to the partner business.',
+      retry: 'Please try again.',
+      netError: 'Connection error. Please try again.',
+      phone: 'Alternatively, call us at',
+    }
+  : {
+      cta: 'Angebot anfragen',
+      website: 'Website',
+      stepsTitle: 'So funktioniert es',
+      steps: [
+        'Sie füllen unten das Anfrageformular aus.',
+        'Unser Sekretariat bestätigt Ihre Mitgliedschaft.',
+        'Wir leiten Ihre Anfrage an den Partnerbetrieb weiter – dieser meldet sich bei Ihnen.',
+      ],
+      formTitle: 'Angebot anfragen',
+      formIntro: 'Die Angebote gelten für Mitglieder des Ferienwohnungsvereins Jungfrau.',
+      notMember: 'Noch nicht Mitglied?',
+      notMemberLink: 'Melden Sie Ihr Interesse an',
+      notMemberRest: '– bis zur nächsten GV ist die Mitgliedschaft beitragsfrei.',
+      partner: 'Partnerbetrieb',
+      partnerPick: 'Bitte wählen',
+      vorname: 'Vorname',
+      name: 'Name',
+      email: 'E-Mail',
+      telefon: 'Telefonnummer',
+      optional: '(optional)',
+      objekt: 'Angaben zum Objekt',
+      objektPh: 'z.B. Ort der Ferienwohnung, Anzahl Wohnungen und Gästebetten',
+      bestellung: 'Bestellung / Anliegen',
+      bestellungPh: 'Was möchten Sie bestellen oder besprechen? z.B. neue Küche, Geschirr für 6 Gäste …',
+      consentPre: 'Ich bin einverstanden, dass das Sekretariat meine Angaben prüft und an den gewählten Partnerbetrieb weiterleitet. Ich habe die',
+      consentLink: 'Datenschutzerklärung',
+      privacyHref: '/datenschutz/',
+      membershipHref: '/mitgliedschaft/#anmeldung',
+      submit: 'Anfrage senden',
+      sending: 'Wird gesendet…',
+      successTitle: 'Danke – Ihre Anfrage ist eingegangen.',
+      successText: 'Unser Sekretariat prüft Ihre Mitgliedschaft und leitet Ihre Anfrage an den Partnerbetrieb weiter.',
+      retry: 'Bitte versuchen Sie es erneut.',
+      netError: 'Verbindungsfehler. Bitte versuchen Sie es erneut.',
+      phone: 'Alternativ erreichen Sie uns telefonisch unter',
+    };
+---
+
+<!-- Partnerbetriebe -->
+<section class="section section--white">
+  <div class="container partner-grid">
+    {partner.map((p) => (
+      <article class="card partner-card">
+        <div class="partner-card__logo">
+          <Image src={p.logo} alt={`Logo ${p.name}`} width={p.logoWidth} />
+        </div>
+        <p class="partner-card__angebot">{p.angebot}</p>
+        <h2 class="partner-card__name">{p.name}</h2>
+        <p class="partner-card__ort">{p.ort}</p>
+        <p>{p.text}</p>
+        <div class="partner-card__actions">
+          <a href="#anfrage" class="btn btn-accent" data-partner={p.key}>{t.cta}</a>
+          <a href={p.url} target="_blank" rel="noopener noreferrer" class="partner-card__link">{t.website} ↗</a>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<!-- Ablauf -->
+<section class="section section--subtle">
+  <div class="container">
+    <h2 class="text-center">{t.stepsTitle}</h2>
+    <ol class="steps">
+      {t.steps.map((s, i) => (
+        <li><span class="steps__nr">{i + 1}</span><span>{s}</span></li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<!-- Anfrageformular -->
+<section class="section section--white" id="anfrage">
+  <div class="container anfrage">
+    <h2 class="text-center">{t.formTitle}</h2>
+    <p class="text-center">{t.formIntro} {t.notMember} <a href={t.membershipHref}>{t.notMemberLink}</a> {t.notMemberRest}</p>
+
+    <div id="ga-success" class="form-success" style="display:none">
+      <h3>{t.successTitle}</h3>
+      <p>{t.successText}</p>
+    </div>
+
+    <div class="form-wrap" id="ga-wrap">
+      <form id="ga-form" class="anfrage-form" method="POST" data-sending={t.sending} data-retry={t.retry} data-neterror={t.netError}>
+        <div class="hp-field" aria-hidden="true">
+          <label for="ga-website">Website</label>
+          <input type="text" id="ga-website" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+        <input type="hidden" name="locale" value={locale} />
+
+        <div class="form-group">
+          <label for="ga-partner">{t.partner} *</label>
+          <select id="ga-partner" name="partner" required>
+            <option value="">{t.partnerPick}</option>
+            {partner.map((p) => <option value={p.key}>{p.name} – {p.angebot}</option>)}
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ga-vorname">{t.vorname} *</label>
+            <input type="text" id="ga-vorname" name="vorname" required autocomplete="given-name" />
+          </div>
+          <div class="form-group">
+            <label for="ga-name">{t.name} *</label>
+            <input type="text" id="ga-name" name="name" required autocomplete="family-name" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ga-email">{t.email} *</label>
+            <input type="email" id="ga-email" name="email" required autocomplete="email" placeholder="ihre@email.ch" />
+          </div>
+          <div class="form-group">
+            <label for="ga-telefon">{t.telefon} <span class="optional">{t.optional}</span></label>
+            <input type="tel" id="ga-telefon" name="telefon" autocomplete="tel" placeholder="079 000 00 00" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ga-objekt">{t.objekt} *</label>
+          <textarea id="ga-objekt" name="objekt" rows="3" maxlength="2000" required placeholder={t.objektPh}></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="ga-bestellung">{t.bestellung} *</label>
+          <textarea id="ga-bestellung" name="bestellung" rows="5" maxlength="3000" required placeholder={t.bestellungPh}></textarea>
+        </div>
+
+        <div class="form-check">
+          <input type="checkbox" id="ga-datenschutz" name="datenschutz" required />
+          <label for="ga-datenschutz">{t.consentPre} <a href={t.privacyHref}>{t.consentLink}</a> {en ? 'read.' : 'gelesen.'} *</label>
+        </div>
+
+        <p id="ga-error" class="form-error" style="display:none"></p>
+
+        <button type="submit" id="ga-submit" class="btn btn-accent center-btn">{t.submit}</button>
+      </form>
+    </div>
+    <p class="text-center anfrage__phone">{t.phone} <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
+  </div>
+</section>
+
+<style>
+  .partner-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  .partner-card {
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .partner-card__logo {
+    height: 96px;
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+
+  .partner-card__logo img {
+    max-height: 72px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .partner-card__angebot {
+    font-weight: 700;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--text-sm);
+  }
+
+  .partner-card__name {
+    font-size: 1.35rem;
+  }
+
+  .partner-card__ort {
+    font-size: var(--text-sm);
+    opacity: 0.75;
+    margin-bottom: var(--space-1);
+  }
+
+  .partner-card__actions {
+    margin-top: auto;
+    padding-top: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .partner-card__link {
+    font-weight: 600;
+  }
+
+  .steps {
+    list-style: none;
+    max-width: 640px;
+    margin: var(--space-3) auto 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .steps li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .steps__nr {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .anfrage {
+    max-width: 640px;
+  }
+
+  .anfrage > p {
+    margin-block: var(--space-2) var(--space-3);
+  }
+
+  .anfrage a {
+    font-weight: 600;
+  }
+
+  .anfrage__phone {
+    font-size: var(--text-sm);
+    margin-top: var(--space-3);
+  }
+
+  .anfrage-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .hp-field {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .form-group label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-white);
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+  }
+
+  .form-group input:focus-visible,
+  .form-group select:focus-visible,
+  .form-group textarea:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 77, 122, 0.2);
+  }
+
+  .optional {
+    font-weight: 400;
+    opacity: 0.7;
+  }
+
+  .form-check {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .form-check input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+  }
+
+  .form-check label {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .form-error {
+    font-size: var(--text-sm);
+    color: #dc2626;
+    padding: var(--space-2) var(--space-3);
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+  }
+
+  .form-success {
+    padding: var(--space-4);
+    background: var(--color-bg-subtle);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-3);
+  }
+
+  .form-success h3 {
+    margin-bottom: var(--space-1);
+  }
+
+  @media (max-width: 860px) {
+    .partner-grid,
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('ga-form') as HTMLFormElement | null;
+  const wrap = document.getElementById('ga-wrap') as HTMLDivElement | null;
+  const success = document.getElementById('ga-success') as HTMLDivElement | null;
+  const submitBtn = document.getElementById('ga-submit') as HTMLButtonElement | null;
+  const errorEl = document.getElementById('ga-error') as HTMLParagraphElement | null;
+  const select = document.getElementById('ga-partner') as HTMLSelectElement | null;
+
+  // «Angebot anfragen» auf einer Partnerkarte wählt den Betrieb im Formular vor
+  document.querySelectorAll<HTMLAnchorElement>('a[data-partner]').forEach((a) => {
+    a.addEventListener('click', () => {
+      if (select && a.dataset.partner) select.value = a.dataset.partner;
+    });
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!errorEl || !submitBtn || !wrap || !success) return;
+    errorEl.style.display = 'none';
+
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = form.dataset.sending ?? '…';
+
+    const fail = (msg: string) => {
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    };
+
+    try {
+      const response = await fetch('/php/gewerbeangebot-anfrage.php', {
+        method: 'POST',
+        body: new FormData(form),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        wrap.style.display = 'none';
+        success.style.display = 'block';
+        success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        fail(data.message || form.dataset.retry || '');
+      }
+    } catch {
+      fail(form.dataset.neterror || '');
+    }
+  });
+</script>

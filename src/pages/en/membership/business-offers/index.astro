@@ -1,0 +1,20 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import Gewerbeangebote from '../../../../components/Gewerbeangebote.astro';
+---
+
+<Layout
+  title="Business Offers for Members - Ferienwohnungsverein Jungfrau"
+  description="Special terms at grüneisen küchen and a free initial consultation at Hobeda Interlaken: offers from local businesses for members of the Ferienwohnungsverein Jungfrau."
+  langAlt="/mitgliedschaft/gewerbeangebote/"
+>
+  <!-- Hero -->
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Business Offers for Members</h1>
+      <p>Local businesses support our members with special terms – so as a host you benefit directly from your membership.</p>
+    </div>
+  </section>
+
+  <Gewerbeangebote locale="en" />
+</Layout>
