@@ -325,7 +325,23 @@ SQL);
         $pdo->exec("INSERT OR IGNORE INTO einstellungen (schluessel, wert) VALUES ('mail_bei_veroeffentlichung', '1')");
         $pdo->exec('PRAGMA user_version = 1');
     }
-    // Künftige Schemaänderungen: if ($version < 2) { … PRAGMA user_version = 2 } – idempotent halten.
+    if ($version < 2) {
+        // Vorstands-Postfächer des Vereins freischalten (Stefan 16.10.2026). Nur die
+        // Funktionsadressen der Vereinsdomain – persönliche Adressen gehören nie ins
+        // öffentliche Repo, die schaltet it@ im Admin-Reiter frei. OR IGNORE: eine
+        // spätere Sperre oder Namensänderung durch den Admin bleibt bestehen.
+        $st = $pdo->prepare("INSERT OR IGNORE INTO mitglieder (email, vorname, name, rolle, status, angelegt_am, angelegt_von) VALUES (?, ?, ?, 'mitglied', 'aktiv', ?, 'system')");
+        foreach ([
+            ['vorstand@ferienwohnungsverein-jungfrau.ch', 'Vorstand', ''],
+            ['sekretariat@ferienwohnungsverein-jungfrau.ch', 'Sekretariat', ''],
+            ['medien@ferienwohnungsverein-jungfrau.ch', 'Medien und Kommunikation', ''],
+            ['finanzen@ferienwohnungsverein-jungfrau.ch', 'Finanzen', ''],
+        ] as [$email, $vorname, $name]) {
+            $st->execute([$email, $vorname, $name, jetzt()]);
+        }
+        $pdo->exec('PRAGMA user_version = 2');
+    }
+    // Künftige Schemaänderungen: if ($version < 3) { … PRAGMA user_version = 3 } – idempotent halten.
 }
 
 function einstellung(string $schluessel, string $standard = ''): string
