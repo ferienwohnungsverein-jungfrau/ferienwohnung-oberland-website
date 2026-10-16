@@ -6,26 +6,40 @@ interface Props {
 
 const { locale = 'de', langAlt } = Astro.props;
 
+// Hauptpunkte stehen direkt im Header; weniger wichtige klappen unter «Mehr» nach unten auf.
 const linksByLocale = {
-  de: [
-    { href: '/mitgliedschaft/', label: 'Für Vermietende' },
-    { href: '/unser-vorschlag/', label: 'Unser Vorschlag' },
-    { href: '/ueber-uns/', label: 'Über uns' },
-    { href: '/fuer-gemeinden-medien/', label: 'Für Gemeinden & Medien' },
-    { href: '/quellen/', label: 'Quellen' },
-    { href: '/kontakt/', label: 'Kontakt' },
-  ],
-  en: [
-    { href: '/en/membership/', label: 'For Hosts' },
-    { href: '/en/our-proposal/', label: 'Our Proposal' },
-    { href: '/en/about-us/', label: 'About Us' },
-    { href: '/en/for-municipalities-media/', label: 'For Municipalities & Media' },
-    { href: '/en/sources/', label: 'Sources' },
-    { href: '/en/contact/', label: 'Contact' },
-  ],
+  de: {
+    haupt: [
+      { href: '/mitgliedschaft/', label: 'Für Vermietende' },
+      { href: '/unser-vorschlag/', label: 'Unser Vorschlag' },
+      { href: '/fuer-gemeinden-medien/', label: 'Für Gemeinden & Medien' },
+    ],
+    mehr: [
+      { href: '/ueber-uns/', label: 'Über uns' },
+      { href: '/quellen/', label: 'Quellen' },
+      { href: '/kontakt/', label: 'Kontakt' },
+    ],
+    mehrLabel: 'Mehr',
+    mitglieder: { href: '/mitglieder/', label: 'Mitgliederbereich', kurz: 'Mitglieder' },
+  },
+  en: {
+    haupt: [
+      { href: '/en/membership/', label: 'For Hosts' },
+      { href: '/en/our-proposal/', label: 'Our Proposal' },
+      { href: '/en/for-municipalities-media/', label: 'For Municipalities & Media' },
+    ],
+    mehr: [
+      { href: '/en/about-us/', label: 'About Us' },
+      { href: '/en/sources/', label: 'Sources' },
+      { href: '/en/contact/', label: 'Contact' },
+    ],
+    mehrLabel: 'More',
+    mitglieder: { href: '/en/members/', label: 'Members’ area', kurz: 'Members' },
+  },
 };
 
-const links = linksByLocale[locale];
+const { haupt, mehr, mehrLabel, mitglieder } = linksByLocale[locale];
+const links = [...haupt, ...mehr];
 const currentPath = Astro.url.pathname;
 function isActive(href: string) {
   return href === '/' || href === '/en/' ? currentPath === href : currentPath.startsWith(href);
@@ -33,6 +47,8 @@ function isActive(href: string) {
 
 const langSwitchHref = langAlt ?? (locale === 'en' ? '/' : '/en/');
 const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
+const mehrAktiv = mehr.some((l) => isActive(l.href));
+const mitgliederAktiv = isActive(mitglieder.href);
 ---
 
 <header class="nav">
@@ -49,13 +65,34 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
     </a>
 
     <nav class="nav__links" aria-label="Hauptnavigation">
-      {links.map((link) => (
+      {haupt.map((link) => (
         <a href={link.href} class:list={['nav__link', { 'nav__link--active': isActive(link.href) }]}>
           {link.label}
         </a>
       ))}
+      <div class="nav__mehr">
+        <button type="button" class:list={['nav__link', 'nav__mehr-knopf', { 'nav__link--active': mehrAktiv }]} aria-expanded="false" aria-controls="nav-mehr-menue">
+          {mehrLabel} <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+        </button>
+        <div id="nav-mehr-menue" class="nav__mehr-menue">
+          {mehr.map((link) => (
+            <a href={link.href} class:list={['nav__mehr-link', { 'nav__mehr-link--active': isActive(link.href) }]} aria-current={isActive(link.href) ? 'page' : undefined}>
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </div>
+      <a href={mitglieder.href} class:list={['nav__mitglieder', { 'nav__mitglieder--active': mitgliederAktiv }]}>
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>
+        {mitglieder.label}
+      </a>
       <a href={langSwitchHref} class="nav__lang" lang={locale === 'en' ? 'de' : 'en'}>{langSwitchLabel}</a>
     </nav>
+
+    <a href={mitglieder.href} class="nav__mitglieder nav__mitglieder--mobil" aria-label={mitglieder.label}>
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>
+      <span class="nav__mitglieder-text">{mitglieder.kurz}</span>
+    </a>
 
     <button class="nav__toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
       <span></span><span></span><span></span>
@@ -69,6 +106,7 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
           {link.label}
         </a>
       ))}
+      <a href={mitglieder.href} class:list={['nav__mobile-link', { 'nav__mobile-link--active': mitgliederAktiv }]}>{mitglieder.label}</a>
       <a href={langSwitchHref} class="nav__mobile-link" lang={locale === 'en' ? 'de' : 'en'}>{langSwitchLabel}</a>
     </nav>
   </div>
@@ -152,6 +190,107 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
     border-bottom-color: rgba(255, 255, 255, 0.6);
   }
 
+  /* «Mehr»: klappt nach unten auf – per Hover (Maus) oder Klick/Enter auf den Knopf (Touch, Tastatur) */
+  .nav__mehr {
+    position: relative;
+  }
+
+  .nav__mehr-knopf {
+    background: none;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.95rem;
+  }
+
+  .nav__mehr-knopf svg {
+    transition: transform 0.2s;
+  }
+
+  .nav__mehr-menue {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 180px;
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card-hover);
+    padding: 0.4rem 0;
+    display: none;
+    flex-direction: column;
+  }
+
+  /* Unsichtbare Brücke, damit das Menü beim Hinunterfahren mit der Maus offen bleibt */
+  .nav__mehr-menue::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    height: 12px;
+  }
+
+  .nav__mehr:hover .nav__mehr-menue,
+  .nav__mehr--offen .nav__mehr-menue {
+    display: flex;
+  }
+
+  .nav__mehr:hover .nav__mehr-knopf svg,
+  .nav__mehr--offen .nav__mehr-knopf svg {
+    transform: rotate(180deg);
+  }
+
+  .nav__mehr-link {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.95rem;
+    color: var(--color-heading);
+    white-space: nowrap;
+  }
+
+  .nav__mehr-link:hover,
+  .nav__mehr-link:focus-visible {
+    background: var(--color-bg-subtle);
+    color: var(--color-primary);
+  }
+
+  .nav__mehr-link--active {
+    color: var(--color-primary);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--color-accent);
+  }
+
+  /* Mitgliederbereich: Knopf in Akzentfarbe (dunkler Text = AA-Kontrast, wie .btn-accent) */
+  .nav__mitglieder {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--color-accent);
+    color: var(--color-heading);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+  }
+
+  .nav__mitglieder:hover,
+  .nav__mitglieder--active {
+    background: var(--color-accent-dark);
+    color: var(--color-heading);
+  }
+
+  .nav__mitglieder--mobil {
+    display: none;
+    margin-left: auto;
+  }
+
   .nav__toggle {
     display: none;
     flex-direction: column;
@@ -203,6 +342,20 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
   @media (max-width: 1180px) {
     .nav__links { display: none; }
     .nav__toggle { display: flex; }
+    .nav__mitglieder--mobil { display: inline-flex; }
+  }
+
+  /* Handy: Wortmarke, Mitglieder-Knopf und Hamburger müssen nebeneinander passen */
+  @media (max-width: 480px) {
+    .nav__inner { gap: var(--space-1); }
+    .nav__brand { font-size: 0.95rem; }
+    .nav__mitglieder--mobil { padding: 0.35rem 0.6rem; font-size: 0.85rem; }
+    .nav__toggle { min-width: 40px; padding: 0.4rem 0 0.4rem 0.4rem; }
+  }
+
+  @media (max-width: 359px) {
+    .nav__mitglieder-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .nav__mitglieder--mobil { padding: 0.45rem 0.55rem; }
   }
 </style>
 
@@ -213,5 +366,23 @@ const langSwitchLabel = locale === 'en' ? 'DE' : 'EN';
     const isOpen = mobileMenu?.hidden === false;
     mobileMenu!.hidden = isOpen;
     toggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // «Mehr»-Menü: Klick (Touch-Geräte), Escape und Klick ausserhalb schliessen
+  const mehr = document.querySelector('.nav__mehr') as HTMLElement | null;
+  const mehrKnopf = mehr?.querySelector('.nav__mehr-knopf') as HTMLButtonElement | null;
+  const mehrSetzen = (offen: boolean) => {
+    mehr?.classList.toggle('nav__mehr--offen', offen);
+    mehrKnopf?.setAttribute('aria-expanded', String(offen));
+  };
+  mehrKnopf?.addEventListener('click', () => mehrSetzen(!mehr!.classList.contains('nav__mehr--offen')));
+  document.addEventListener('click', (e) => {
+    if (mehr && !mehr.contains(e.target as Node)) mehrSetzen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mehr?.classList.contains('nav__mehr--offen')) {
+      mehrSetzen(false);
+      mehrKnopf?.focus();
+    }
   });
 </script>
