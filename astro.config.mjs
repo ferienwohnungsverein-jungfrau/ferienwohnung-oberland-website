@@ -5,7 +5,8 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://ferienwohnungsverein-jungfrau.ch',
-  integrations: [sitemap()],
+  // Mitgliederbereich (noindex) nicht in die Sitemap
+  integrations: [sitemap({ filter: (page) => !/\/(mitglieder|en\/members)\/$/.test(new URL(page).pathname) })],
   i18n: {
     defaultLocale: 'de',
     locales: ['de', 'en'],

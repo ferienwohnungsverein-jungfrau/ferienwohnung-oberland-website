@@ -8,6 +8,7 @@ interface Props {
 const { locale = 'de' } = Astro.props;
 const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
 const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
+const mitgliederHref = locale === 'en' ? '/en/members/' : '/mitglieder/';
 ---
 
 <footer class="footer">
@@ -18,9 +19,9 @@ const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
     </div>
     <p>
       {locale === 'en' ? (
-        <><a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></>
+        <><a href={mitgliederHref}>Members’ area</a> · <a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></>
       ) : (
-        <><a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></>
+        <><a href={mitgliederHref}>Mitgliederbereich</a> · <a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></>
       )}
     </p>
   </div>

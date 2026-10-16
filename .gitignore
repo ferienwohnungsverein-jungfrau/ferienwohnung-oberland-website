@@ -25,3 +25,9 @@ pnpm-debug.log*
 
 # lokale WordPress-Backups/Exporte (nicht Teil des Astro-Projekts)
 _wordpress-backup/
+
+# Mitgliederbereich: Datenordner gehört nie ins (öffentliche) Repo
+fwvj-mitglieder/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

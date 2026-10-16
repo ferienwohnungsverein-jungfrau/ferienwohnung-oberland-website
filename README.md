@@ -83,3 +83,41 @@ Bild-Uploads werden vom CMS auf 1920 px verkleinert und als WebP abgelegt.
 
 Ablauf danach: Redakteur:in speichert im CMS → Commit auf GitHub → Pull-Deploy (siehe oben)
 → Seite ist nach ca. 2–3 Minuten live. Rückgängig = Git-Revert.
+
+## Mitgliederbereich (`/mitglieder/`, `/en/members/`)
+
+Geschützter Bereich zum Austausch von Vorlagen (Schilder, Hausordnungen, Checklisten …).
+Statische Astro-Hülle (`src/components/Mitgliederbereich.astro`, Logik in `src/scripts/mitglieder/`)
+plus PHP-JSON-API in `public/php/mitglieder/`:
+
+| Datei | Zweck |
+|---|---|
+| `api.php` | Login per Mail-Code, Liste, Hochladen/Ersetzen, Bearbeiten, Löschen, Melden, Admin |
+| `datei.php` | Download + Vorschaubilder (nur mit Sitzung) |
+| `freigabe.php` | signierte Freigabe-/Ablehnen-Links für anonyme Uploads (Mail an it@) |
+| `_lib.php`, `_pruefung.php` | gemeinsame Funktionen, Dateiprüfung; **alle Grenzwerte als Konstanten oben in `_lib.php`** |
+| `katalog.json` | Kategorien, Sprachen, Themen-Tags, Erkennungswörter DE/EN/FR/IT – einzige Quelle für Browser und Server |
+
+**Datenablage – nie im Repo, nie in `httpdocs`:** `../fwvj-mitglieder/` eine Ebene über `httpdocs`
+(übersteht den Deploy-Tausch). Wird beim ersten Aufruf selbst angelegt (Ordner 700, Dateien 600):
+`mitglieder.sqlite` (Mitglieder, Sitzungen, Dokumente, Audit-Log, Sperren), `dateien/`, `vorschau/`,
+`secret.key` (signiert Freigabe-Links, hasht Login-Codes). Lokal per `FWVJ_MITGLIEDER_DIR` umlenkbar.
+
+**Admin:** Erst-Admin ist `it@ferienwohnungsverein-jungfrau.ch`. Freischalten: Mitglied schreibt an it@ →
+Mitgliedschaft prüfen → im Reiter «Admin» E-Mail, Vorname, Name eintragen. Dort auch: anonyme Uploads
+freigeben, Gemeldetes prüfen, Konten/IP-Adressen sperren, Audit-Log, Mail bei Veröffentlichung an/aus.
+
+**Backup:** den ganzen Ordner `fwvj-mitglieder/` (Plesk-Dateimanager oder FTP) herunterladen – Datenbank
+und Dateien gehören zusammen. Wiederherstellen = Ordner zurückkopieren.
+
+**Aufbewahrung (ohne Cron, beim nächsten Aufruf):** Upload-Einträge mit IP solange die Datei online ist
++ 90 Tage; übrige Audit-Einträge 90 Tage; gelöschte/abgelehnte Dokumente nach 90 Tagen ganz entfernt.
+
+**Lokal testen:**
+
+    npm run build && cd dist
+    FWVJ_MITGLIEDER_DIR=/tmp/fwvj-mitglieder FWVJ_UNSICHER_LOKAL=1 FWVJ_BASIS_URL=http://localhost:8765 \
+      php -d sendmail_path="cat >> /tmp/fwvj_mail.eml" -S localhost:8765
+
+(Mails landen in `/tmp/fwvj_mail.eml`, Login-Code steht dort.) Neue Kategorie/Wörter: nur `katalog.json`
+ergänzen – Schlüssel bestehender Kategorien nie umbenennen.

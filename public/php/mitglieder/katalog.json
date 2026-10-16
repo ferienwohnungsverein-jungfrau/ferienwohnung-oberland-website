@@ -1,0 +1,138 @@
+{
+  "_hinweis": "Katalog Mitgliederbereich. Einzige Quelle für Kategorien, Sprachen, Tags und Erkennungswörter – der Browser schlägt damit vor, der Server prüft dagegen. Neue Wörter einfach ergänzen (Gross/Klein und Umlaute egal). Kategorie-Schlüssel nie umbenennen (stehen in der Datenbank).",
+  "kategorien": [
+    {
+      "key": "schild",
+      "de": "Schild/Plakat",
+      "en": "Sign/Poster",
+      "woerter": {
+        "de": ["schild", "plakat", "aushang", "aufkleber", "hinweis", "verboten", "verbot", "nicht gestattet", "untersagt", "danke", "bitte nicht"],
+        "en": ["sign", "poster", "notice", "sticker", "forbidden", "prohibited", "not allowed", "please do not", "thank you for"],
+        "fr": ["panneau", "affiche", "interdit", "defense de", "merci de ne pas"],
+        "it": ["cartello", "avviso", "vietato", "divieto", "si prega di non"]
+      }
+    },
+    {
+      "key": "hausordnung",
+      "de": "Hausordnung",
+      "en": "House rules",
+      "woerter": {
+        "de": ["hausordnung", "hausregeln", "hausreglement", "regeln", "ruhezeit", "nachtruhe", "mittagsruhe", "nicht erlaubt", "partys"],
+        "en": ["house rules", "rules", "quiet hours", "no parties", "regulations"],
+        "fr": ["reglement", "regles de la maison", "reglement interieur", "heures de silence"],
+        "it": ["regolamento", "regole della casa", "regole", "orari di silenzio"]
+      }
+    },
+    {
+      "key": "checkin",
+      "de": "Check-in/Check-out",
+      "en": "Check-in/Check-out",
+      "woerter": {
+        "de": ["check-in", "checkin", "check-out", "checkout", "anreise", "abreise", "ankunft", "schlussel", "schlusselbox", "schlusselsafe", "abgabe", "ubergabe"],
+        "en": ["check-in", "check in", "check-out", "check out", "arrival", "departure", "key box", "keybox", "key safe", "keys"],
+        "fr": ["arrivee", "depart", "cle", "boite a cles", "remise des cles"],
+        "it": ["arrivo", "partenza", "chiave", "chiavi", "cassetta"]
+      }
+    },
+    {
+      "key": "anleitung",
+      "de": "Anleitung Gerät/Wohnung",
+      "en": "Instructions appliance/apartment",
+      "woerter": {
+        "de": ["anleitung", "bedienung", "bedienungsanleitung", "gebrauchsanweisung", "so funktioniert", "kaffeemaschine", "waschmaschine", "tumbler", "trockner", "geschirrspuler", "spulmaschine", "backofen", "herd", "induktion", "kochfeld", "heizung", "fernseher", "fernbedienung", "storen", "jalousie", "kamin", "sauna", "whirlpool"],
+        "en": ["instructions", "manual", "how to use", "how it works", "coffee machine", "washing machine", "dryer", "dishwasher", "oven", "stove", "hob", "heating", "remote control", "fireplace"],
+        "fr": ["mode d'emploi", "instructions", "machine a cafe", "lave-linge", "lave-vaisselle", "four", "chauffage", "telecommande"],
+        "it": ["istruzioni", "manuale", "macchina del caffe", "lavatrice", "lavastoviglie", "forno", "riscaldamento", "telecomando"]
+      }
+    },
+    {
+      "key": "reinigung",
+      "de": "Checkliste Reinigung",
+      "en": "Cleaning checklist",
+      "woerter": {
+        "de": ["reinigung", "endreinigung", "zwischenreinigung", "putzen", "putzplan", "checkliste", "bettwasche", "staubsaugen", "wischen", "entkalken", "handtucher", "wasche"],
+        "en": ["cleaning", "checklist", "housekeeping", "linen", "vacuum", "towels", "turnover"],
+        "fr": ["nettoyage", "menage", "liste de controle", "linge de lit"],
+        "it": ["pulizia", "pulizie", "lista di controllo", "biancheria"]
+      }
+    },
+    {
+      "key": "formular",
+      "de": "Mietvertrag/Formular",
+      "en": "Rental agreement/Form",
+      "woerter": {
+        "de": ["mietvertrag", "vertrag", "formular", "unterschrift", "mieter", "vermieter", "kaution", "anzahlung", "stornierung", "annullierung", "meldeschein", "gastemeldung", "allgemeine geschaftsbedingungen", "agb"],
+        "en": ["rental agreement", "agreement", "contract", "form", "signature", "tenant", "landlord", "deposit", "cancellation", "terms and conditions", "registration form"],
+        "fr": ["contrat", "formulaire", "signature", "locataire", "caution", "annulation"],
+        "it": ["contratto", "modulo", "firma", "inquilino", "cauzione", "cancellazione"]
+      }
+    },
+    {
+      "key": "gaesteinfo",
+      "de": "Gästeinfo/Willkommen",
+      "en": "Guest info/Welcome",
+      "woerter": {
+        "de": ["willkommen", "herzlich willkommen", "gasteinfo", "gasteinformation", "gastemappe", "tipps", "ausflug", "ausfluge", "restaurant", "einkaufen", "offnungszeiten", "gastekarte", "sehenswurdigkeiten"],
+        "en": ["welcome", "guest information", "guest info", "guidebook", "tips", "excursions", "restaurants", "shopping", "opening hours", "guest card"],
+        "fr": ["bienvenue", "informations", "conseils", "excursions"],
+        "it": ["benvenuti", "benvenuto", "informazioni", "consigli", "escursioni"]
+      }
+    },
+    {
+      "key": "notfall",
+      "de": "Notfall/Sicherheit",
+      "en": "Emergency/Safety",
+      "woerter": {
+        "de": ["notfall", "notruf", "notfallnummer", "feuer", "brand", "feuerloscher", "loschdecke", "rauchmelder", "fluchtweg", "notausgang", "erste hilfe", "polizei", "feuerwehr", "sanitat", "ambulanz", "sicherheit"],
+        "en": ["emergency", "fire", "extinguisher", "fire blanket", "smoke detector", "escape route", "emergency exit", "first aid", "police", "ambulance", "safety"],
+        "fr": ["urgence", "incendie", "extincteur", "sortie de secours", "premiers secours", "pompiers", "securite"],
+        "it": ["emergenza", "incendio", "estintore", "uscita di emergenza", "pronto soccorso", "polizia", "vigili del fuoco", "sicurezza"]
+      }
+    },
+    {
+      "key": "abfall",
+      "de": "Abfall/Recycling",
+      "en": "Waste/Recycling",
+      "woerter": {
+        "de": ["abfall", "mull", "kehricht", "gebuhrensack", "entsorgung", "recycling", "altglas", "glas", "pet", "karton", "altpapier", "kompost", "grungut", "sammelstelle", "trennen"],
+        "en": ["waste", "garbage", "trash", "rubbish", "recycling", "bin", "glass", "cardboard", "paper", "compost"],
+        "fr": ["dechets", "poubelle", "recyclage", "verre", "carton", "papier", "tri"],
+        "it": ["rifiuti", "spazzatura", "riciclaggio", "vetro", "cartone", "carta", "raccolta differenziata"]
+      }
+    },
+    {
+      "key": "sonstiges",
+      "de": "Sonstiges",
+      "en": "Other",
+      "woerter": {}
+    }
+  ],
+  "sprachen": [
+    { "key": "de", "de": "Deutsch", "en": "German" },
+    { "key": "en", "de": "Englisch", "en": "English" },
+    { "key": "fr", "de": "Französisch", "en": "French" },
+    { "key": "it", "de": "Italienisch", "en": "Italian" },
+    { "key": "mehrsprachig", "de": "Mehrsprachig", "en": "Multilingual" },
+    { "key": "neutral", "de": "Ohne Text (Piktogramm)", "en": "No text (pictogram)" }
+  ],
+  "stoppwoerter": {
+    "de": ["der", "die", "das", "und", "ist", "nicht", "bitte", "mit", "fur", "sie", "zu", "den", "dem", "ein", "eine", "im", "auf", "wir", "ihr", "ihre", "wird", "werden", "sind", "auch", "nach", "bei", "oder", "vom", "zum", "zur", "danke"],
+    "en": ["the", "and", "is", "not", "please", "with", "for", "you", "to", "of", "in", "on", "your", "are", "be", "will", "this", "that", "we", "our", "from", "at", "or", "thank", "do", "by"],
+    "fr": ["le", "la", "les", "et", "est", "pas", "merci", "avec", "pour", "vous", "de", "des", "une", "dans", "du", "au", "sur", "nous", "votre", "vos", "ne", "sont", "ou", "par", "il", "elle"],
+    "it": ["il", "lo", "gli", "le", "e", "non", "grazie", "con", "per", "voi", "di", "una", "nel", "della", "del", "che", "sono", "si", "prega", "vostro", "alla", "al", "da", "dei", "un"]
+  },
+  "tags": [
+    { "key": "rauchverbot", "de": "Rauchverbot", "en": "No smoking", "woerter": ["rauch", "nichtraucher", "smoking", "smoke", "fumer", "fumeur", "fumare", "fumo"] },
+    { "key": "wlan", "de": "WLAN", "en": "Wi-Fi", "woerter": ["wlan", "wifi", "wi-fi", "internet", "passwort", "password", "mot de passe"] },
+    { "key": "laerm", "de": "Lärm/Ruhezeit", "en": "Noise/Quiet hours", "woerter": ["larm", "nachtruhe", "ruhezeit", "leise", "noise", "quiet", "bruit", "silence", "rumore", "silenzio"] },
+    { "key": "haustiere", "de": "Haustiere", "en": "Pets", "woerter": ["haustier", "hund", "katze", "tiere", "pets", "pet-friendly", "dog", "cat", "animaux", "chien", "animali", "cane"] },
+    { "key": "parkplatz", "de": "Parkplatz", "en": "Parking", "woerter": ["parkplatz", "parkieren", "parken", "einstellhalle", "garage", "parking", "stationnement", "parcheggio"] },
+    { "key": "schluessel", "de": "Schlüssel", "en": "Keys", "woerter": ["schlussel", "schlusselbox", "keybox", "key box", "key safe", "keys", "cles", "chiave", "chiavi"] },
+    { "key": "heizung", "de": "Heizung/Lüften", "en": "Heating/Ventilation", "woerter": ["heizung", "heizen", "luften", "thermostat", "heating", "ventilation", "chauffage", "riscaldamento"] },
+    { "key": "kueche", "de": "Küche/Geräte", "en": "Kitchen/Appliances", "woerter": ["kuche", "kaffeemaschine", "geschirrspuler", "backofen", "kochfeld", "kitchen", "coffee machine", "dishwasher", "cuisine", "cucina"] },
+    { "key": "waesche", "de": "Wäsche", "en": "Laundry", "woerter": ["waschmaschine", "tumbler", "trockner", "waschkuche", "washing machine", "laundry", "dryer", "lave-linge", "lavatrice"] },
+    { "key": "kurtaxe", "de": "Kurtaxe/Gästekarte", "en": "Tourist tax/Guest card", "woerter": ["kurtaxe", "gastekarte", "beherbergungsabgabe", "tourist tax", "guest card", "taxe de sejour", "tassa di soggiorno"] },
+    { "key": "feuer", "de": "Feuer/Kamin", "en": "Fire/Fireplace", "woerter": ["feuer", "kamin", "cheminee", "grill", "fireplace", "barbecue", "camino"] },
+    { "key": "oev", "de": "ÖV/Anreise", "en": "Public transport", "woerter": ["bahnhof", "postauto", "bus", "zug", "fahrplan", "public transport", "train station", "gare", "stazione"] }
+  ]
+}

@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Mitgliederbereich from '../../components/Mitgliederbereich.astro';
+---
+
+<Layout
+  title="Mitgliederbereich - Ferienwohnungsverein Jungfrau"
+  description="Geschützter Bereich für Mitglieder des Ferienwohnungsvereins Jungfrau: Vorlagen für die Vermietung austauschen."
+  langAlt="/en/members/"
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Mitgliederbereich</h1>
+      <p>Vorlagen für die Vermietung austauschen: Schilder und Plakate für Gäste, Hausordnungen, Check-in-Anleitungen, Checklisten und mehr. Jedes Mitglied kann eigene Vorlagen hochladen.</p>
+    </div>
+  </section>
+
+  <Mitgliederbereich locale="de" />
+</Layout>

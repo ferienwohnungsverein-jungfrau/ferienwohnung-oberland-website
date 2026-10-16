@@ -1,0 +1,21 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Mitgliederbereich from '../../../components/Mitgliederbereich.astro';
+---
+
+<Layout
+  title="Members’ area - Ferienwohnungsverein Jungfrau"
+  description="Protected area for members of the Ferienwohnungsverein Jungfrau: share templates for holiday rentals."
+  langAlt="/mitglieder/"
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Members’ area</h1>
+      <p>Share templates for holiday rentals: signs and posters for guests, house rules, check-in instructions, checklists and more. Every member can upload their own templates.</p>
+    </div>
+  </section>
+
+  <Mitgliederbereich locale="en" />
+</Layout>
