@@ -15,6 +15,8 @@ if (!defined('FWVJ_MITGLIEDER')) {
     exit;
 }
 
+date_default_timezone_set('Europe/Zurich'); // Zeiten in Mails/Seiten + Monat im Dateinamen
+
 // ── Einstellungen (bewusst als Konstanten, leicht änderbar) ──
 const FWVJ_ERST_ADMIN = 'it@ferienwohnungsverein-jungfrau.ch';
 const FWVJ_IT_ADRESSE = 'it@ferienwohnungsverein-jungfrau.ch';
@@ -45,6 +47,9 @@ const MELDUNGEN_BIS_AUSBLENDEN = 2;               // verschiedene Mitglieder
 
 const AUFBEWAHRUNG_TAGE = 90;                     // Audit + IP (Uploads: solange online + 90 Tage)
 const SIGNATUR_GUELTIG_TAGE = 7;                  // Freigabe-Links in Mails an it@
+const ANFRAGE_GUELTIG_TAGE = 14;                  // Akzeptieren/Ablehnen-Links für Zugangsanfragen
+const LIMIT_ANFRAGEN_IP_STUNDE = 5;
+const LIMIT_ANFRAGEN_ADRESSE_TAG = 2;
 
 // ── Hilfen ──
 
@@ -341,7 +346,27 @@ SQL);
         }
         $pdo->exec('PRAGMA user_version = 2');
     }
-    // Künftige Schemaänderungen: if ($version < 3) { … PRAGMA user_version = 3 } – idempotent halten.
+    if ($version < 3) {
+        // Zugangsanfragen über das Formular auf der Login-Seite → Mail an it@ mit Knöpfen.
+        $pdo->exec(<<<SQL
+CREATE TABLE IF NOT EXISTS zugangsanfragen (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  vorname TEXT NOT NULL,
+  name TEXT NOT NULL,
+  angaben TEXT NOT NULL DEFAULT '',
+  locale TEXT NOT NULL DEFAULT 'de',
+  zeit INTEGER NOT NULL,
+  ip TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'offen' CHECK (status IN ('offen','angenommen','abgelehnt')),
+  erledigt_am INTEGER,
+  erledigt_von TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS ix_anfragen_status ON zugangsanfragen(status);
+SQL);
+        $pdo->exec('PRAGMA user_version = 3');
+    }
+    // Künftige Schemaänderungen: if ($version < 4) { … PRAGMA user_version = 4 } – idempotent halten.
 }
 
 function einstellung(string $schluessel, string $standard = ''): string
@@ -581,6 +606,8 @@ function aufraeumen(): void
     $pdo->prepare('DELETE FROM sitzungen WHERE ablauf < ?')->execute([jetzt()]);
     $pdo->prepare('DELETE FROM ereignisse WHERE zeit < ?')->execute([jetzt() - 2 * 86400]);
     $pdo->prepare('DELETE FROM ip_sperren WHERE bis < ?')->execute([jetzt()]);
+    // Erledigte Anfragen nach 90 Tagen weg; unbeantwortete ebenfalls (Links sind längst abgelaufen)
+    $pdo->prepare('DELETE FROM zugangsanfragen WHERE COALESCE(erledigt_am, zeit) < ?')->execute([$grenze]);
 }
 
 // ── Mail ──
@@ -596,6 +623,133 @@ function mail_senden(string $an, string $betreff, string $text): bool
         . "X-Auto-Response-Suppress: All\r\n";
     $subject = '=?UTF-8?B?' . base64_encode(str_replace(["\r", "\n"], ' ', $betreff)) . '?=';
     return @mail($an, $subject, $text, $headers);
+}
+
+/** Mail mit Text- und HTML-Teil (für Knöpfe). */
+function mail_senden_html(string $an, string $betreff, string $text, string $html, string $replyTo = FWVJ_IT_ADRESSE): bool
+{
+    $an = str_replace(["\r", "\n"], '', $an);
+    $grenze = 'fwvj-' . bin2hex(random_bytes(8));
+    $headers = 'From: ' . FWVJ_ABSENDER . "\r\n"
+        . 'Reply-To: ' . str_replace(["\r", "\n"], '', $replyTo) . "\r\n"
+        . "MIME-Version: 1.0\r\n"
+        . "Content-Type: multipart/alternative; boundary=\"{$grenze}\"\r\n"
+        . "X-Auto-Response-Suppress: All\r\n";
+    $body = "--{$grenze}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n{$text}\r\n"
+        . "--{$grenze}\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n{$html}\r\n"
+        . "--{$grenze}--";
+    $subject = '=?UTF-8?B?' . base64_encode(str_replace(["\r", "\n"], ' ', $betreff)) . '?=';
+    return @mail($an, $subject, $body, $headers);
+}
+
+/** HTML-Rahmen im Stil der übrigen Vereinsmails (blauer Kopf, oranger Knopf). $inhalt ist bereits HTML. */
+function mail_html_rahmen(string $inhalt, string $lang = 'de'): string
+{
+    $l = $lang === 'en' ? 'en' : 'de-CH';
+    return <<<HTML
+<!doctype html>
+<html lang="{$l}"><body style="margin:0;padding:0;background:#F9F9F9;font-family:Arial,Helvetica,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F9F9F9;padding:32px 16px;"><tr><td align="center">
+<table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;">
+<tr><td style="background:#004D7A;padding:24px 32px;"><span style="color:#ffffff;font-size:18px;font-weight:700;">Ferienwohnungsverein Jungfrau</span></td></tr>
+<tr><td style="padding:32px;color:#1a1a1a;font-size:15px;line-height:1.6;">{$inhalt}</td></tr>
+</table></td></tr></table></body></html>
+HTML;
+}
+
+function mail_knopf(string $url, string $text, bool $haupt = true): string
+{
+    $u = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    $t = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    $stil = $haupt ? 'background:#F4A261;color:#1e293b;' : 'background:#ffffff;color:#b91c1c;border:2px solid #fecaca;';
+    return "<a href=\"{$u}\" style=\"{$stil}text-decoration:none;font-weight:700;padding:14px 28px;border-radius:6px;display:inline-block;margin:0 8px 8px 0;\">{$t}</a>";
+}
+
+/** Begrüssungsmail nach der Freischaltung (Formular-Anfrage oder Admin-Reiter). */
+function begruessung_senden(string $email, string $vorname, string $locale): bool
+{
+    $en = $locale === 'en';
+    $link = basis_url() . ($en ? '/en/members/' : '/mitglieder/');
+    $hallo = trim($vorname);
+    $h = htmlspecialchars($hallo, ENT_QUOTES, 'UTF-8');
+    if ($en) {
+        $betreff = 'Your access to the members’ area is active';
+        $text = "Hello {$hallo}\n\nYour address has been activated for the members’ area of the Ferienwohnungsverein Jungfrau.\n\n"
+            . "Sign in: {$link}\nEnter this email address – you will receive a code by email, no password needed.\n\n"
+            . "There you will find templates for renting (signs, house rules, checklists …) and can upload your own.\n\n"
+            . "Kind regards\nFerienwohnungsverein Jungfrau\n";
+        $html = "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\">Your address has been activated for the members’ area. There you will find templates for renting (signs, house rules, checklists …) and can upload your own.</p>"
+            . '<p style="margin:0 0 16px;">' . mail_knopf($link, 'Go to the members’ area') . '</p>'
+            . '<p style="margin:0;color:#666666;font-size:13px;">Enter this email address – you will receive a code by email, no password needed.</p>';
+    } else {
+        $betreff = 'Dein Zugang zum Mitgliederbereich ist freigeschaltet';
+        $text = "Hallo {$hallo}\n\nDeine Adresse ist für den Mitgliederbereich des Ferienwohnungsvereins Jungfrau freigeschaltet.\n\n"
+            . "Anmelden: {$link}\nDiese E-Mail-Adresse eingeben – du bekommst einen Code per Mail, kein Passwort nötig.\n\n"
+            . "Dort findest du Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) und kannst eigene hochladen.\n\n"
+            . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau\n";
+        $html = "<p style=\"margin:0 0 16px;\">Hallo {$h}</p><p style=\"margin:0 0 16px;\">Deine Adresse ist für den Mitgliederbereich freigeschaltet. Dort findest du Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) und kannst eigene hochladen.</p>"
+            . '<p style="margin:0 0 16px;">' . mail_knopf($link, 'Zum Mitgliederbereich') . '</p>'
+            . '<p style="margin:0;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – du bekommst einen Code per Mail, kein Passwort nötig.</p>';
+    }
+    return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, $locale));
+}
+
+/** Absage an die anfragende Person (neutral formuliert). */
+function absage_senden(string $email, string $vorname, string $locale): bool
+{
+    $hallo = trim($vorname);
+    if ($locale === 'en') {
+        $betreff = 'Your request for the members’ area';
+        $text = "Hello {$hallo}\n\nUnfortunately we could not confirm a membership for this address, so we cannot activate access to the members’ area.\n\n"
+            . "If this is a mistake (e.g. you are registered with a different address), simply reply to this email.\n\nKind regards\nFerienwohnungsverein Jungfrau\n";
+    } else {
+        $betreff = 'Deine Anfrage für den Mitgliederbereich';
+        $text = "Hallo {$hallo}\n\nleider konnten wir zu dieser Adresse keine Mitgliedschaft bestätigen und den Zugang zum Mitgliederbereich deshalb nicht freischalten.\n\n"
+            . "Falls das ein Irrtum ist (z. B. weil du mit einer anderen Adresse eingetragen bist), antworte einfach auf diese Mail.\n\nFreundliche Grüsse\nFerienwohnungsverein Jungfrau\n";
+    }
+    return mail_senden($email, $betreff, $text);
+}
+
+/**
+ * Zugangsanfrage entscheiden – gemeinsam für zugang.php (Knopf in der Mail) und den Admin-Reiter.
+ * Rückgabe: Kurztext für die Bestätigung.
+ */
+function anfrage_entscheiden(array $anfrage, bool $annehmen, string $vorname, string $name, bool $mailSenden, ?array $admin): string
+{
+    $pdo = db();
+    $von = $admin['email'] ?? 'it@ (Knopf in der Mail)';
+    $email = $anfrage['email'];
+    if ($annehmen) {
+        $st = $pdo->prepare('SELECT * FROM mitglieder WHERE email = ?');
+        $st->execute([$email]);
+        $vorhanden = $st->fetch();
+        if ($vorhanden && $vorhanden['status'] === 'gesperrt') {
+            return 'gesperrt';
+        }
+        if (!$vorhanden) {
+            $pdo->prepare("INSERT INTO mitglieder (email, vorname, name, rolle, status, angelegt_am, angelegt_von) VALUES (?, ?, ?, 'mitglied', 'aktiv', ?, ?)")
+                ->execute([$email, $vorname, $name, jetzt(), $von]);
+        }
+    }
+    $pdo->prepare('UPDATE zugangsanfragen SET status = ?, erledigt_am = ?, erledigt_von = ? WHERE id = ?')
+        ->execute([$annehmen ? 'angenommen' : 'abgelehnt', jetzt(), $von, $anfrage['id']]);
+    // Weitere offene Anfragen derselben Adresse gleich mit erledigen
+    $pdo->prepare("UPDATE zugangsanfragen SET status = ?, erledigt_am = ?, erledigt_von = ? WHERE email = ? AND status = 'offen'")
+        ->execute([$annehmen ? 'angenommen' : 'abgelehnt', jetzt(), $von, $email]);
+    $gesendet = false;
+    if ($mailSenden) {
+        $gesendet = $annehmen ? begruessung_senden($email, $vorname, $anfrage['locale']) : absage_senden($email, $vorname, $anfrage['locale']);
+    }
+    audit($annehmen ? 'anfrage_angenommen' : 'anfrage_abgelehnt', $admin, null, "{$email}: {$vorname} {$name}" . ($mailSenden ? ($gesendet ? ', Mail gesendet' : ', Mail FEHLGESCHLAGEN') : ', ohne Mail'), 0, $admin ? null : $von);
+    return $annehmen ? 'angenommen' : 'abgelehnt';
+}
+
+function anfrage_link(string $aktion, int $id): string
+{
+    $ablauf = jetzt() + ANFRAGE_GUELTIG_TAGE * 86400;
+    return basis_url() . '/php/mitglieder/zugang.php?' . http_build_query([
+        'a' => $aktion, 'id' => $id, 'exp' => $ablauf, 's' => signatur('zugang_' . $aktion, (string) $id, $ablauf),
+    ]);
 }
 
 function mail_an_it(string $betreff, string $text): void

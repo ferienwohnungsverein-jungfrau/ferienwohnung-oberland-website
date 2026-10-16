@@ -23,8 +23,15 @@ const T = {
     code: 'Code aus der E-Mail',
     anmelden: 'Anmelden',
     andereAdresse: 'Andere Adresse / neuen Code anfordern',
-    nochNicht: 'Noch nicht freigeschaltet? Schreib eine kurze Mail an',
-    nochNichtRest: '– von der Adresse, mit der du dich anmelden willst. Wir prüfen die Mitgliedschaft und schalten dich frei.',
+    nochNicht: 'Noch nicht freigeschaltet?',
+    beantragen: 'Zugang beantragen',
+    beantragenTitel: 'Zugang beantragen',
+    beantragenText: 'Der Mitgliederbereich ist für Mitglieder des Ferienwohnungsvereins Jungfrau. Gib die Adresse an, mit der du dich anmelden willst. Der Vorstand prüft die Mitgliedschaft und schaltet dich frei – du bekommst dann eine E-Mail.',
+    angaben: 'Ort der Ferienwohnung / Bemerkung',
+    angabenPh: 'hilft uns beim Prüfen, z. B. «Interlaken, 2 Wohnungen»',
+    absenden: 'Anfrage senden',
+    zurueckLogin: 'Zurück zur Anmeldung',
+    oderMail: 'Fragen? Mail an',
     hallo: 'Hallo',
     abmelden: 'Abmelden',
     reiterVorlagen: 'Vorlagen',
@@ -105,6 +112,11 @@ const T = {
     fehler: 'Das hat nicht geklappt. Bitte nochmals versuchen.',
     netz: 'Verbindungsfehler. Bitte nochmals versuchen.',
     // Admin
+    aAnfragen: 'Offene Zugangsanfragen',
+    akzeptieren: 'Akzeptieren',
+    mitMail: 'mit Mail an die Person',
+    begruessung: 'Begrüssungsmail senden',
+    mailSprache: 'Sprache der Mail',
     aWartend: 'Warten auf Freigabe (anonym)',
     aGemeldet: 'Gemeldet oder ausgeblendet',
     aKeine: 'Nichts offen.',
@@ -162,8 +174,15 @@ const T = {
     code: 'Code from the email',
     anmelden: 'Sign in',
     andereAdresse: 'Other address / request a new code',
-    nochNicht: 'Not activated yet? Send a short email to',
-    nochNichtRest: '– from the address you want to sign in with. We will check your membership and activate you.',
+    nochNicht: 'Not activated yet?',
+    beantragen: 'Request access',
+    beantragenTitel: 'Request access',
+    beantragenText: 'The members’ area is for members of the Ferienwohnungsverein Jungfrau. Enter the address you want to sign in with. The board will check your membership and activate you – you will then receive an email.',
+    angaben: 'Location of the holiday apartment / note',
+    angabenPh: 'helps us check, e.g. “Interlaken, 2 apartments”',
+    absenden: 'Send request',
+    zurueckLogin: 'Back to sign-in',
+    oderMail: 'Questions? Email',
     hallo: 'Hello',
     abmelden: 'Sign out',
     reiterVorlagen: 'Templates',
@@ -241,6 +260,11 @@ const T = {
     gespeichert: 'Saved.',
     fehler: 'That did not work. Please try again.',
     netz: 'Connection error. Please try again.',
+    aAnfragen: 'Open access requests',
+    akzeptieren: 'Accept',
+    mitMail: 'with email to the person',
+    begruessung: 'Send welcome email',
+    mailSprache: 'Email language',
     aWartend: 'Awaiting approval (anonymous)',
     aGemeldet: 'Reported or hidden',
     aKeine: 'Nothing pending.',
@@ -444,8 +468,44 @@ function zeigeLogin(): void {
         <button type="submit" class="btn btn-accent">${T.anmelden}</button>
         <button type="button" class="mb-link" data-aktion="andere-adresse">${T.andereAdresse}</button>
       </form>
-      <p class="mb-klein">${T.nochNicht} <a href="mailto:${IT}">${IT}</a> ${T.nochNichtRest}</p>
+      <p class="mb-klein" id="mb-beantragen-hinweis">${T.nochNicht} <button type="button" class="mb-link" data-aktion="beantragen">${T.beantragen}</button></p>
+      <form id="mb-form-antrag" class="mb-form" hidden novalidate>
+        <h2>${T.beantragenTitel}</h2>
+        <p>${T.beantragenText}</p>
+        <div class="hp-feld" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <label class="mb-feld"><span>${T.email} *</span><input type="email" name="email" required autocomplete="email" inputmode="email"></label>
+        <label class="mb-feld"><span>${T.vorname} *</span><input type="text" name="vorname" required maxlength="80" autocomplete="given-name"></label>
+        <label class="mb-feld"><span>${T.name} *</span><input type="text" name="name" required maxlength="80" autocomplete="family-name"></label>
+        <label class="mb-feld"><span>${T.angaben}</span><input type="text" name="angaben" maxlength="500" placeholder="${T.angabenPh}"></label>
+        <button type="submit" class="btn btn-accent">${T.absenden}</button>
+        <button type="button" class="mb-link" data-aktion="zurueck-login">${T.zurueckLogin}</button>
+        <p class="mb-klein">${T.oderMail} <a href="mailto:${IT}">${IT}</a></p>
+      </form>
     </div>`;
+  const fAntrag = $<HTMLFormElement>('#mb-form-antrag');
+  const anmeldeTeile = () => [$('#mb-form-email'), $('#mb-beantragen-hinweis'), wurzel.querySelector('.mb-login > h2') as HTMLElement];
+  $('[data-aktion=beantragen]').addEventListener('click', () => {
+    anmeldeTeile().forEach((el) => (el.hidden = true));
+    $('#mb-form-code').hidden = true;
+    fAntrag.hidden = false;
+    const mail = ($<HTMLFormElement>('#mb-form-email').email as HTMLInputElement).value;
+    if (mail) (fAntrag.email as HTMLInputElement).value = mail;
+    (fAntrag.email as HTMLInputElement).focus();
+  });
+  fAntrag.querySelector('[data-aktion=zurueck-login]')!.addEventListener('click', () => {
+    fAntrag.hidden = true;
+    anmeldeTeile().forEach((el) => (el.hidden = false));
+  });
+  fAntrag.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = fAntrag.querySelector('button[type=submit]') as HTMLButtonElement;
+    if (!fAntrag.checkValidity()) return meldung(L === 'en' ? 'Please fill in email, first and last name.' : 'Bitte E-Mail, Vorname und Name ausfüllen.', 'fehler');
+    btn.disabled = true;
+    const r = await api('zugang_beantragen', Object.fromEntries(new FormData(fAntrag)) as Record<string, string>);
+    btn.disabled = false;
+    if (!r.success) return meldung(r.message || T.fehler, 'fehler');
+    fAntrag.innerHTML = `<h2>${T.beantragenTitel}</h2><p class="mb-hinweis">${esc(r.message)}</p>`;
+  });
   const fEmail = $<HTMLFormElement>('#mb-form-email');
   const fCode = $<HTMLFormElement>('#mb-form-code');
   let email = '';
@@ -978,6 +1038,7 @@ async function adminLaden(): Promise<void> {
   if (!p.dataset.aufgebaut) {
     p.dataset.aufgebaut = '1';
     p.innerHTML = `
+      <section class="mb-admin-teil"><h2>${T.aAnfragen}</h2><div id="mb-a-anfragen"></div></section>
       <section class="mb-admin-teil"><h2>${T.aWartend}</h2><div class="mb-grid" id="mb-a-wartend"></div></section>
       <section class="mb-admin-teil"><h2>${T.aGemeldet}</h2><div class="mb-grid" id="mb-a-gemeldet"></div></section>
       <section class="mb-admin-teil mb-karte">
@@ -987,6 +1048,8 @@ async function adminLaden(): Promise<void> {
           <label class="mb-feld"><span>${T.vorname} *</span><input type="text" name="vorname" required maxlength="80"></label>
           <label class="mb-feld"><span>${T.name} *</span><input type="text" name="name" required maxlength="80"></label>
           <label class="mb-feld"><span>${T.rolle}</span><select name="rolle"><option value="mitglied">${T.rolleMitglied}</option><option value="admin">${T.rolleAdmin}</option></select></label>
+          <label class="mb-feld"><span>${T.mailSprache}</span><select name="mail_sprache"><option value="de">Deutsch</option><option value="en">English</option></select></label>
+          <label class="mb-check"><input type="checkbox" name="begruessung" value="1" checked> ${T.begruessung}</label>
           <button type="submit" class="btn btn-accent">${T.freischalten}</button>
         </form>
         <div class="mb-tabelle-wrap"><table class="mb-tabelle" id="mb-a-mitglieder"></table></div>
@@ -1041,7 +1104,24 @@ async function adminLaden(): Promise<void> {
     });
   }
   adminDokumente();
-  await Promise.all([adminMitglieder(), adminSperren(), adminAudit()]);
+  await Promise.all([adminAnfragen(), adminMitglieder(), adminSperren(), adminAudit()]);
+}
+
+async function adminAnfragen(): Promise<void> {
+  const r = await api<{ anfragen: Record<string, string | number>[] }>('admin_anfragen');
+  if (!r.success) return;
+  $('#mb-a-anfragen').innerHTML = r.anfragen.length
+    ? r.anfragen.map((a) => `
+      <div class="mb-karte mb-anfrage">
+        <p><strong>${esc(`${a.vorname} ${a.name}`)}</strong> · ${esc(a.email)} <span class="mb-klein">· ${zeitpunkt(Number(a.zeit))}</span></p>
+        ${a.angaben ? `<p class="mb-klein">${esc(a.angaben)}</p>` : ''}
+        <div class="mb-doc__knoepfe">
+          <button type="button" class="btn btn-accent mb-btn-klein" data-aktion="anfrage" data-was="annehmen" data-id="${a.id}">✓ ${T.akzeptieren}</button>
+          <button type="button" class="mb-link mb-link--rot" data-aktion="anfrage" data-was="ablehnen" data-id="${a.id}">✕ ${T.ablehnen}</button>
+          <label class="mb-check"><input type="checkbox" data-mail-fuer="${a.id}" checked> ${T.mitMail}</label>
+        </div>
+      </div>`).join('')
+    : `<p class="mb-leer">${T.aKeine}</p>`;
 }
 
 function adminDokumente(): void {
@@ -1174,6 +1254,14 @@ wurzel?.addEventListener('click', async (e) => {
       (f.ip as HTMLInputElement).value = el.dataset.ip ?? '';
       f.scrollIntoView({ behavior: 'smooth', block: 'center' });
       (f.grund as HTMLInputElement).focus();
+      break;
+    }
+    case 'anfrage': {
+      const mail = (wurzel.querySelector(`[data-mail-fuer="${el.dataset.id}"]`) as HTMLInputElement | null)?.checked ? '1' : '';
+      const r = await api('admin_anfrage', { id: el.dataset.id, was: el.dataset.was, mail });
+      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
+      meldung(T.gespeichert);
+      await Promise.all([adminAnfragen(), adminMitglieder()]);
       break;
     }
     case 'ip-aufheben': {

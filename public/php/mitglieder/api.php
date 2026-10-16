@@ -18,6 +18,9 @@ try {
         'ich' => aktion_ich(),
         'code_anfordern' => aktion_code_anfordern(),
         'code_pruefen' => aktion_code_pruefen(),
+        'zugang_beantragen' => aktion_zugang_beantragen(),
+        'admin_anfragen' => aktion_admin_anfragen(),
+        'admin_anfrage' => aktion_admin_anfrage(),
         'abmelden' => aktion_abmelden(),
         'liste' => aktion_liste(),
         'hochladen' => aktion_hochladen(),
@@ -175,6 +178,99 @@ function aktion_abmelden(): never
     sitzung_beenden();
     if ($m) {
         audit('abmeldung', $m);
+    }
+    antwort(['success' => true]);
+}
+
+// ── Zugang beantragen (öffentlich) ──
+
+function aktion_zugang_beantragen(): never
+{
+    post_pruefen(false);
+    $email = email_norm((string) ($_POST['email'] ?? ''));
+    $vorname = sauber((string) ($_POST['vorname'] ?? ''), 80);
+    $name = sauber((string) ($_POST['name'] ?? ''), 80);
+    $angaben = sauber((string) ($_POST['angaben'] ?? ''), 500);
+    $ip = client_ip();
+    $ok = fn() => antwort([
+        'success' => true,
+        'message' => sprache() === 'en'
+            ? 'Thank you – your request has been sent. As soon as we have confirmed your membership, you will receive an email.'
+            : 'Danke – deine Anfrage ist eingegangen. Sobald wir die Mitgliedschaft bestätigt haben, bekommst du eine E-Mail.',
+    ]);
+    if (trim((string) ($_POST['website'] ?? '')) !== '') {
+        $ok(); // Honeypot: Bot – Erfolg vortäuschen
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 200) {
+        fehler('Bitte gib eine gültige E-Mail-Adresse ein.', 'Please enter a valid email address.');
+    }
+    if ($vorname === '' || $name === '') {
+        fehler('Bitte Vorname und Name angeben.', 'Please enter your first and last name.');
+    }
+    if (ip_gesperrt($ip)) {
+        $ok();
+    }
+    if (anzahl('anfrage', 'ip:' . $ip, 3600) >= LIMIT_ANFRAGEN_IP_STUNDE) {
+        alarm('anfragen-ip-' . $ip, 'viele Zugangsanfragen', "Von der IP {$ip} kamen in der letzten Stunde " . LIMIT_ANFRAGEN_IP_STUNDE . ' oder mehr Zugangsanfragen.');
+        fehler('Zu viele Anfragen. Bitte versuche es später nochmals.', 'Too many requests. Please try again later.', 429);
+    }
+    ereignis('anfrage', 'ip:' . $ip);
+    // Schon freigeschaltet? Gleiche Antwort (verrät nichts), aber keine Mail an it@.
+    $st = db()->prepare('SELECT status FROM mitglieder WHERE email = ?');
+    $st->execute([$email]);
+    $status = $st->fetchColumn();
+    if ($status === 'aktiv' || anzahl('anfrage', 'adr:' . $email, 86400) >= LIMIT_ANFRAGEN_ADRESSE_TAG) {
+        $ok();
+    }
+    ereignis('anfrage', 'adr:' . $email);
+    db()->prepare('INSERT INTO zugangsanfragen (email, vorname, name, angaben, locale, zeit, ip) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        ->execute([$email, $vorname, $name, $angaben, sprache(), jetzt(), $ip]);
+    $id = (int) db()->lastInsertId();
+    audit('anfrage', null, null, "{$vorname} {$name}" . ($angaben !== '' ? ": {$angaben}" : ''), 0, $email);
+
+    $e = fn(string $x) => htmlspecialchars($x, ENT_QUOTES, 'UTF-8');
+    $ja = anfrage_link('annehmen', $id);
+    $nein = anfrage_link('ablehnen', $id);
+    $hinweisGesperrt = $status === 'gesperrt' ? "\nACHTUNG: Diese Adresse ist im Mitgliederbereich gesperrt.\n" : '';
+    $text = "Neue Anfrage für den Mitgliederbereich.\n\nName: {$vorname} {$name}\nE-Mail: {$email}\n"
+        . ($angaben !== '' ? "Angaben: {$angaben}\n" : '') . $hinweisGesperrt
+        . "\nBitte prüfen, ob die Person Mitglied ist.\n\nAkzeptieren: {$ja}\n\nAblehnen: {$nein}\n\n"
+        . 'Die Links sind ' . ANFRAGE_GUELTIG_TAGE . " Tage gültig. Alternativ im Admin-Reiter: " . basis_url() . "/mitglieder/#admin\n";
+    $html = '<p style="margin:0 0 16px;"><strong>Neue Anfrage für den Mitgliederbereich</strong></p>'
+        . '<table role="presentation" style="margin:0 0 16px;font-size:15px;">'
+        . '<tr><td style="color:#666;padding-right:16px;">Name</td><td><strong>' . $e("{$vorname} {$name}") . '</strong></td></tr>'
+        . '<tr><td style="color:#666;padding-right:16px;">E-Mail</td><td>' . $e($email) . '</td></tr>'
+        . ($angaben !== '' ? '<tr><td style="color:#666;padding-right:16px;vertical-align:top;">Angaben</td><td>' . $e($angaben) . '</td></tr>' : '')
+        . '</table>'
+        . ($status === 'gesperrt' ? '<p style="margin:0 0 16px;color:#b91c1c;"><strong>Achtung: Diese Adresse ist im Mitgliederbereich gesperrt.</strong></p>' : '')
+        . '<p style="margin:0 0 20px;">Bitte prüfen, ob die Person Mitglied ist.</p>'
+        . '<p style="margin:0 0 16px;">' . mail_knopf($ja, '✓ Akzeptieren') . mail_knopf($nein, '✕ Ablehnen', false) . '</p>'
+        . '<p style="margin:0;color:#666666;font-size:13px;">Der Knopf öffnet eine Bestätigungsseite – dort Namen prüfen und mit einem Klick abschliessen. Beim Akzeptieren erhält die Person automatisch eine Begrüssungsmail. Links ' . ANFRAGE_GUELTIG_TAGE . ' Tage gültig; alternativ im <a href="' . $e(basis_url() . '/mitglieder/#admin') . '" style="color:#004D7A;">Admin-Reiter</a>.</p>';
+    mail_senden_html(FWVJ_IT_ADRESSE, "[Mitgliederbereich] Zugangsanfrage: {$vorname} {$name}", $text, mail_html_rahmen($html), $email);
+    $ok();
+}
+
+function aktion_admin_anfragen(): never
+{
+    admin_pflicht();
+    $rows = db()->query("SELECT id, email, vorname, name, angaben, locale, zeit FROM zugangsanfragen WHERE status = 'offen' ORDER BY zeit")->fetchAll();
+    antwort(['success' => true, 'anfragen' => $rows]);
+}
+
+function aktion_admin_anfrage(): never
+{
+    post_pruefen();
+    $ich = admin_pflicht();
+    $st = db()->prepare("SELECT * FROM zugangsanfragen WHERE id = ? AND status = 'offen'");
+    $st->execute([(int) ($_POST['id'] ?? 0)]);
+    $a = $st->fetch();
+    if (!$a) {
+        fehler('Diese Anfrage ist bereits erledigt.', 'This request has already been handled.', 409);
+    }
+    $annehmen = ($_POST['was'] ?? '') === 'annehmen';
+    $ergebnis = anfrage_entscheiden($a, $annehmen, sauber((string) ($_POST['vorname'] ?? $a['vorname']), 80) ?: $a['vorname'], sauber((string) ($_POST['name'] ?? $a['name']), 80) ?: $a['name'], !empty($_POST['mail']), $ich);
+    if ($ergebnis === 'gesperrt') {
+        fehler('Diese Adresse ist gesperrt – zuerst in der Mitgliederliste entsperren.', 'This address is blocked – unblock it in the member list first.', 409);
     }
     antwort(['success' => true]);
 }
@@ -612,6 +708,12 @@ function aktion_admin_mitglied_speichern(): never
         $pdo->prepare("INSERT INTO mitglieder (email, vorname, name, rolle, status, angelegt_am, angelegt_von) VALUES (?, ?, ?, ?, 'aktiv', ?, ?)")
             ->execute([$email, $vorname, $name, $rolle, jetzt(), $ich['email']]);
         audit('mitglied_freigeschaltet', $ich, null, "{$email}: {$vorname} {$name}, {$rolle}");
+        if (!empty($_POST['begruessung'])) {
+            begruessung_senden($email, $vorname, ($_POST['mail_sprache'] ?? '') === 'en' ? 'en' : 'de');
+        }
+        // Offene Formular-Anfrage derselben Adresse ist damit erledigt
+        $pdo->prepare("UPDATE zugangsanfragen SET status = 'angenommen', erledigt_am = ?, erledigt_von = ? WHERE email = ? AND status = 'offen'")
+            ->execute([jetzt(), $ich['email'], $email]);
     }
     antwort(['success' => true, 'neu' => !$vorhanden]);
 }
