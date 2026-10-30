@@ -20,6 +20,9 @@ date_default_timezone_set('Europe/Zurich'); // Zeiten in Mails/Seiten + Monat im
 // ── Einstellungen (bewusst als Konstanten, leicht änderbar) ──
 const FWVJ_ERST_ADMIN = 'it@ferienwohnungsverein-jungfrau.ch';
 const FWVJ_IT_ADRESSE = 'it@ferienwohnungsverein-jungfrau.ch';
+const FWVJ_SEKRETARIAT_ADRESSE = 'sekretariat@ferienwohnungsverein-jungfrau.ch';
+// Zugangsanfragen gehen an Sekretariat UND it@ (Stefan 30.10.2026) – beide können akzeptieren/ablehnen.
+const FWVJ_ANFRAGE_EMPFAENGER = FWVJ_SEKRETARIAT_ADRESSE . ', ' . FWVJ_IT_ADRESSE;
 const FWVJ_ABSENDER = 'Ferienwohnungsverein Jungfrau <noreply@ferienwohnungsverein-jungfrau.ch>';
 const FWVJ_BASIS_URL_STANDARD = 'https://ferienwohnungsverein-jungfrau.ch';
 

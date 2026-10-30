@@ -95,7 +95,7 @@ plus PHP-JSON-API in `public/php/mitglieder/`:
 | `api.php` | Login per Mail-Code, Liste, Hochladen/Ersetzen, Bearbeiten, Löschen, Melden, Admin |
 | `datei.php` | Download + Vorschaubilder (nur mit Sitzung) |
 | `freigabe.php` | signierte Freigabe-/Ablehnen-Links für anonyme Uploads (Mail an it@) |
-| `zugang.php` | Knöpfe «Akzeptieren»/«Ablehnen» für Zugangsanfragen (Mail an it@) |
+| `zugang.php` | Knöpfe «Akzeptieren»/«Ablehnen» für Zugangsanfragen (Mail an sekretariat@ + it@; wer zuerst klickt, erledigt – der andere sieht «bereits erledigt») |
 | `_lib.php`, `_pruefung.php` | gemeinsame Funktionen, Dateiprüfung; **alle Grenzwerte als Konstanten oben in `_lib.php`** |
 | `katalog.json` | Kategorien, Sprachen, Themen-Tags, Erkennungswörter DE/EN/FR/IT – einzige Quelle für Browser und Server |
 
@@ -106,7 +106,7 @@ plus PHP-JSON-API in `public/php/mitglieder/`:
 
 **Admin:** Erst-Admin ist `it@ferienwohnungsverein-jungfrau.ch`; die Vorstands-Postfächer vorstand@, sekretariat@,
 medien@, finanzen@ sind als Mitglieder freigeschaltet (Migration v2). **Zugang:** Mitglied wählt auf der
-Login-Seite «Zugang beantragen» → Mail an it@ mit Knöpfen «Akzeptieren»/«Ablehnen» (Bestätigungsseite, Links
+Login-Seite «Zugang beantragen» → Mail an sekretariat@ + it@ mit Knöpfen «Akzeptieren»/«Ablehnen» (Bestätigungsseite, Links
 14 Tage gültig) → beim Akzeptieren automatische Begrüssungsmail, beim Ablehnen optional neutrale Absage.
 Gleiches geht im Reiter «Admin» (offene Anfragen; Freischalten von Hand mit Häkchen «Begrüssungsmail»). Dort auch: anonyme Uploads
 freigeben, Gemeldetes prüfen, Konten/IP-Adressen sperren, Audit-Log, Mail bei Veröffentlichung an/aus.

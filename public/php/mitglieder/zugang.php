@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// Mitgliederbereich – Knöpfe «Akzeptieren» / «Ablehnen» aus der Mail an it@ (Zugangsanfrage).
+// Mitgliederbereich – Knöpfe «Akzeptieren» / «Ablehnen» aus der Mail an sekretariat@ + it@ (Zugangsanfrage).
 // GET zeigt eine Bestätigungsseite (Namen prüfen, Mail an die Person ja/nein); erst der
 // Klick (POST) führt aus. So lösen Link-Prüfer von Mailprogrammen nichts aus.
 

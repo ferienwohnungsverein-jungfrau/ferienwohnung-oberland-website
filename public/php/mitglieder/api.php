@@ -246,7 +246,7 @@ function aktion_zugang_beantragen(): never
         . '<p style="margin:0 0 20px;">Bitte prüfen, ob die Person Mitglied ist.</p>'
         . '<p style="margin:0 0 16px;">' . mail_knopf($ja, '✓ Akzeptieren') . mail_knopf($nein, '✕ Ablehnen', false) . '</p>'
         . '<p style="margin:0;color:#666666;font-size:13px;">Der Knopf öffnet eine Bestätigungsseite – dort Namen prüfen und mit einem Klick abschliessen. Beim Akzeptieren erhält die Person automatisch eine Begrüssungsmail. Links ' . ANFRAGE_GUELTIG_TAGE . ' Tage gültig; alternativ im <a href="' . $e(basis_url() . '/mitglieder/#admin') . '" style="color:#004D7A;">Admin-Reiter</a>.</p>';
-    mail_senden_html(FWVJ_IT_ADRESSE, "[Mitgliederbereich] Zugangsanfrage: {$vorname} {$name}", $text, mail_html_rahmen($html), $email);
+    mail_senden_html(FWVJ_ANFRAGE_EMPFAENGER, "[Mitgliederbereich] Zugangsanfrage: {$vorname} {$name}", $text, mail_html_rahmen($html), $email);
     $ok();
 }
 

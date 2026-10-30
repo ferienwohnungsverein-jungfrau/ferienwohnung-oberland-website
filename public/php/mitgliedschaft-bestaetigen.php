@@ -146,7 +146,8 @@ $leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jung
     . "Reply-To: {$emailSafe}\r\n"
     . "Content-Type: text/plain; charset=UTF-8\r\n";
 
-$mailSent = @mail('anmeldung@ferienwohnungsverein-jungfrau.ch', $leadSubject, $leadBody, $leadHeaders);
+// anmeldung@ verteilt in Plesk an sekretariat@ + vorstand@; it@ zusätzlich direkt (Stefan 30.10.2026).
+$mailSent = @mail('anmeldung@ferienwohnungsverein-jungfrau.ch, it@ferienwohnungsverein-jungfrau.ch', $leadSubject, $leadBody, $leadHeaders);
 
 if (!$mailSent) {
     http_response_code(500);
