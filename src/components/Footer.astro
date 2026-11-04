@@ -1,5 +1,6 @@
 ---
 import DigyCredit from './DigyCredit.astro';
+import fakten from '../data/fakten.json';
 
 interface Props {
   locale?: 'de' | 'en';
@@ -9,9 +10,17 @@ const { locale = 'de' } = Astro.props;
 const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
 const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
 const mitgliederHref = locale === 'en' ? '/en/members/' : '/mitglieder/';
+const fw = fakten.wohnungen;
+const ewAnteil = (Math.round((fw.erstwohnungen / fw.total) * 1000) / 10).toFixed(1);
+const quellenHref = locale === 'en' ? '/en/sources/' : '/quellen/';
 ---
 
 <footer class="footer">
+  <p class="container footer__fakt">
+    {locale === 'en'
+      ? <><strong>Bödeli: more than 8 in 10 homes are primary residences</strong> ({ewAnteil}%, ARE housing inventory, as of {fw.datenstand}) · <a href={quellenHref}>All sources →</a></>
+      : <><strong>Bödeli: Mehr als 8 von 10 Wohnungen sind Erstwohnungen</strong> ({ewAnteil.replace('.', ',')} %, ARE Wohnungsinventar, Stand {fw.datenstand}) · <a href={quellenHref}>Alle Quellen →</a></>}
+  </p>
   <div class="container footer__inner">
     <div class="footer__brand">
       <p>© 2026 Ferienwohnungsverein Jungfrau</p>
@@ -32,6 +41,13 @@ const mitgliederHref = locale === 'en' ? '/en/members/' : '/mitglieder/';
     background: var(--color-bg-subtle);
     border-top: 1px solid var(--color-border);
     padding-block: var(--space-3);
+  }
+
+  .footer__fakt {
+    font-size: var(--text-sm);
+    margin: 0 auto var(--space-2);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .footer__inner {

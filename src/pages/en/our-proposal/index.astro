@@ -26,6 +26,12 @@ const faqSchema = {
     },
   ],
 };
+import Zahlenband from '../../../components/Zahlenband.astro';
+import fakten from '../../../data/fakten.json';
+const fw = fakten.wohnungen;
+const zahl = (n: number) => n.toLocaleString('en-US');
+const proz = (n: number) => (Math.round((n / fw.total) * 1000) / 10).toFixed(1) + '%';
+
 ---
 
 <Layout
@@ -53,6 +59,8 @@ const faqSchema = {
       <a href="#arguments">FAQ</a>
     </div>
   </nav>
+
+  <Zahlenband locale="en" />
 
   <!-- Starting point: acknowledge the problem first, then show the solution -->
   <section class="section section--subtle" id="starting-point">
@@ -92,7 +100,7 @@ const faqSchema = {
         </div>
         <div>
           <h3>Even Strict Rules Often Fail on Enforcement</h3>
-          <p>The city of Bern passed a strict rule for its old town in 2022 with 81% approval – it is still not in force today, blocked by a legal challenge. In canton Geneva, an analysis found around 44% of affected hosts violate the existing 90-day rule.</p>
+          <p>The city of Bern passed a strict rule for its old town in 2022 with 81.7% approval (<a href="/en/sources/#srf-bern-lex-airbnb">SRF</a>) – it is still not in force today (<a href="/en/sources/#journalb-lex-airbnb">as of July 2026</a>), blocked by a legal challenge. In canton Geneva, an analysis found around 44% of affected hosts violate the existing 90-day rule.</p>
         </div>
       </div>
       <p class="spacer-top"><strong>A rule is only as good as its enforcement.</strong> That is exactly why we advocate for practical, enforceable solutions rather than rules that sound strict on paper but nobody can enforce.</p>
@@ -110,12 +118,13 @@ const faqSchema = {
             <tr><th>Category</th><th>Number</th><th>Share</th></tr>
           </thead>
           <tbody>
-            <tr><td>Housing units total</td><td>12,475</td><td>100%</td></tr>
-            <tr><td>Primary residences</td><td>10,270</td><td>82.3%</td></tr>
-            <tr><td>Second homes</td><td>2,205</td><td>17.7%</td></tr>
+            <tr><td>Housing units total</td><td>{zahl(fw.total)}</td><td>100%</td></tr>
+            <tr><td>Primary residences</td><td>{zahl(fw.erstwohnungen)}</td><td>{proz(fw.erstwohnungen)}</td></tr>
+            <tr><td>Equivalent to primary residences*</td><td>{zahl(fw.gleichgestellt)}</td><td>{proz(fw.gleichgestellt)}</td></tr>
+            <tr><td>Second homes</td><td>{zahl(fw.zweitwohnungen)}</td><td>{proz(fw.zweitwohnungen)}</td></tr>
           </tbody>
         </table>
-        <p class="quelle">Source: <a href="/en/sources/#are-wohnungsinventar">Federal Office for Spatial Development (ARE), housing inventory</a></p>
+        <p class="quelle">Source: <a href="/en/sources/#are-wohnungsinventar">Federal Office for Spatial Development (ARE), housing inventory</a>, data as of {fw.datenstand} (published {fw.publiziert}). *Equivalent dwellings include homes used for work or education purposes (Art. 2 para. 3 Second Homes Act); they do not count as second homes.</p>
         <ul class="icon-list">
           <li>
             <Icon name="arrow-circle-right-solid" size={30} />

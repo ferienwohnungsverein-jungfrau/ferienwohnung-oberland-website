@@ -1,0 +1,23 @@
+{
+  "_hinweis": "EINE Quelle für alle Fakten-Zahlen (Zahlenband, Tabelle «Unser Vorschlag», Fusszeile). Jährlich nach der ARE-Publikation (Ende März) nachführen. Werte = Summe der 5 Bödeli-Gemeinden (Bönigen 572, Interlaken 581, Matten 587, Unterseen 593, Wilderswil 594) aus ZWG_<Jahr>_Q1.xlsx.",
+  "wohnungen": {
+    "quelle": "ARE, Wohnungsinventar 2026",
+    "quelle_en": "ARE, housing inventory 2026",
+    "datenstand": "31.12.2025",
+    "publiziert": "31.03.2026",
+    "total": 12562,
+    "erstwohnungen": 10367,
+    "gleichgestellt": 409,
+    "zweitwohnungen": 1786
+  },
+  "logiernaechte": {
+    "jahr": 2024,
+    "ferienwohnungen_text": "über 711'000",
+    "total_text": "über 3,5 Millionen",
+    "quelle": "Tourismus-Organisation Interlaken, via Plattform J"
+  },
+  "wilderswil": {
+    "ja_prozent": "83,5",
+    "jahr": 2025
+  }
+}

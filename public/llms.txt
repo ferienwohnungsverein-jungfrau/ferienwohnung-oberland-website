@@ -32,9 +32,10 @@ Die gesamte Website ist auch auf Englisch verfügbar unter demselben Pfad mit `/
 
 ## Kernaussagen
 
-- Auf dem Bödeli (Interlaken, Unterseen, Matten, Wilderswil, Bönigen) sind 82,3% der
-  Wohnungen Erstwohnungen (10'270 von 12'475) und 17,7% Zweitwohnungen (2'205).
-  Quelle: Bundesamt für Raumentwicklung ARE, Wohnungsinventar.
+- Auf dem Bödeli (Interlaken, Unterseen, Matten, Wilderswil, Bönigen) sind 82,5% der
+  Wohnungen Erstwohnungen (10'367 von 12'562), 3,3% Erstwohnungen gleichgestellt (409) und
+  14,2% Zweitwohnungen (1'786). Quelle: Bundesamt für Raumentwicklung ARE, Wohnungsinventar 2026,
+  Datenstand 31.12.2025.
 - Die amtliche Statistik unterscheidet nicht zwischen privat genutzten und
   kurzzeitvermieteten Zweitwohnungen; nicht jede Zweitwohnung wird vermietet. Frühere
   Angaben dieser Website («15% private Ferienwohnungen», «2,7% Kurzzeitvermietungen»)
@@ -46,6 +47,8 @@ Die gesamte Website ist auch auf Englisch verfügbar unter demselben Pfad mit `/
   9,7%, Grindelwald 9,4%, Lauterbrunnen 23,3% (SAB, Basis AirDNA, Stand Dezember 2024).
   Deshalb befürworten wir gemeindespezifische Lösungen.
 - Wir anerkennen den Wohnraumdruck.
+- Regeln wirken nur, wenn sie vollzogen werden: Die Stadt Bern hat 2022 mit 81,7% Ja eine
+  Regel für die Altstadt beschlossen; sie ist bis heute nicht in Kraft (Journal B, Juli 2026).
 - Wir lehnen eine starre 90-Tage-Regel ab, unterstützen aber ein bewährtes Alternativmodell:
   das Wilderswil-Modell (70% Erstwohnungsanteil + 5-Nächte-Mindestdauer), das mit 83,5%
   Zustimmung angenommen wurde und zum Rückzug der dortigen SP-Initiative führte.

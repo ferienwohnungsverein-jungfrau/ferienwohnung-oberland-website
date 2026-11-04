@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
+import Zahlenband from '../components/Zahlenband.astro';
 import { Image, getImage } from 'astro:assets';
 import sujet1 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-1.jpg';
 import sujet2 from '../assets/images/ferienwohnungsverein-jungfrau-sujet-2.jpg';
@@ -23,6 +24,8 @@ const heroBg = await getImage({ src: sujet2, width: 1600, height: 640, format: '
       <p class="hero__subline">{texte.hero_subline}</p>
     </div>
   </section>
+
+  <Zahlenband locale="de" />
 
   <!-- Zwei-Wege-Hub -->
   <section class="section section--white">

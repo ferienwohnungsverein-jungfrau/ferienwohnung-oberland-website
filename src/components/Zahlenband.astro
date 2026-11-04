@@ -1,0 +1,122 @@
+---
+// Zahlenband «Fakten zum Bödeli» – derselbe Wortlaut auf allen Seiten (Konzept 04.11.2026,
+// Stefan-OS/04_Outputs/ferienwohnungsverein/2026-11-04_fakten-als-claim/). Zahlen aus src/data/fakten.json.
+// Die Haltung («Wohnraumdruck ernst nehmen») steht immer dabei, damit die Zahlen nicht als «kein Problem» gelesen werden.
+import fakten from '../data/fakten.json';
+
+interface Props {
+  locale?: 'de' | 'en';
+}
+const { locale = 'de' } = Astro.props;
+const en = locale === 'en';
+const w = fakten.wohnungen;
+const anteil = (n: number) => (Math.round((n / w.total) * 1000) / 10).toFixed(1);
+const ew = en ? anteil(w.erstwohnungen) : anteil(w.erstwohnungen).replace('.', ',');
+const q = en ? '/en/sources/' : '/quellen/';
+---
+
+<section class="zahlenband" aria-labelledby="zahlenband-titel">
+  <div class="container">
+    <p class="zahlenband__eyebrow">{en ? 'Facts about the Bödeli' : 'Fakten zum Bödeli'}</p>
+    <h2 id="zahlenband-titel" class="zahlenband__claim">
+      {en ? 'The Bödeli is a place to live first.' : 'Das Bödeli ist zuerst Wohnort.'}
+    </h2>
+    <ul class="zahlenband__liste">
+      <li>
+        <span class="zahlenband__zahl">{en ? '8 in 10' : '8 von 10'}</span>
+        <span class="zahlenband__text">{en
+          ? `homes on the Bödeli are primary residences (${ew}%).`
+          : `Wohnungen auf dem Bödeli sind Erstwohnungen (${ew} %).`}</span>
+        <a class="zahlenband__quelle" href={`${q}#are-wohnungsinventar`}>{en ? `${w.quelle_en}, as of ${w.datenstand}` : `${w.quelle}, Stand ${w.datenstand}`}</a>
+      </li>
+      <li>
+        <span class="zahlenband__zahl">{en ? '1 in 5' : '1 von 5'}</span>
+        <span class="zahlenband__text">{en
+          ? `guest nights in the Interlaken destination is spent in a holiday apartment (${fakten.logiernaechte.jahr}).`
+          : `Gästenächten in der Destination Interlaken findet in einer Ferienwohnung statt (${fakten.logiernaechte.jahr}).`}</span>
+        <a class="zahlenband__quelle" href={`${q}#toi-rekord-logiernaechte`}>{en ? 'Tourism Organisation Interlaken' : 'Tourismus-Organisation Interlaken'}</a>
+      </li>
+      <li>
+        <span class="zahlenband__zahl">{en ? `${fakten.wilderswil.ja_prozent.replace(',', '.')}%` : `${fakten.wilderswil.ja_prozent} %`}</span>
+        <span class="zahlenband__text">{en
+          ? `voted yes in Wilderswil (${fakten.wilderswil.jahr}) – a shared solution is possible.`
+          : `Ja in Wilderswil (${fakten.wilderswil.jahr}) – ein gemeinsamer Weg ist möglich.`}</span>
+        <a class="zahlenband__quelle" href={`${q}#bz-wilderswil`}>{en ? 'Berner Zeitung' : 'Berner Zeitung'}</a>
+      </li>
+    </ul>
+    <p class="zahlenband__haltung">
+      {en
+        ? 'We take housing pressure seriously – and offer our hand for rules that work.'
+        : 'Wir nehmen den Wohnraumdruck ernst – und bieten Hand für Regeln, die wirken.'}
+      <a href={q}>{en ? 'All sources →' : 'Alle Quellen →'}</a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .zahlenband {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    padding-block: var(--space-6);
+  }
+  .zahlenband__eyebrow {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin: 0 0 var(--space-1);
+  }
+  .zahlenband__claim {
+    font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+    margin: 0 0 var(--space-4);
+    color: var(--color-heading);
+  }
+  .zahlenband__liste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  .zahlenband__liste li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: var(--space-3);
+    background: var(--color-bg-subtle);
+    border-radius: var(--radius-md);
+    border-top: 4px solid var(--color-primary);
+  }
+  .zahlenband__zahl {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    line-height: 1;
+    color: var(--color-primary);
+  }
+  .zahlenband__text {
+    font-size: var(--text-base);
+    color: var(--color-text);
+  }
+  .zahlenband__quelle {
+    margin-top: auto;
+    font-size: 0.8rem;
+    color: var(--color-text);
+    opacity: 0.8;
+  }
+  .zahlenband__haltung {
+    margin: var(--space-4) 0 0;
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+  .zahlenband__haltung a {
+    font-weight: 600;
+    margin-left: 0.35rem;
+    white-space: nowrap;
+  }
+  @media (min-width: 760px) {
+    .zahlenband__liste { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
