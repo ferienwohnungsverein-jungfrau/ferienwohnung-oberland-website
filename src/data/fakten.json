@@ -1,5 +1,5 @@
 {
-  "_hinweis": "EINE Quelle für alle Fakten-Zahlen (Tabelle «Unser Vorschlag», Fusszeile). Jährlich nach der ARE-Publikation (Ende März) nachführen. Werte = Summe der 5 Bödeli-Gemeinden (Bönigen 572, Interlaken 581, Matten 587, Unterseen 593, Wilderswil 594) aus ZWG_<Jahr>_Q1.xlsx.",
+  "_hinweis": "EINE Quelle für alle Fakten-Zahlen (Tabelle «Unser Vorschlag»). Jährlich nach der ARE-Publikation (Ende März) nachführen. Werte = Summe der 5 Bödeli-Gemeinden (Bönigen 572, Interlaken 581, Matten 587, Unterseen 593, Wilderswil 594) aus ZWG_<Jahr>_Q1.xlsx.",
   "wohnungen": {
     "quelle": "ARE, Wohnungsinventar 2026",
     "quelle_en": "ARE, housing inventory 2026",
