@@ -15,11 +15,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     antwort(['success' => false, 'message' => 'Nicht gefunden.'], 404);
 }
 $ip = client_ip();
-if (anzahl('import_fehl', 'ip:' . $ip, 3600) >= 5) {
-    antwort(['success' => false, 'message' => 'Zu viele Versuche.'], 429);
-}
 $schluessel = (string) ($_SERVER['HTTP_X_IMPORT_TOKEN'] ?? '');
 if ($schluessel === '' || !hash_equals(IMPORT_SCHLUESSEL_HASH, hash('sha256', $schluessel))) {
+    // Nur Fehlversuche bremsen; ein gültiger Schlüssel kommt immer durch.
+    if (anzahl('import_fehl', 'ip:' . $ip, 3600) >= 5) {
+        antwort(['success' => false, 'message' => 'Zu viele Versuche.'], 429);
+    }
     ereignis('import_fehl', 'ip:' . $ip);
     antwort(['success' => false, 'message' => 'Nicht gefunden.'], 404);
 }
