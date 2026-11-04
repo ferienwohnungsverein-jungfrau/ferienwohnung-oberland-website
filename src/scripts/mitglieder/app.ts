@@ -17,7 +17,7 @@ const T = {
   de: {
     laden: 'Wird geladen …',
     loginTitel: 'Anmelden',
-    loginText: 'Gib die E-Mail-Adresse ein, die für den Mitgliederbereich freigeschaltet ist. Du bekommst einen 6-stelligen Code per Mail – kein Passwort nötig.',
+    loginText: 'Gib die E-Mail-Adresse ein, die für den Mitgliederbereich freigeschaltet ist. Du bekommst eine Mail mit Anmeldelink und 6-stelligem Code – kein Passwort nötig.',
     email: 'E-Mail-Adresse',
     codeAnfordern: 'Code anfordern',
     code: 'Code aus der E-Mail',
@@ -168,7 +168,7 @@ const T = {
   en: {
     laden: 'Loading …',
     loginTitel: 'Sign in',
-    loginText: 'Enter the email address that has been activated for the members’ area. You will receive a 6-digit code by email – no password needed.',
+    loginText: 'Enter the email address that has been activated for the members’ area. You will receive an email with a sign-in link and a 6-digit code – no password needed.',
     email: 'Email address',
     codeAnfordern: 'Request code',
     code: 'Code from the email',
@@ -525,7 +525,26 @@ function zeigeLogin(): void {
     fCode.hidden = false;
     $('#mb-code-info').textContent = r.message || '';
     (fCode.code as HTMLInputElement).focus();
+    warteAufLink();
   });
+
+  // Wurde in diesem Browser über den Mail-Link angemeldet (anderer Tab), hier automatisch weiter.
+  let linkPruefung = false;
+  function warteAufLink() {
+    if (linkPruefung) return;
+    linkPruefung = true;
+    const pruefen = async () => {
+      if (fCode.hidden || document.visibilityState !== 'visible') return;
+      const i = await api<{ angemeldet: boolean; csrf: string; ich: Ich }>('ich');
+      if (i.angemeldet) {
+        csrf = i.csrf;
+        ich = i.ich;
+        await zeigeBereich();
+      }
+    };
+    document.addEventListener('visibilitychange', pruefen);
+    window.addEventListener('focus', pruefen);
+  }
   fCode.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = fCode.querySelector('button[type=submit]') as HTMLButtonElement;

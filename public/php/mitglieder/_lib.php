@@ -369,7 +369,16 @@ CREATE INDEX IF NOT EXISTS ix_anfragen_status ON zugangsanfragen(status);
 SQL);
         $pdo->exec('PRAGMA user_version = 3');
     }
-    // Künftige Schemaänderungen: if ($version < 4) { … PRAGMA user_version = 4 } – idempotent halten.
+    if ($version < 4) {
+        // Anmeldelink (Magic-Link) zusätzlich zum Code (Stefan 04.11.2026). Gleiche Zeile, gleiche
+        // Gültigkeit; wer Link ODER Code nutzt, verbraucht beides.
+        $spalten = array_column($pdo->query('PRAGMA table_info(login_codes)')->fetchAll(), 'name');
+        if (!in_array('link_hash', $spalten, true)) {
+            $pdo->exec("ALTER TABLE login_codes ADD COLUMN link_hash TEXT NOT NULL DEFAULT ''");
+        }
+        $pdo->exec('PRAGMA user_version = 4');
+    }
+    // Künftige Schemaänderungen: if ($version < 5) { … PRAGMA user_version = 5 } – idempotent halten.
 }
 
 function einstellung(string $schluessel, string $standard = ''): string
@@ -646,6 +655,12 @@ function mail_senden_html(string $an, string $betreff, string $text, string $htm
 }
 
 /** HTML-Rahmen im Stil der übrigen Vereinsmails (blauer Kopf, oranger Knopf). $inhalt ist bereits HTML. */
+/** Hash des Anmeldelink-Schlüssels (nur der Hash liegt in der DB). */
+function link_hash(string $token): string
+{
+    return hash_hmac('sha256', 'anmeldelink|' . $token, secret());
+}
+
 function mail_html_rahmen(string $inhalt, string $lang = 'de'): string
 {
     $l = $lang === 'en' ? 'en' : 'de-CH';

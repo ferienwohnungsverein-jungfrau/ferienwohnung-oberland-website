@@ -78,8 +78,8 @@ function aktion_code_anfordern(): never
     $gleich = fn() => antwort([
         'success' => true,
         'message' => sprache() === 'en'
-            ? 'If this address is activated, you will receive a 6-digit code by email within a few minutes. Not activated yet? Write to ' . FWVJ_IT_ADRESSE . '.'
-            : 'Wenn diese Adresse freigeschaltet ist, erhältst du in wenigen Minuten einen 6-stelligen Code per E-Mail. Noch nicht freigeschaltet? Schreib an ' . FWVJ_IT_ADRESSE . '.',
+            ? 'If this address is activated, you will receive an email within a few minutes: tap “Sign in now” there – or enter the 6-digit code here. Not activated yet? Write to ' . FWVJ_IT_ADRESSE . '.'
+            : 'Wenn diese Adresse freigeschaltet ist, erhältst du in wenigen Minuten eine E-Mail: Tippe dort auf «Jetzt anmelden» – oder gib hier den 6-stelligen Code ein. Noch nicht freigeschaltet? Schreib an ' . FWVJ_IT_ADRESSE . '.',
     ]);
 
     if (ip_gesperrt($ip)) {
@@ -110,22 +110,42 @@ function aktion_code_anfordern(): never
     $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     $pdo = db();
     $pdo->prepare('UPDATE login_codes SET verbraucht = 1 WHERE email = ? AND verbraucht = 0')->execute([$email]);
-    $pdo->prepare('INSERT INTO login_codes (email, code_hash, erstellt, ablauf) VALUES (?, ?, ?, ?)')
-        ->execute([$email, hash_hmac('sha256', $email . '|' . $code, secret()), jetzt(), jetzt() + CODE_GUELTIG_SEK]);
+    $token = zufall_id(32);
+    $pdo->prepare('INSERT INTO login_codes (email, code_hash, erstellt, ablauf, link_hash) VALUES (?, ?, ?, ?, ?)')
+        ->execute([$email, hash_hmac('sha256', $email . '|' . $code, secret()), jetzt(), jetzt() + CODE_GUELTIG_SEK, link_hash($token)]);
+    $link = basis_url() . '/php/mitglieder/anmelden.php?id=' . (int) $pdo->lastInsertId() . '&t=' . $token . (sprache() === 'en' ? '&l=en' : '');
 
     $hallo = trim((string) $m['vorname']) !== '' ? $m['vorname'] : '';
-    if (sprache() === 'en') {
-        $betreff = "{$code} is your code for the members' area";
-        $text = "Hello {$hallo}\n\nYour sign-in code for the members' area of the Ferienwohnungsverein Jungfrau:\n\n    {$code}\n\n"
-            . "The code is valid for 10 minutes. If you did not request it, you can ignore this email.\n\n"
+    $en = sprache() === 'en';
+    $h = fn(string $x): string => htmlspecialchars($x, ENT_QUOTES, 'UTF-8');
+    if ($en) {
+        $betreff = "Sign in to the members' area (code {$code})";
+        $text = "Hello {$hallo}\n\nSign in to the members' area of the Ferienwohnungsverein Jungfrau with this link:\n{$link}\n\n"
+            . "Or enter this code on the sign-in page:\n\n    {$code}\n\n"
+            . "Link and code are valid for 10 minutes and can be used once. If you did not request this, you can ignore this email.\n\n"
             . "Ferienwohnungsverein Jungfrau\n" . basis_url() . "/en/members/\n";
+        $html = '<p style="margin:0 0 16px;">Hello ' . $h($hallo) . '</p>'
+            . '<p style="margin:0 0 20px;">Sign in to the members’ area with one tap:</p>'
+            . '<p style="margin:0 0 20px;">' . mail_knopf($link, 'Sign in now') . '</p>'
+            . '<p style="margin:0 0 6px;">Or enter this code on the sign-in page:</p>'
+            . '<p style="margin:0 0 20px;font-family:Menlo,Consolas,monospace;font-size:26px;font-weight:700;letter-spacing:4px;color:#004D7A;">' . $h($code) . '</p>'
+            . '<p style="margin:0;color:#666666;font-size:13px;">Link and code are valid for 10 minutes and can be used once. If you did not request this, you can ignore this email.</p>';
     } else {
-        $betreff = "{$code} ist dein Code für den Mitgliederbereich";
-        $text = "Hallo {$hallo}\n\nDein Anmeldecode für den Mitgliederbereich des Ferienwohnungsvereins Jungfrau:\n\n    {$code}\n\n"
-            . "Der Code ist 10 Minuten gültig. Falls du ihn nicht angefordert hast, kannst du diese Mail ignorieren.\n\n"
+        $betreff = "Anmelden im Mitgliederbereich (Code {$code})";
+        $text = "Hallo {$hallo}\n\nMit diesem Link meldest du dich im Mitgliederbereich des Ferienwohnungsvereins Jungfrau an:\n{$link}\n\n"
+            . "Oder gib auf der Anmeldeseite diesen Code ein:\n\n    {$code}\n\n"
+            . "Link und Code sind 10 Minuten gültig und einmal verwendbar. Falls du das nicht angefordert hast, kannst du diese Mail ignorieren.\n\n"
             . "Ferienwohnungsverein Jungfrau\n" . basis_url() . "/mitglieder/\n";
+        $html = '<p style="margin:0 0 16px;">Hallo ' . $h($hallo) . '</p>'
+            . '<p style="margin:0 0 20px;">Mit einem Tipp meldest du dich im Mitgliederbereich an:</p>'
+            . '<p style="margin:0 0 20px;">' . mail_knopf($link, 'Jetzt anmelden') . '</p>'
+            . '<p style="margin:0 0 6px;">Oder gib auf der Anmeldeseite diesen Code ein:</p>'
+            . '<p style="margin:0 0 20px;font-family:Menlo,Consolas,monospace;font-size:26px;font-weight:700;letter-spacing:4px;color:#004D7A;">' . $h($code) . '</p>'
+            . '<p style="margin:0;color:#666666;font-size:13px;">Link und Code sind 10 Minuten gültig und einmal verwendbar. Falls du das nicht angefordert hast, kannst du diese Mail ignorieren.</p>';
     }
-    mail_senden($email, $betreff, $text);
+    if (!mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, $en ? 'en' : 'de'))) {
+        audit('code_mail_fehler', $m, null, 'mail() hat false geliefert');
+    }
     audit('code_gesendet', $m);
     $gleich();
 }
