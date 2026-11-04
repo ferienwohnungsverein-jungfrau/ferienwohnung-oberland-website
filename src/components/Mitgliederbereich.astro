@@ -11,14 +11,18 @@ const en = locale === 'en';
 ---
 
 <section class="section mb-section mb-section--flaeche">
-  <div class="container">
-    <div id="mb" data-locale={locale}>
+  <div id="mb" data-locale={locale}>
+    <nav class="mb-leiste" id="mb-leiste" hidden aria-label={en ? 'Members’ area' : 'Mitgliederbereich'}>
+      <div class="container mb-leiste__innen">
+        <div class="mb-reiter" id="mb-reiter" role="tablist"></div>
+        <div class="mb-kopf" id="mb-kopf"></div>
+      </div>
+    </nav>
+    <div class="container mb-inhalt">
       <p id="mb-laden" class="mb-leer">{en ? 'Loading …' : 'Wird geladen …'}</p>
       <noscript><p class="mb-leer">{en ? 'The members’ area needs JavaScript.' : 'Der Mitgliederbereich braucht JavaScript.'}</p></noscript>
       <div id="mb-login" hidden></div>
       <div id="mb-bereich" hidden>
-        <div class="mb-kopf" id="mb-kopf"></div>
-        <div class="mb-reiter" id="mb-reiter" role="tablist"></div>
         <div data-panel="uebersicht" role="tabpanel"></div>
         <div data-panel="infos" role="tabpanel" hidden></div>
         <div data-panel="vorlagen" role="tabpanel" hidden></div>
@@ -37,7 +41,19 @@ const en = locale === 'en';
 
 <style is:global>
   /* Mitgliederbereich – Farben/Abstände aus global.css, mobil zuerst */
-  .mb-section { padding-block: var(--space-6) var(--space-10); }
+  .mb-section { padding-block: 0 var(--space-10); }
+  .mb-inhalt { padding-top: var(--space-6); }
+  .mb-leiste { position: sticky; top: 0; z-index: 90; background: var(--color-white); border-bottom: 1px solid var(--color-border); }
+  .mb-leiste__innen { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 var(--space-3); }
+  .mb-leiste .mb-reiter { border-bottom: 0; margin-bottom: 0; }
+  .mb-leiste .mb-reiter button { padding-block: 1rem; margin-bottom: 0; }
+  .mb-leiste .mb-kopf { margin: 0; padding-block: 0.5rem; gap: var(--space-2); font-size: var(--text-sm); }
+  @media (max-width: 599px) {
+    .mb-leiste { position: static; }
+    .mb-leiste .mb-reiter button { padding: 0.75rem 0.6rem; font-size: 0.95rem; }
+    .mb-leiste .mb-kopf { padding-block: 0 0.4rem; }
+    .mb-leiste .mb-kopf .mb-klein { display: none; }
+  }
   #mb { --mb-rot: #b91c1c; --mb-gelb-bg: #fff7ed; --mb-gelb-rand: #fdba74; }
 
   .mb-leer { color: var(--color-text); opacity: 0.8; padding-block: var(--space-4); }

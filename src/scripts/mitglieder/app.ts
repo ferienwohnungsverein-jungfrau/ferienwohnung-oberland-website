@@ -559,6 +559,7 @@ async function start(): Promise<void> {
 function zeigeLogin(): void {
   ich = null;
   $('#mb-bereich').hidden = true;
+  $('#mb-leiste').hidden = true;
   $('#mb-login').hidden = false;
   $('#mb-login').innerHTML = `
     <div class="mb-karte mb-login">
@@ -681,8 +682,9 @@ async function zeigeBereich(): Promise<void> {
   $('#mb-meldung').hidden = true; // alte Fehlermeldung vom Login nicht stehen lassen
   $('#mb-login').hidden = true;
   $('#mb-bereich').hidden = false;
+  $('#mb-leiste').hidden = false;
   $('#mb-kopf').innerHTML = `
-    <span>${T.hallo} <strong>${esc(ich.vorname || ich.email)}</strong> <span class="mb-klein">(${esc(ich.email)})</span></span>
+    <span class="mb-klein">${esc(ich.email)}</span>
     <button type="button" class="mb-link" data-aktion="abmelden">${T.abmelden}</button>`;
   $('#mb-reiter').innerHTML = `
     <button type="button" role="tab" data-reiter="uebersicht">${T.reiterUebersicht}</button>
