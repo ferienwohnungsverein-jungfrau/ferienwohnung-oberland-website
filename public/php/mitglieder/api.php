@@ -870,44 +870,6 @@ function aktion_beitraege(): never
     antwort(['success' => true, 'beitraege' => array_map('beitrag_fuer_ausgabe', $rows)]);
 }
 
-/** Prüft und normalisiert einen Beitrag; wirft fehler() bei ungültigen Angaben. */
-function beitrag_pruefen(array $q): array
-{
-    $art = (string) ($q['art'] ?? '');
-    if (!in_array($art, BEITRAG_ARTEN, true)) {
-        fehler('Unbekannte Art.', 'Unknown type.');
-    }
-    $datum = (string) ($q['datum'] ?? '');
-    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum) || !checkdate((int) substr($datum, 5, 2), (int) substr($datum, 8, 2), (int) substr($datum, 0, 4))) {
-        fehler('Bitte ein gültiges Datum angeben.', 'Please enter a valid date.');
-    }
-    $gem = $q['gemeinden'] ?? [];
-    if (is_string($gem)) {
-        $gem = $gem === '' ? [] : explode(',', $gem);
-    }
-    $gem = array_values(array_unique(array_filter(array_map('strval', (array) $gem), fn($g) => in_array($g, BEITRAG_GEMEINDEN, true))));
-    $titelDe = sauber((string) ($q['titel_de'] ?? ''), 200);
-    $textDe = text_sauber((string) ($q['text_de'] ?? ''), 20000);
-    if ($titelDe === '' || $textDe === '') {
-        fehler('Titel und Text (Deutsch) sind Pflicht.', 'Title and text (German) are required.');
-    }
-    $link = trim((string) ($q['link'] ?? ''));
-    if ($link !== '' && !preg_match('#^https?://#i', $link)) {
-        $link = '';
-    }
-    return [
-        'art' => $art,
-        'datum' => $datum,
-        'titel_de' => $titelDe,
-        'titel_en' => sauber((string) ($q['titel_en'] ?? ''), 200),
-        'text_de' => $textDe,
-        'text_en' => text_sauber((string) ($q['text_en'] ?? ''), 20000),
-        'gemeinden' => implode(',', $gem),
-        'autor' => sauber((string) ($q['autor'] ?? ''), 120),
-        'link' => mb_substr($link, 0, 500),
-    ];
-}
-
 function aktion_admin_beitrag_speichern(): never
 {
     post_pruefen();
@@ -953,32 +915,7 @@ function aktion_admin_beitraege_import(): never
     if (!is_array($liste) || $liste === [] || count($liste) > 500) {
         fehler('Die Datei enthält keine gültige Beitragsliste.', 'The file does not contain a valid list of posts.');
     }
-    $pdo = db();
-    $suche = $pdo->prepare('SELECT id FROM beitraege WHERE schluessel = ?');
-    $neu = $pdo->prepare('INSERT INTO beitraege (schluessel, art, datum, titel_de, titel_en, text_de, text_en, gemeinden, autor, link, erstellt, geaendert, erstellt_von) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    $alt = $pdo->prepare('UPDATE beitraege SET art = ?, datum = ?, titel_de = ?, titel_en = ?, text_de = ?, text_en = ?, gemeinden = ?, autor = ?, link = ?, geaendert = ? WHERE id = ?');
-    $n = 0;
-    $pdo->beginTransaction();
-    foreach ($liste as $q) {
-        if (!is_array($q)) {
-            continue;
-        }
-        $schluessel = preg_replace('/[^a-z0-9._-]/', '', mb_strtolower((string) ($q['schluessel'] ?? ''))) ?? '';
-        if ($schluessel === '') {
-            $pdo->rollBack();
-            fehler('Jeder Beitrag braucht einen «schluessel».', 'Every post needs a “schluessel” key.');
-        }
-        $b = beitrag_pruefen($q);
-        $suche->execute([$schluessel]);
-        $vorhanden = $suche->fetchColumn();
-        if ($vorhanden !== false) {
-            $alt->execute([$b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), (int) $vorhanden]);
-        } else {
-            $neu->execute([$schluessel, $b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), jetzt(), $ich['email']]);
-        }
-        $n++;
-    }
-    $pdo->commit();
+    $n = beitraege_importieren($liste, $ich['email']);
     audit('beitraege_import', $ich, null, "{$n} Beiträge");
     antwort(['success' => true, 'anzahl' => $n]);
 }
