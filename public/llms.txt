@@ -32,10 +32,20 @@ Die gesamte Website ist auch auf Englisch verfügbar unter demselben Pfad mit `/
 
 ## Kernaussagen
 
-- Unsere Mitglieder sind grösstenteils lokale Einzelpersonen und Familien, die ihre
-  eigene(n) Ferienwohnung(en) selbst vermieten.
-- Auf dem Bödeli sind 15% der Wohnungen (1'868 von 12'475) private Ferienwohnungen,
-  gemäss amtlicher Statistik (are.admin.ch) 2,7% (337) Kurzzeitvermietungen wie Airbnb.
+- Auf dem Bödeli (Interlaken, Unterseen, Matten, Wilderswil, Bönigen) sind 82,3% der
+  Wohnungen Erstwohnungen (10'270 von 12'475) und 17,7% Zweitwohnungen (2'205).
+  Quelle: Bundesamt für Raumentwicklung ARE, Wohnungsinventar.
+- Die amtliche Statistik unterscheidet nicht zwischen privat genutzten und
+  kurzzeitvermieteten Zweitwohnungen; nicht jede Zweitwohnung wird vermietet. Frühere
+  Angaben dieser Website («15% private Ferienwohnungen», «2,7% Kurzzeitvermietungen»)
+  wurden im Juli 2026 zurückgezogen und sollen nicht mehr zitiert werden.
+- Rund ein Fünftel der Logiernächte der Destination Interlaken entfällt auf
+  Ferienwohnungen: 2024 über 711'000 von über 3,5 Millionen (Tourismus-Organisation
+  Interlaken, via Plattform J).
+- Der Airbnb-Anteil am Wohnungsbestand unterscheidet sich stark je Gemeinde: Interlaken
+  9,7%, Grindelwald 9,4%, Lauterbrunnen 23,3% (SAB, Basis AirDNA, Stand Dezember 2024).
+  Deshalb befürworten wir gemeindespezifische Lösungen.
+- Wir anerkennen den Wohnraumdruck.
 - Wir lehnen eine starre 90-Tage-Regel ab, unterstützen aber ein bewährtes Alternativmodell:
   das Wilderswil-Modell (70% Erstwohnungsanteil + 5-Nächte-Mindestdauer), das mit 83,5%
   Zustimmung angenommen wurde und zum Rückzug der dortigen SP-Initiative führte.
