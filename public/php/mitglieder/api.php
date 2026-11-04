@@ -36,6 +36,10 @@ try {
         'admin_ip_sperre_setzen' => aktion_admin_ip_sperre_setzen(),
         'admin_ip_sperre_aufheben' => aktion_admin_ip_sperre_aufheben(),
         'admin_einstellung' => aktion_admin_einstellung(),
+        'beitraege' => aktion_beitraege(),
+        'admin_beitrag_speichern' => aktion_admin_beitrag_speichern(),
+        'admin_beitrag_loeschen' => aktion_admin_beitrag_loeschen(),
+        'admin_beitraege_import' => aktion_admin_beitraege_import(),
         default => fehler('Unbekannte Aktion.', 'Unknown action.', 404),
     };
 } catch (Throwable $e) {
@@ -839,3 +843,143 @@ function aktion_admin_einstellung(): never
     audit('einstellung', $ich, null, 'Mail bei Veröffentlichung: ' . ($wert === '1' ? 'an' : 'aus'));
     antwort(['success' => true]);
 }
+
+
+// ── Beiträge (Vorstandsinfos, News) ──
+
+function beitrag_fuer_ausgabe(array $b): array
+{
+    return [
+        'id' => (int) $b['id'],
+        'art' => $b['art'],
+        'datum' => $b['datum'],
+        'titel_de' => $b['titel_de'],
+        'titel_en' => $b['titel_en'],
+        'text_de' => $b['text_de'],
+        'text_en' => $b['text_en'],
+        'gemeinden' => $b['gemeinden'] === '' ? [] : explode(',', $b['gemeinden']),
+        'autor' => $b['autor'],
+        'link' => $b['link'],
+    ];
+}
+
+function aktion_beitraege(): never
+{
+    sitzung_pflicht();
+    $rows = db()->query('SELECT * FROM beitraege ORDER BY datum DESC, id DESC')->fetchAll();
+    antwort(['success' => true, 'beitraege' => array_map('beitrag_fuer_ausgabe', $rows)]);
+}
+
+/** Prüft und normalisiert einen Beitrag; wirft fehler() bei ungültigen Angaben. */
+function beitrag_pruefen(array $q): array
+{
+    $art = (string) ($q['art'] ?? '');
+    if (!in_array($art, BEITRAG_ARTEN, true)) {
+        fehler('Unbekannte Art.', 'Unknown type.');
+    }
+    $datum = (string) ($q['datum'] ?? '');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum) || !checkdate((int) substr($datum, 5, 2), (int) substr($datum, 8, 2), (int) substr($datum, 0, 4))) {
+        fehler('Bitte ein gültiges Datum angeben.', 'Please enter a valid date.');
+    }
+    $gem = $q['gemeinden'] ?? [];
+    if (is_string($gem)) {
+        $gem = $gem === '' ? [] : explode(',', $gem);
+    }
+    $gem = array_values(array_unique(array_filter(array_map('strval', (array) $gem), fn($g) => in_array($g, BEITRAG_GEMEINDEN, true))));
+    $titelDe = sauber((string) ($q['titel_de'] ?? ''), 200);
+    $textDe = text_sauber((string) ($q['text_de'] ?? ''), 20000);
+    if ($titelDe === '' || $textDe === '') {
+        fehler('Titel und Text (Deutsch) sind Pflicht.', 'Title and text (German) are required.');
+    }
+    $link = trim((string) ($q['link'] ?? ''));
+    if ($link !== '' && !preg_match('#^https?://#i', $link)) {
+        $link = '';
+    }
+    return [
+        'art' => $art,
+        'datum' => $datum,
+        'titel_de' => $titelDe,
+        'titel_en' => sauber((string) ($q['titel_en'] ?? ''), 200),
+        'text_de' => $textDe,
+        'text_en' => text_sauber((string) ($q['text_en'] ?? ''), 20000),
+        'gemeinden' => implode(',', $gem),
+        'autor' => sauber((string) ($q['autor'] ?? ''), 120),
+        'link' => mb_substr($link, 0, 500),
+    ];
+}
+
+function aktion_admin_beitrag_speichern(): never
+{
+    post_pruefen();
+    $ich = admin_pflicht();
+    $b = beitrag_pruefen($_POST);
+    $id = (int) ($_POST['id'] ?? 0);
+    $pdo = db();
+    if ($id > 0) {
+        $pdo->prepare('UPDATE beitraege SET art = ?, datum = ?, titel_de = ?, titel_en = ?, text_de = ?, text_en = ?, gemeinden = ?, autor = ?, link = ?, geaendert = ? WHERE id = ?')
+            ->execute([$b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), $id]);
+        audit('beitrag_geaendert', $ich, null, "#{$id} {$b['titel_de']}");
+    } else {
+        $pdo->prepare('INSERT INTO beitraege (schluessel, art, datum, titel_de, titel_en, text_de, text_en, gemeinden, autor, link, erstellt, geaendert, erstellt_von) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+            ->execute(['manuell-' . zufall_id(8), $b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), jetzt(), $ich['email']]);
+        audit('beitrag_erfasst', $ich, null, $b['titel_de']);
+    }
+    antwort(['success' => true]);
+}
+
+function aktion_admin_beitrag_loeschen(): never
+{
+    post_pruefen();
+    $ich = admin_pflicht();
+    $id = (int) ($_POST['id'] ?? 0);
+    db()->prepare('DELETE FROM beitraege WHERE id = ?')->execute([$id]);
+    audit('beitrag_geloescht', $ich, null, "#{$id}");
+    antwort(['success' => true]);
+}
+
+/** Import einer JSON-Datei (Liste von Beiträgen mit «schluessel»). Gleicher Schlüssel = ersetzen, nie doppelt. */
+function aktion_admin_beitraege_import(): never
+{
+    post_pruefen();
+    $ich = admin_pflicht();
+    $roh = '';
+    if (!empty($_FILES['datei']['tmp_name']) && is_uploaded_file($_FILES['datei']['tmp_name']) && (int) $_FILES['datei']['size'] <= 2 * 1024 * 1024) {
+        $roh = (string) file_get_contents($_FILES['datei']['tmp_name']);
+    }
+    $liste = json_decode($roh, true);
+    if (is_array($liste) && isset($liste['beitraege'])) {
+        $liste = $liste['beitraege'];
+    }
+    if (!is_array($liste) || $liste === [] || count($liste) > 500) {
+        fehler('Die Datei enthält keine gültige Beitragsliste.', 'The file does not contain a valid list of posts.');
+    }
+    $pdo = db();
+    $suche = $pdo->prepare('SELECT id FROM beitraege WHERE schluessel = ?');
+    $neu = $pdo->prepare('INSERT INTO beitraege (schluessel, art, datum, titel_de, titel_en, text_de, text_en, gemeinden, autor, link, erstellt, geaendert, erstellt_von) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    $alt = $pdo->prepare('UPDATE beitraege SET art = ?, datum = ?, titel_de = ?, titel_en = ?, text_de = ?, text_en = ?, gemeinden = ?, autor = ?, link = ?, geaendert = ? WHERE id = ?');
+    $n = 0;
+    $pdo->beginTransaction();
+    foreach ($liste as $q) {
+        if (!is_array($q)) {
+            continue;
+        }
+        $schluessel = preg_replace('/[^a-z0-9._-]/', '', mb_strtolower((string) ($q['schluessel'] ?? ''))) ?? '';
+        if ($schluessel === '') {
+            $pdo->rollBack();
+            fehler('Jeder Beitrag braucht einen «schluessel».', 'Every post needs a “schluessel” key.');
+        }
+        $b = beitrag_pruefen($q);
+        $suche->execute([$schluessel]);
+        $vorhanden = $suche->fetchColumn();
+        if ($vorhanden !== false) {
+            $alt->execute([$b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), (int) $vorhanden]);
+        } else {
+            $neu->execute([$schluessel, $b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), jetzt(), $ich['email']]);
+        }
+        $n++;
+    }
+    $pdo->commit();
+    audit('beitraege_import', $ich, null, "{$n} Beiträge");
+    antwort(['success' => true, 'anzahl' => $n]);
+}
+

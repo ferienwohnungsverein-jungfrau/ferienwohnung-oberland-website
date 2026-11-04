@@ -155,6 +155,18 @@ function sauber(string $s, int $max): string
     return mb_substr($s, 0, $max);
 }
 
+/** Mehrzeiliger Text: Steuerzeichen raus, Zeilenumbrüche behalten, Länge begrenzen. */
+function text_sauber(string $s, int $max): string
+{
+    $s = str_replace(["\r\n", "\r"], "\n", $s);
+    $s = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $s) ?? '';
+    $s = preg_replace("/\n{3,}/", "\n\n", $s) ?? '';
+    return mb_substr(trim($s), 0, $max);
+}
+
+const BEITRAG_ARTEN = ['vorstand', 'news'];
+const BEITRAG_GEMEINDEN = ['interlaken', 'unterseen', 'matten', 'wilderswil', 'boenigen', 'region'];
+
 function email_norm(string $e): string
 {
     return mb_strtolower(trim($e));
@@ -386,7 +398,31 @@ SQL);
         $pdo->prepare("UPDATE mitglieder SET rolle = 'admin', status = 'aktiv' WHERE email = ?")->execute([FWVJ_ERST_ADMIN]);
         $pdo->exec('PRAGMA user_version = 5');
     }
-    // Künftige Schemaänderungen: if ($version < 6) { … PRAGMA user_version = 6 } – idempotent halten.
+    if ($version < 6) {
+        // Beiträge für das Dashboard (Stefan 04.11.2026): Vorstandsinfos, News – später weitere Arten.
+        // Inhalte kommen NIE aus dem öffentlichen Repo, sondern über den Admin-Reiter (Erfassen/Import).
+        $pdo->exec(<<<SQL
+CREATE TABLE IF NOT EXISTS beitraege (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  schluessel TEXT NOT NULL UNIQUE,
+  art TEXT NOT NULL,
+  datum TEXT NOT NULL,
+  titel_de TEXT NOT NULL,
+  titel_en TEXT NOT NULL DEFAULT '',
+  text_de TEXT NOT NULL,
+  text_en TEXT NOT NULL DEFAULT '',
+  gemeinden TEXT NOT NULL DEFAULT '',
+  autor TEXT NOT NULL DEFAULT '',
+  link TEXT NOT NULL DEFAULT '',
+  erstellt INTEGER NOT NULL,
+  geaendert INTEGER NOT NULL,
+  erstellt_von TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS ix_beitraege_datum ON beitraege(datum);
+SQL);
+        $pdo->exec('PRAGMA user_version = 6');
+    }
+    // Künftige Schemaänderungen: if ($version < 7) { … PRAGMA user_version = 7 } – idempotent halten.
 }
 
 function einstellung(string $schluessel, string $standard = ''): string
