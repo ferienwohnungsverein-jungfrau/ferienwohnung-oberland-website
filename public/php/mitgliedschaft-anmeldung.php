@@ -114,33 +114,34 @@ $confirmUrl = "https://ferienwohnungsverein-jungfrau.ch/php/mitgliedschaft-besta
 $confirmUrlHtml = htmlspecialchars($confirmUrl, ENT_QUOTES, 'UTF-8');
 $nameHtml = htmlspecialchars($nameSafe, ENT_QUOTES, 'UTF-8');
 
-if ($locale === 'en') {
-    $subject = 'Please confirm your application – Ferienwohnungsverein Jungfrau';
-    $textBody = "Hello {$nameSafe}\n\n"
-        . "Thank you for your interest in becoming a member of the Ferienwohnungsverein Jungfrau.\n\n"
-        . "Please confirm your application via the following link, so that we receive your request:\n{$confirmUrl}\n\n"
-        . "This link is valid for 48 hours.\n\n"
-        . "Kind regards\nFerienwohnungsverein Jungfrau\nhttps://ferienwohnungsverein-jungfrau.ch\n";
-    $htmlLang = 'en';
-    $htmlGreeting = "Hello {$nameHtml}";
-    $htmlIntro = 'Thank you for your interest in becoming a member of the Ferienwohnungsverein Jungfrau. Please confirm your application, so that we receive your request:';
-    $htmlCta = 'Confirm application';
-    $htmlValidity = 'This link is valid for 48 hours.';
-    $htmlSignoff = 'Kind regards';
-} else {
-    $subject = 'Bitte bestätigen Sie Ihre Anmeldung – Ferienwohnungsverein Jungfrau';
-    $textBody = "Guten Tag {$nameSafe}\n\n"
-        . "vielen Dank für Ihr Interesse an einer Mitgliedschaft beim Ferienwohnungsverein Jungfrau.\n\n"
-        . "Bitte bestätigen Sie Ihre Anmeldung über den folgenden Link, damit wir Ihre Anfrage erhalten:\n{$confirmUrl}\n\n"
-        . "Der Link ist 48 Stunden gültig.\n\n"
-        . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau\nhttps://ferienwohnungsverein-jungfrau.ch\n";
-    $htmlLang = 'de-CH';
-    $htmlGreeting = "Guten Tag {$nameHtml}";
-    $htmlIntro = 'Vielen Dank für Ihr Interesse an einer Mitgliedschaft beim Ferienwohnungsverein Jungfrau. Bitte bestätigen Sie Ihre Anmeldung, damit wir Ihre Anfrage erhalten:';
-    $htmlCta = 'Anmeldung bestätigen';
-    $htmlValidity = 'Der Link ist 48 Stunden gültig.';
-    $htmlSignoff = 'Freundliche Grüsse';
-}
+// Zweisprachig (Stefan 04.11.2026): Deutsch oben, Englisch darunter.
+$subject = '=?UTF-8?B?' . base64_encode('Bitte bestätigen Sie Ihre Anmeldung / Please confirm your application – Ferienwohnungsverein Jungfrau') . '?=';
+$textBody = "English version below.\n\n"
+    . "Guten Tag {$nameSafe}\n\n"
+    . "vielen Dank für Ihr Interesse an einer Mitgliedschaft beim Ferienwohnungsverein Jungfrau.\n\n"
+    . "Bitte bestätigen Sie Ihre Anmeldung über den folgenden Link, damit wir Ihre Anfrage erhalten:\n{$confirmUrl}\n\n"
+    . "Der Link ist 48 Stunden gültig.\n\n"
+    . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau\n\n"
+    . "--- English ---\n\n"
+    . "Hello {$nameSafe}\n\n"
+    . "Thank you for your interest in becoming a member of the Ferienwohnungsverein Jungfrau.\n\n"
+    . "Please confirm your application via the following link, so that we receive your request:\n{$confirmUrl}\n\n"
+    . "This link is valid for 48 hours.\n\n"
+    . "Kind regards\nFerienwohnungsverein Jungfrau\nhttps://ferienwohnungsverein-jungfrau.ch\n";
+$htmlLang = 'de-CH';
+$knopfStil = 'background:#F4A261;color:#1e293b;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:6px;display:inline-block;';
+$htmlInhalt = '<p style="margin:0 0 20px;color:#666666;font-size:13px;">English version below ↓</p>'
+    . "<p style=\"margin:0 0 16px;\">Guten Tag {$nameHtml}</p>"
+    . '<p style="margin:0 0 24px;">Vielen Dank für Ihr Interesse an einer Mitgliedschaft beim Ferienwohnungsverein Jungfrau. Bitte bestätigen Sie Ihre Anmeldung, damit wir Ihre Anfrage erhalten:</p>'
+    . "<p style=\"margin:0 0 16px;text-align:center;\"><a href=\"{$confirmUrlHtml}\" style=\"{$knopfStil}\">Anmeldung bestätigen</a></p>"
+    . '<p style="margin:0 0 16px;color:#666666;font-size:13px;">Der Link ist 48 Stunden gültig.</p>'
+    . '<hr style="border:0;border-top:1px solid #e3e7eb;margin:28px 0 20px;">'
+    . '<p style="margin:0 0 12px;color:#666666;font-size:12px;letter-spacing:.08em;text-transform:uppercase;">English</p>'
+    . "<p style=\"margin:0 0 16px;\">Hello {$nameHtml}</p>"
+    . '<p style="margin:0 0 24px;">Thank you for your interest in becoming a member of the Ferienwohnungsverein Jungfrau. Please confirm your application, so that we receive your request:</p>'
+    . "<p style=\"margin:0 0 16px;text-align:center;\"><a href=\"{$confirmUrlHtml}\" style=\"{$knopfStil}\">Confirm application</a></p>"
+    . '<p style="margin:0 0 16px;color:#666666;font-size:13px;">This link is valid for 48 hours.</p>'
+    . '<p style="margin:0;color:#666666;font-size:13px;">Freundliche Grüsse · Kind regards<br>Ferienwohnungsverein Jungfrau<br><a href="https://ferienwohnungsverein-jungfrau.ch" style="color:#004D7A;">ferienwohnungsverein-jungfrau.ch</a></p>';
 
 $htmlBody = <<<HTML
 <!doctype html>
@@ -157,13 +158,7 @@ $htmlBody = <<<HTML
           </tr>
           <tr>
             <td style="padding:32px;color:#1a1a1a;font-size:15px;line-height:1.6;">
-              <p style="margin:0 0 16px;">{$htmlGreeting}</p>
-              <p style="margin:0 0 24px;">{$htmlIntro}</p>
-              <p style="margin:0 0 24px;text-align:center;">
-                <a href="{$confirmUrlHtml}" style="background:#F4A261;color:#ffffff;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:6px;display:inline-block;">{$htmlCta}</a>
-              </p>
-              <p style="margin:0 0 16px;color:#666666;font-size:13px;">{$htmlValidity}</p>
-              <p style="margin:0;color:#666666;font-size:13px;">{$htmlSignoff}<br>Ferienwohnungsverein Jungfrau<br><a href="https://ferienwohnungsverein-jungfrau.ch" style="color:#004D7A;">ferienwohnungsverein-jungfrau.ch</a></p>
+              {$htmlInhalt}
             </td>
           </tr>
         </table>

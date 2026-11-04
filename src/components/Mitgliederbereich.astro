@@ -10,7 +10,7 @@ const { locale = 'de' } = Astro.props;
 const en = locale === 'en';
 ---
 
-<section class="section section--white mb-section">
+<section class="section mb-section mb-section--flaeche">
   <div class="container">
     <div id="mb" data-locale={locale}>
       <p id="mb-laden" class="mb-leer">{en ? 'Loading …' : 'Wird geladen …'}</p>

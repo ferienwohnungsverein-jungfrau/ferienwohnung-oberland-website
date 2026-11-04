@@ -48,7 +48,7 @@ HTML;
 $ungueltig = fn() => seite(
     $en ? 'Link no longer valid' : 'Link nicht mehr gültig',
     $en
-        ? '<p>This sign-in link has expired or has already been used (valid 10 minutes, once).</p><p><a href="/en/members/">Request a new link</a></p>'
+        ? '<p>This log-in link has expired or has already been used (valid 10 minutes, once).</p><p><a href="/en/members/">Send a new link</a></p>'
         : '<p>Dieser Anmeldelink ist abgelaufen oder wurde schon verwendet (10 Minuten gültig, einmal).</p><p><a href="/mitglieder/">Neuen Link anfordern</a></p>',
     $en
 );
@@ -91,9 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $felder = '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="t" value="' . e($token) . '">'
     . ($en ? '<input type="hidden" name="l" value="en">' : '');
 seite(
-    $en ? 'Sign in to the members’ area' : 'Im Mitgliederbereich anmelden',
+    $en ? 'Log in to the members’ area' : 'Im Mitgliederbereich anmelden',
     '<p>' . e((string) $row['email']) . '</p><form method="post">' . $felder
-        . '<button type="submit">' . ($en ? 'Sign in now' : 'Jetzt anmelden') . '</button></form>'
+        . '<button type="submit">' . ($en ? 'Log in now' : 'Jetzt anmelden') . '</button></form>'
         . '<p class="klein">' . ($en ? 'This device stays signed in for 30 days.' : 'Dieses Gerät bleibt 30 Tage angemeldet.') . '</p>',
     $en
 );

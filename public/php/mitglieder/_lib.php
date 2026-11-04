@@ -378,7 +378,15 @@ SQL);
         }
         $pdo->exec('PRAGMA user_version = 4');
     }
-    // Künftige Schemaänderungen: if ($version < 5) { … PRAGMA user_version = 5 } – idempotent halten.
+    if ($version < 5) {
+        // it@ bekam live keine Login-Mail (04.11.2026), obwohl Mails an it@ ankommen → Erst-Admin
+        // sicherstellen: anlegen falls weg, sonst wieder aktiv + admin. Nur die Funktionsadresse.
+        $pdo->prepare("INSERT OR IGNORE INTO mitglieder (email, vorname, name, rolle, status, angelegt_am, angelegt_von) VALUES (?, 'Vorstand', 'IT', 'admin', 'aktiv', ?, 'system')")
+            ->execute([FWVJ_ERST_ADMIN, jetzt()]);
+        $pdo->prepare("UPDATE mitglieder SET rolle = 'admin', status = 'aktiv' WHERE email = ?")->execute([FWVJ_ERST_ADMIN]);
+        $pdo->exec('PRAGMA user_version = 5');
+    }
+    // Künftige Schemaänderungen: if ($version < 6) { … PRAGMA user_version = 6 } – idempotent halten.
 }
 
 function einstellung(string $schluessel, string $standard = ''): string
@@ -683,48 +691,64 @@ function mail_knopf(string $url, string $text, bool $haupt = true): string
     return "<a href=\"{$u}\" style=\"{$stil}text-decoration:none;font-weight:700;padding:14px 28px;border-radius:6px;display:inline-block;margin:0 8px 8px 0;\">{$t}</a>";
 }
 
+/** Zweisprachige Mails (Stefan 04.11.2026): Deutsch oben, Englisch darunter, Hinweis ganz oben. */
+function zweisprachig_betreff(string $de, string $en): string
+{
+    return $de . ' / ' . $en;
+}
+
+function zweisprachig_text(string $de, string $en): string
+{
+    return "English version below.\n\n" . rtrim($de) . "\n\n--- English ---\n\n" . rtrim($en) . "\n";
+}
+
+function zweisprachig_html(string $de, string $en): string
+{
+    return '<p style="margin:0 0 20px;color:#666666;font-size:13px;">English version below ↓</p>' . $de
+        . '<hr style="border:0;border-top:1px solid #e3e7eb;margin:28px 0 20px;">'
+        . '<p style="margin:0 0 12px;color:#666666;font-size:12px;letter-spacing:.08em;text-transform:uppercase;">English</p>' . $en;
+}
+
 /** Begrüssungsmail nach der Freischaltung (Formular-Anfrage oder Admin-Reiter). */
 function begruessung_senden(string $email, string $vorname, string $locale): bool
 {
-    $en = $locale === 'en';
-    $link = basis_url() . ($en ? '/en/members/' : '/mitglieder/');
+    $de = basis_url() . '/mitglieder/';
+    $en = basis_url() . '/en/members/';
     $hallo = trim($vorname);
     $h = htmlspecialchars($hallo, ENT_QUOTES, 'UTF-8');
-    if ($en) {
-        $betreff = 'Your access to the members’ area is active';
-        $text = "Hello {$hallo}\n\nYour address has been activated for the members’ area of the Ferienwohnungsverein Jungfrau.\n\n"
-            . "Sign in: {$link}\nEnter this email address – you will receive a code by email, no password needed.\n\n"
-            . "There you will find templates for renting (signs, house rules, checklists …) and can upload your own.\n\n"
-            . "Kind regards\nFerienwohnungsverein Jungfrau\n";
-        $html = "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\">Your address has been activated for the members’ area. There you will find templates for renting (signs, house rules, checklists …) and can upload your own.</p>"
-            . '<p style="margin:0 0 16px;">' . mail_knopf($link, 'Go to the members’ area') . '</p>'
-            . '<p style="margin:0;color:#666666;font-size:13px;">Enter this email address – you will receive a code by email, no password needed.</p>';
-    } else {
-        $betreff = 'Dein Zugang zum Mitgliederbereich ist freigeschaltet';
-        $text = "Hallo {$hallo}\n\nDeine Adresse ist für den Mitgliederbereich des Ferienwohnungsvereins Jungfrau freigeschaltet.\n\n"
-            . "Anmelden: {$link}\nDiese E-Mail-Adresse eingeben – du bekommst einen Code per Mail, kein Passwort nötig.\n\n"
+    $betreff = zweisprachig_betreff('Dein Zugang zum Mitgliederbereich ist freigeschaltet', 'Your access to the members’ area is active');
+    $text = zweisprachig_text(
+        "Hallo {$hallo}\n\nDeine Adresse ist für den Mitgliederbereich des Ferienwohnungsvereins Jungfrau freigeschaltet.\n\n"
+            . "Anmelden: {$de}\nDiese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.\n\n"
             . "Dort findest du Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) und kannst eigene hochladen.\n\n"
-            . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau\n";
-        $html = "<p style=\"margin:0 0 16px;\">Hallo {$h}</p><p style=\"margin:0 0 16px;\">Deine Adresse ist für den Mitgliederbereich freigeschaltet. Dort findest du Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) und kannst eigene hochladen.</p>"
-            . '<p style="margin:0 0 16px;">' . mail_knopf($link, 'Zum Mitgliederbereich') . '</p>'
-            . '<p style="margin:0;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – du bekommst einen Code per Mail, kein Passwort nötig.</p>';
-    }
-    return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, $locale));
+            . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau",
+        "Hello {$hallo}\n\nYour address has been activated for the members’ area of the Ferienwohnungsverein Jungfrau.\n\n"
+            . "Log in: {$en}\nEnter this email address – you will receive a log-in link by email, no password needed.\n\n"
+            . "There you will find templates for renting (signs, house rules, checklists …) and can upload your own.\n\n"
+            . "Kind regards\nFerienwohnungsverein Jungfrau"
+    );
+    $html = zweisprachig_html(
+        "<p style=\"margin:0 0 16px;\">Hallo {$h}</p><p style=\"margin:0 0 16px;\">Deine Adresse ist für den Mitgliederbereich freigeschaltet. Dort findest du Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) und kannst eigene hochladen.</p>"
+            . '<p style="margin:0 0 16px;">' . mail_knopf($de, 'Zum Mitgliederbereich') . '</p>'
+            . '<p style="margin:0;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.</p>',
+        "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\">Your address has been activated for the members’ area. There you will find templates for renting (signs, house rules, checklists …) and can upload your own.</p>"
+            . '<p style="margin:0 0 16px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
+            . '<p style="margin:0;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
+    );
+    return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, 'de'));
 }
 
 /** Absage an die anfragende Person (neutral formuliert). */
 function absage_senden(string $email, string $vorname, string $locale): bool
 {
     $hallo = trim($vorname);
-    if ($locale === 'en') {
-        $betreff = 'Your request for the members’ area';
-        $text = "Hello {$hallo}\n\nUnfortunately we could not confirm a membership for this address, so we cannot activate access to the members’ area.\n\n"
-            . "If this is a mistake (e.g. you are registered with a different address), simply reply to this email.\n\nKind regards\nFerienwohnungsverein Jungfrau\n";
-    } else {
-        $betreff = 'Deine Anfrage für den Mitgliederbereich';
-        $text = "Hallo {$hallo}\n\nleider konnten wir zu dieser Adresse keine Mitgliedschaft bestätigen und den Zugang zum Mitgliederbereich deshalb nicht freischalten.\n\n"
-            . "Falls das ein Irrtum ist (z. B. weil du mit einer anderen Adresse eingetragen bist), antworte einfach auf diese Mail.\n\nFreundliche Grüsse\nFerienwohnungsverein Jungfrau\n";
-    }
+    $betreff = zweisprachig_betreff('Deine Anfrage für den Mitgliederbereich', 'Your request for the members’ area');
+    $text = zweisprachig_text(
+        "Hallo {$hallo}\n\nleider konnten wir zu dieser Adresse keine Mitgliedschaft bestätigen und den Zugang zum Mitgliederbereich deshalb nicht freischalten.\n\n"
+            . "Falls das ein Irrtum ist (z. B. weil du mit einer anderen Adresse eingetragen bist), antworte einfach auf diese Mail.\n\nFreundliche Grüsse\nFerienwohnungsverein Jungfrau",
+        "Hello {$hallo}\n\nUnfortunately we could not confirm a membership for this address, so we cannot activate access to the members’ area.\n\n"
+            . "If this is a mistake (e.g. you are registered with a different address), simply reply to this email.\n\nKind regards\nFerienwohnungsverein Jungfrau"
+    );
     return mail_senden($email, $betreff, $text);
 }
 

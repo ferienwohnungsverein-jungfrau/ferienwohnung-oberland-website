@@ -299,3 +299,23 @@ p { max-width: 65ch; }
 }
 
 .text-center { text-align: center; }
+
+/* ── Mitgliederbereich farblich abgesetzt (Stefan 04.11.2026): helleres Blau, hellblaue Fläche ── */
+.page-hero.hero--mitglieder {
+  background: linear-gradient(135deg, #1A6E9E 0%, #1E77A9 100%);
+}
+.hero--mitglieder .mb-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-white);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+.mb-section.mb-section--flaeche {
+  background: #EEF6FB;
+}
