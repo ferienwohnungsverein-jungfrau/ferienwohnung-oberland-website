@@ -16,6 +16,10 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
     <div class="container">
       <h1>Become a Member</h1>
       <p>The Ferienwohnungsverein Jungfrau is first and foremost a community of holiday apartment hosts – exchange among us was the original, and remains the most important, purpose of this association.</p>
+      <div class="hero-cta">
+        <a href="#signup" class="btn btn-accent">Request membership</a>
+        <p class="hero-cta__hinweis"><Icon name="check-square" size={20} /><span>Free until the next General Assembly (usually in spring)</span></p>
+      </div>
     </div>
   </section>
 
@@ -143,6 +147,29 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
 </Layout>
 
 <style>
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .hero-cta__hinweis {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0 !important;
+    font-size: var(--text-base) !important;
+    color: var(--color-text-on-dark);
+  }
+
+  .hero-cta__hinweis :global(svg) {
+    flex-shrink: 0;
+    margin-top: 0.2em;
+    color: var(--color-accent);
+  }
+
   .grid-3 p {
     margin-inline: auto;
   }

@@ -16,6 +16,10 @@ import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jp
     <div class="container">
       <h1>Werden Sie Mitglied</h1>
       <p>Der Ferienwohnungsverein Jungfrau ist in erster Linie eine Gemeinschaft von Ferienwohnungsbetreiber:innen – der Austausch unter uns war der ursprüngliche und bleibt der wichtigste Zweck dieses Vereins.</p>
+      <div class="hero-cta">
+        <a href="#anmeldung" class="btn btn-accent">Mitgliedschaft anfragen</a>
+        <p class="hero-cta__hinweis"><Icon name="check-square" size={20} /><span>Kostenlos bis zur nächsten Generalversammlung (in der Regel im Frühling)</span></p>
+      </div>
     </div>
   </section>
 
@@ -143,6 +147,29 @@ import sujet7 from '../../assets/images/ferienwohnungsverein-jungfrau-sujet-7.jp
 </Layout>
 
 <style>
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .hero-cta__hinweis {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0 !important;
+    font-size: var(--text-base) !important;
+    color: var(--color-text-on-dark);
+  }
+
+  .hero-cta__hinweis :global(svg) {
+    flex-shrink: 0;
+    margin-top: 0.2em;
+    color: var(--color-accent);
+  }
+
   .grid-3 p {
     margin-inline: auto;
   }
