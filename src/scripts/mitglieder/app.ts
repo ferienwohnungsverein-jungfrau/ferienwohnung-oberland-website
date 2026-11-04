@@ -40,11 +40,14 @@ const T = {
     reiterUebersicht: 'Übersicht',
     reiterInfos: 'Infos & News',
     willkommen: (n: string) => `Willkommen, ${n}`,
-    willkommenText: 'Hier findest du die Mitteilungen des Vorstands, News aus den Gemeinden und Vorlagen für die Vermietung.',
+    willkommenText: 'Hier findest du die Mitteilungen des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung.',
     kVorstand: 'Vorstandsinfos',
     kVorstandText: 'Mitteilungen des Vorstands an die Mitglieder',
-    kNews: 'News aus den Gemeinden',
+    kNews: 'News aus der Region',
     kNewsText: 'Was auf dem Bödeli und in den Medien läuft',
+    kCommunity: 'Community',
+    kCommunityText: 'Aus dem Community-Chat der Mitglieder',
+    artCommunity: 'Community',
     kVorlagen: 'Vorlagen',
     kVorlagenText: (n: number) => `${n} Vorlagen von Mitgliedern für Mitglieder`,
     kPartner: 'Partnerangebote',
@@ -78,7 +81,9 @@ const T = {
     gemeindenF: 'Gemeinden',
     bSpeichern: 'Beitrag speichern',
     bNeu: 'Neu (Formular leeren)',
-    bImport: 'JSON-Datei importieren',
+    bImport: 'Import: JSON-Datei (+ Anhänge) wählen',
+    anhaengeF: 'Anhänge hinzufügen (PDF, Bilder, Office)',
+    anhangEntfernen: 'entfernen',
     bImportiert: (n: number) => `${n} Beiträge importiert.`,
     bLoeschenFrage: 'Diesen Beitrag wirklich löschen?',
     filter: 'Filter',
@@ -235,11 +240,14 @@ const T = {
     reiterUebersicht: 'Overview',
     reiterInfos: 'Info & news',
     willkommen: (n: string) => `Welcome, ${n}`,
-    willkommenText: 'Here you will find messages from the board, news from the municipalities and templates for renting.',
+    willkommenText: 'Here you will find messages from the board, news from the region, the community and templates for renting.',
     kVorstand: 'Board updates',
     kVorstandText: 'Messages from the board to members',
-    kNews: 'News from the municipalities',
+    kNews: 'News from the region',
     kNewsText: 'What is happening on the Bödeli and in the media',
+    kCommunity: 'Community',
+    kCommunityText: 'From the members’ community chat',
+    artCommunity: 'Community',
     kVorlagen: 'Templates',
     kVorlagenText: (n: number) => `${n} templates by members for members`,
     kPartner: 'Partner offers',
@@ -273,7 +281,9 @@ const T = {
     gemeindenF: 'Municipalities',
     bSpeichern: 'Save post',
     bNeu: 'New (clear form)',
-    bImport: 'Import JSON file',
+    bImport: 'Import: choose JSON file (+ attachments)',
+    anhaengeF: 'Add attachments (PDF, images, Office)',
+    anhangEntfernen: 'remove',
     bImportiert: (n: number) => `${n} posts imported.`,
     bLoeschenFrage: 'Really delete this post?',
     filter: 'Filters',
@@ -412,9 +422,11 @@ const SEITENFORMAT: Record<string, string> = L === 'en'
 
 interface Ich { id: number; email: string; vorname: string; name: string; admin: boolean }
 interface Beitrag {
-  id: number; art: 'vorstand' | 'news'; datum: string; titel_de: string; titel_en: string;
+  id: number; art: 'vorstand' | 'news' | 'community'; datum: string; titel_de: string; titel_en: string;
   text_de: string; text_en: string; gemeinden: string[]; autor: string; link: string;
+  anhaenge: { id: number; name: string; mime: string; groesse: number; bild: boolean }[];
 }
+const ANHANG = '/php/mitglieder/beitrag-datei.php';
 let beitraege: Beitrag[] = [];
 const infoFilter = { art: '', gem: '', q: '' };
 const REITER = ['uebersicht', 'infos', 'vorlagen', 'hochladen', 'admin'];
@@ -730,6 +742,7 @@ async function beitraegeLaden(): Promise<void> {
   if (ich?.admin && $('#mb-a-beitraege')) adminBeitraegeListe();
 }
 
+const artName = (a: string) => (a === 'vorstand' ? T.artVorstand : a === 'community' ? T.artCommunity : T.artNews);
 const titelVon = (b: Beitrag) => (L === 'en' && b.titel_en ? b.titel_en : b.titel_de);
 const textVon = (b: Beitrag) => (L === 'en' && b.text_en ? b.text_en : b.text_de);
 const nurDe = (b: Beitrag) => L === 'en' && !b.text_en;
@@ -743,24 +756,32 @@ function gemeindePills(b: Beitrag): string {
   return b.gemeinden.map((g) => `<span class="mb-pill">${esc(T.gemeindeNamen[g] || g)}</span>`).join(' ');
 }
 
+/** Escaped Zeile + anklickbare Links + WhatsApp-Fett (**x** oder *x*). */
+function zeileHtml(z: string): string {
+  return esc(z)
+    .replace(/https?:\/\/[^\s<]+[^\s<.,;:!?)»"']/g, (u) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`)
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[\s(])\*([^*\s][^*\n]*?)\*(?=[\s).,!?:;]|$)/g, '$1<strong>$2</strong>');
+}
+
 /** Klartext → Absätze/Zeilen; Aufzählungen mit •, - oder * werden zu Listen. Alles escaped. */
 function textHtml(t: string): string {
   return t.split(/\n{2,}/).map((block) => {
     const zeilen = block.split('\n');
     if (zeilen.every((z) => /^\s*[•\-*]\s+/.test(z))) {
-      return `<ul>${zeilen.map((z) => `<li>${esc(z.replace(/^\s*[•\-*]\s+/, ''))}</li>`).join('')}</ul>`;
+      return `<ul>${zeilen.map((z) => `<li>${zeileHtml(z.replace(/^\s*[•\-*]\s+/, ''))}</li>`).join('')}</ul>`;
     }
-    return `<p>${zeilen.map((z) => esc(z)).join('<br>')}</p>`;
+    return `<p>${zeilen.map((z) => zeileHtml(z)).join('<br>')}</p>`;
   }).join('');
 }
 
-function kurzeListe(art: 'vorstand' | 'news'): string {
+function kurzeListe(art: Beitrag['art']): string {
   const liste = beitraege.filter((b) => b.art === art).slice(0, 3);
   if (!liste.length) return `<p class="mb-klein">${T.nochNichts}</p>`;
   return `<ul class="mb-dash__liste">${liste.map((b) => `
     <li><button type="button" class="mb-dash__eintrag" data-oeffne="${b.id}">
       <span class="mb-dash__datum">${datumKurz(b.datum)}</span>
-      <span class="mb-dash__titel">${esc(titelVon(b))}</span>
+      <span class="mb-dash__titel">${esc(titelVon(b))}${b.anhaenge?.length ? ' 📎' : ''}</span>
       ${b.gemeinden.length ? `<span class="mb-dash__gem">${gemeindePills(b)}</span>` : ''}
     </button></li>`).join('')}</ul>`;
 }
@@ -785,6 +806,11 @@ function uebersichtZeigen(): void {
         <div class="mb-dash__kopf"><span class="mb-dash__icon" aria-hidden="true">📰</span><div><h3>${T.kNews}</h3><p class="mb-klein">${T.kNewsText}</p></div></div>
         ${kurzeListe('news')}
         <button type="button" class="btn btn-accent mb-btn-klein" data-geh="infos" data-art="news">${T.alleAnzeigen}</button>
+      </section>
+      <section class="mb-karte mb-dash__karte mb-dash__karte--community">
+        <div class="mb-dash__kopf"><span class="mb-dash__icon" aria-hidden="true">👥</span><div><h3>${T.kCommunity}</h3><p class="mb-klein">${T.kCommunityText}</p></div></div>
+        ${kurzeListe('community')}
+        <button type="button" class="btn btn-accent mb-btn-klein" data-geh="infos" data-art="community">${T.alleAnzeigen}</button>
       </section>
       <section class="mb-karte mb-dash__karte mb-dash__karte--vorlagen">
         <div class="mb-dash__kopf"><span class="mb-dash__icon" aria-hidden="true">📄</span><div><h3>${T.kVorlagen}</h3><p class="mb-klein">${T.kVorlagenText(sichtbar.length)}</p></div></div>
@@ -821,7 +847,7 @@ function infosAufbauen(): void {
     <div class="mb-filter mb-filter--offen">
       <div class="mb-filter__felder">
         <label class="mb-feld"><span>${T.art}</span><select id="mb-i-art">
-          <option value="">${T.artAlle}</option><option value="vorstand">${T.artVorstand}</option><option value="news">${T.artNews}</option></select></label>
+          <option value="">${T.artAlle}</option><option value="vorstand">${T.artVorstand}</option><option value="news">${T.artNews}</option><option value="community">${T.artCommunity}</option></select></label>
         <label class="mb-feld"><span>${T.gemeinde}</span><select id="mb-i-gem"><option value="">${T.gemeindeAlle}</option>
           ${GEMEINDEN.map((g) => `<option value="${g}">${esc(T.gemeindeNamen[g])}</option>`).join('')}</select></label>
         <label class="mb-feld mb-feld--breit"><span>${T.suchen}</span><input type="search" id="mb-i-q"></label>
@@ -858,13 +884,22 @@ function infosZeigen(): void {
   ziel.innerHTML = liste.length ? liste.map((b) => `
     <details class="mb-karte mb-info mb-info--${b.art}" data-beitrag="${b.id}">
       <summary>
-        <span class="mb-info__meta"><span class="mb-info__art">${b.art === 'vorstand' ? T.artVorstand : T.artNews}</span> · ${datumKurz(b.datum)}${b.autor ? ` · ${esc(b.autor)}` : ''}</span>
+        <span class="mb-info__meta"><span class="mb-info__art">${artName(b.art)}</span> · ${datumKurz(b.datum)}${b.autor ? ` · ${esc(b.autor)}` : ''}</span>
         <span class="mb-info__titel">${esc(titelVon(b))}</span>
         ${b.gemeinden.length ? `<span class="mb-tags">${gemeindePills(b)}</span>` : ''}
       </summary>
       <div class="mb-info__text">${nurDe(b) ? `<p class="mb-klein">${T.nurDeutsch}</p>` : ''}${textHtml(textVon(b))}
+        ${anhaengeHtml(b)}
         ${b.link ? `<p><a href="${esc(b.link)}" target="_blank" rel="noopener noreferrer">${T.linkOeffnen}</a></p>` : ''}</div>
     </details>`).join('') : `<p class="mb-leer">${T.nochNichts}</p>`;
+}
+
+function anhaengeHtml(b: Beitrag): string {
+  if (!b.anhaenge?.length) return '';
+  const bilder = b.anhaenge.filter((a) => a.bild);
+  const andere = b.anhaenge.filter((a) => !a.bild);
+  return `${bilder.length ? `<div class="mb-anh-bilder">${bilder.map((a) => `<a href="${ANHANG}?id=${a.id}" target="_blank" rel="noopener"><img src="${ANHANG}?id=${a.id}" alt="${esc(a.name)}" loading="lazy"></a>`).join('')}</div>` : ''}
+    ${andere.length ? `<ul class="mb-anh-liste">${andere.map((a) => `<li><a href="${ANHANG}?id=${a.id}" target="_blank" rel="noopener">📄 ${esc(a.name)}</a> <span class="mb-klein">${groesse(a.groesse)}</span></li>`).join('')}</ul>` : ''}`;
 }
 
 function beitragOeffnen(id: number): void {
@@ -1321,21 +1356,23 @@ async function adminLaden(): Promise<void> {
         <form class="mb-form" id="mb-a-beitrag">
           <input type="hidden" name="id" value="">
           <div class="mb-form--reihe mb-beitrag-reihe">
-            <label class="mb-feld"><span>${T.art} *</span><select name="art"><option value="vorstand">${T.artVorstand}</option><option value="news">${T.artNews}</option></select></label>
+            <label class="mb-feld"><span>${T.art} *</span><select name="art"><option value="vorstand">${T.artVorstand}</option><option value="news">${T.artNews}</option><option value="community">${T.artCommunity}</option></select></label>
             <label class="mb-feld"><span>${T.datumF} *</span><input type="date" name="datum" required></label>
             <label class="mb-feld"><span>${T.autorF}</span><input type="text" name="autor" maxlength="120"></label>
           </div>
           <fieldset class="mb-feld"><legend>${T.gemeindenF}</legend><div class="mb-gem-wahl">
             ${GEMEINDEN.map((g) => `<label class="mb-check"><input type="checkbox" name="gemeinden" value="${g}"> ${esc(T.gemeindeNamen[g])}</label>`).join('')}</div></fieldset>
           <label class="mb-feld"><span>${T.titelDe} *</span><input type="text" name="titel_de" required maxlength="200"></label>
-          <label class="mb-feld"><span>${T.textDe} *</span><textarea name="text_de" rows="6" required></textarea></label>
+          <label class="mb-feld"><span>${T.textDe}</span><textarea name="text_de" rows="6"></textarea></label>
           <label class="mb-feld"><span>${T.titelEn}</span><input type="text" name="titel_en" maxlength="200"></label>
           <label class="mb-feld"><span>${T.textEn}</span><textarea name="text_en" rows="6"></textarea></label>
           <label class="mb-feld"><span>${T.linkF}</span><input type="url" name="link" maxlength="500" placeholder="https://"></label>
+          <label class="mb-feld"><span>${T.anhaengeF}</span><input type="file" name="anhaenge[]" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.xlsx,.pptx,.odt"></label>
+          <ul class="mb-anh-liste" id="mb-a-anh"></ul>
           <div class="mb-dash__knoepfe">
             <button type="submit" class="btn btn-accent">${T.bSpeichern}</button>
             <button type="button" class="mb-link" id="mb-a-beitrag-neu">${T.bNeu}</button>
-            <label class="mb-link">${T.bImport}<input type="file" accept="application/json,.json" id="mb-a-import" hidden></label>
+            <label class="mb-link">${T.bImport}<input type="file" multiple id="mb-a-import" hidden></label>
           </div>
         </form>
         <div class="mb-tabelle-wrap"><table class="mb-tabelle" id="mb-a-beitraege"></table></div>
@@ -1385,16 +1422,19 @@ async function adminLaden(): Promise<void> {
       if (!r.success) return meldung(r.message || T.fehler, 'fehler');
       fB.reset();
       (fB.elements.namedItem('id') as HTMLInputElement).value = '';
+      $('#mb-a-anh').innerHTML = '';
       meldung(T.gespeichert);
       beitraegeLaden();
     });
-    $('#mb-a-beitrag-neu').addEventListener('click', () => { fB.reset(); (fB.elements.namedItem('id') as HTMLInputElement).value = ''; });
+    $('#mb-a-beitrag-neu').addEventListener('click', () => { fB.reset(); (fB.elements.namedItem('id') as HTMLInputElement).value = ''; $('#mb-a-anh').innerHTML = ''; });
     $<HTMLInputElement>('#mb-a-import').addEventListener('change', async (e) => {
       const inp = e.target as HTMLInputElement;
-      const datei = inp.files?.[0];
-      if (!datei) return;
+      const alle = Array.from(inp.files || []);
+      const json = alle.find((f) => f.name.toLowerCase().endsWith('.json'));
+      if (!json) { inp.value = ''; return meldung(T.fehler, 'fehler'); }
       const fd = new FormData();
-      fd.append('datei', datei);
+      fd.append('datei', json);
+      alle.filter((f) => f !== json).forEach((f) => fd.append('anhaenge[]', f, f.name));
       const r = await api<{ anzahl: number }>('admin_beitraege_import', fd);
       inp.value = '';
       if (!r.success) return meldung(r.message || T.fehler, 'fehler');
@@ -1439,7 +1479,7 @@ function adminBeitraegeListe(): void {
   if (!t) return;
   t.innerHTML = beitraege.length
     ? `<tr><th>${T.datumF}</th><th>${T.art}</th><th>${T.titelDe}</th><th>EN</th><th></th></tr>` + beitraege.map((b) => `
-      <tr><td class="mb-nowrap">${esc(b.datum)}</td><td>${b.art === 'vorstand' ? T.artVorstand : T.artNews}</td><td>${esc(b.titel_de)}</td><td>${b.text_en ? '✓' : '–'}</td>
+      <tr><td class="mb-nowrap">${esc(b.datum)}</td><td>${artName(b.art)}</td><td>${esc(b.titel_de)}${b.anhaenge?.length ? ` 📎${b.anhaenge.length}` : ''}</td><td>${b.text_en ? '✓' : '–'}</td>
       <td class="mb-nowrap"><button type="button" class="mb-link" data-b-edit="${b.id}">${T.bearbeiten}</button> <button type="button" class="mb-link mb-link--rot" data-b-del="${b.id}">${T.loeschen}</button></td></tr>`).join('')
     : `<tr><td>${T.nochNichts}</td></tr>`;
   t.querySelectorAll<HTMLButtonElement>('[data-b-edit]').forEach((btn) => btn.addEventListener('click', () => {
@@ -1457,6 +1497,14 @@ function adminBeitraegeListe(): void {
     (f.elements.namedItem('text_en') as HTMLTextAreaElement).value = b.text_en;
     feld('link').value = b.link;
     f.querySelectorAll<HTMLInputElement>('input[name=gemeinden]').forEach((c) => (c.checked = b.gemeinden.includes(c.value)));
+    const liste = $('#mb-a-anh');
+    liste.innerHTML = (b.anhaenge || []).map((a) => `<li>📎 ${esc(a.name)} <button type="button" class="mb-link mb-link--rot" data-anh="${a.id}">${T.anhangEntfernen}</button></li>`).join('');
+    liste.querySelectorAll<HTMLButtonElement>('[data-anh]').forEach((x) => x.addEventListener('click', async () => {
+      const r = await api('admin_anhang_loeschen', { beitrag_id: String(b.id), id: x.dataset.anh! });
+      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
+      x.parentElement?.remove();
+      beitraegeLaden();
+    }));
     f.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }));
   t.querySelectorAll<HTMLButtonElement>('[data-b-del]').forEach((btn) => btn.addEventListener('click', async () => {

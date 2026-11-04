@@ -164,7 +164,7 @@ function text_sauber(string $s, int $max): string
     return mb_substr(trim($s), 0, $max);
 }
 
-const BEITRAG_ARTEN = ['vorstand', 'news'];
+const BEITRAG_ARTEN = ['vorstand', 'news', 'community'];
 const BEITRAG_GEMEINDEN = ['interlaken', 'unterseen', 'matten', 'wilderswil', 'boenigen', 'region'];
 
 function email_norm(string $e): string
@@ -422,7 +422,24 @@ CREATE INDEX IF NOT EXISTS ix_beitraege_datum ON beitraege(datum);
 SQL);
         $pdo->exec('PRAGMA user_version = 6');
     }
-    // Künftige Schemaänderungen: if ($version < 7) { … PRAGMA user_version = 7 } – idempotent halten.
+    if ($version < 7) {
+        // Anhänge zu Beiträgen (PDFs, Fotos aus den WhatsApp-Kanälen, Stefan 04.11.2026)
+        $pdo->exec(<<<SQL
+CREATE TABLE IF NOT EXISTS beitrag_anhaenge (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  beitrag_id INTEGER NOT NULL,
+  speicher_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  mime TEXT NOT NULL,
+  groesse INTEGER NOT NULL,
+  reihenfolge INTEGER NOT NULL DEFAULT 0,
+  erstellt INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_anhaenge_beitrag ON beitrag_anhaenge(beitrag_id);
+SQL);
+        $pdo->exec('PRAGMA user_version = 7');
+    }
+    // Künftige Schemaänderungen: if ($version < 8) { … PRAGMA user_version = 8 } – idempotent halten.
 }
 
 function einstellung(string $schluessel, string $standard = ''): string
@@ -906,8 +923,8 @@ function beitrag_pruefen(array $q): array
     $gem = array_values(array_unique(array_filter(array_map('strval', (array) $gem), fn($g) => in_array($g, BEITRAG_GEMEINDEN, true))));
     $titelDe = sauber((string) ($q['titel_de'] ?? ''), 200);
     $textDe = text_sauber((string) ($q['text_de'] ?? ''), 20000);
-    if ($titelDe === '' || $textDe === '') {
-        fehler('Titel und Text (Deutsch) sind Pflicht.', 'Title and text (German) are required.');
+    if ($titelDe === '') {
+        fehler('Der Titel (Deutsch) ist Pflicht.', 'The title (German) is required.');
     }
     $link = trim((string) ($q['link'] ?? ''));
     if ($link !== '' && !preg_match('#^https?://#i', $link)) {
@@ -927,7 +944,11 @@ function beitrag_pruefen(array $q): array
 }
 
 /** Importiert eine Beitragsliste (gleicher «schluessel» = ersetzen). Gibt die Anzahl zurück; fehler() bei Ungültigem. */
-function beitraege_importieren(array $liste, string $von): int
+/**
+ * $dateien: Dateiname im Upload → temporärer Pfad. Ein Beitrag mit «anhaenge» ([{datei, name}]) bekommt
+ * genau diese Anhänge (alte werden ersetzt); ohne «anhaenge» bleiben vorhandene unberührt.
+ */
+function beitraege_importieren(array $liste, string $von, array $dateien = []): int
 {
     $pdo = db();
     $suche = $pdo->prepare('SELECT id FROM beitraege WHERE schluessel = ?');
@@ -949,11 +970,81 @@ function beitraege_importieren(array $liste, string $von): int
         $vorhanden = $suche->fetchColumn();
         if ($vorhanden !== false) {
             $alt->execute([$b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), (int) $vorhanden]);
+            $beitragId = (int) $vorhanden;
         } else {
             $neu->execute([$schluessel, $b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), jetzt(), $von]);
+            $beitragId = (int) $pdo->lastInsertId();
+        }
+        if (isset($q['anhaenge']) && is_array($q['anhaenge'])) {
+            anhaenge_entfernen($beitragId);
+            foreach (array_values($q['anhaenge']) as $i => $a) {
+                $datei = is_array($a) ? (string) ($a['datei'] ?? '') : (string) $a;
+                if (!isset($dateien[$datei])) {
+                    $pdo->rollBack();
+                    fehler("Anhang fehlt im Upload: {$datei}", "Attachment missing from upload: {$datei}");
+                }
+                $name = is_array($a) && !empty($a['name']) ? (string) $a['name'] : $datei;
+                anhang_speichern($beitragId, $dateien[$datei], $name, $i);
+            }
         }
         $n++;
     }
     $pdo->commit();
     return $n;
 }
+
+// ── Anhänge zu Beiträgen ──
+
+const ANHANG_MAX_BYTES = 10 * 1024 * 1024;
+
+/** Prüft (Typ über Inhalt, PDF ohne Skripte, Office ohne Makros), kodiert Bilder neu und legt die Datei ab. */
+function anhang_speichern(int $beitragId, string $tmp, string $name, int $reihenfolge): void
+{
+    if (!is_file($tmp) || filesize($tmp) > ANHANG_MAX_BYTES) {
+        fehler('Ein Anhang ist zu gross (max. 10 MB).', 'An attachment is too large (max. 10 MB).');
+    }
+    $typ = datei_typ_pruefen($tmp);
+    $id = zufall_id(16);
+    $ziel = datei_pfad($id);
+    if (!@copy($tmp, $ziel)) {
+        fehler('Der Anhang konnte nicht gespeichert werden.', 'The attachment could not be saved.');
+    }
+    @chmod($ziel, 0600);
+    if (str_starts_with($typ['mime'], 'image/') && function_exists('imagecreatefromjpeg')) {
+        bild_neu_kodieren($ziel, $typ['mime']);
+        clearstatcache(true, $ziel);
+    }
+    $name = sauber(basename(str_replace('\\', '/', $name)), 160) ?: ('anhang.' . $typ['ext']);
+    db()->prepare('INSERT INTO beitrag_anhaenge (beitrag_id, speicher_id, name, mime, groesse, reihenfolge, erstellt) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        ->execute([$beitragId, $id, $name, $typ['mime'], (int) filesize($ziel), $reihenfolge, jetzt()]);
+}
+
+function anhaenge_entfernen(int $beitragId, ?int $nurAnhangId = null): void
+{
+    $pdo = db();
+    $st = $nurAnhangId === null
+        ? $pdo->prepare('SELECT * FROM beitrag_anhaenge WHERE beitrag_id = ?')
+        : $pdo->prepare('SELECT * FROM beitrag_anhaenge WHERE beitrag_id = ? AND id = ?');
+    $st->execute($nurAnhangId === null ? [$beitragId] : [$beitragId, $nurAnhangId]);
+    foreach ($st->fetchAll() as $a) {
+        @unlink(datei_pfad((string) $a['speicher_id']));
+        $pdo->prepare('DELETE FROM beitrag_anhaenge WHERE id = ?')->execute([$a['id']]);
+    }
+}
+
+/** Anhänge je Beitrag für die Ausgabe (ohne Speicherpfade). */
+function anhaenge_je_beitrag(): array
+{
+    $je = [];
+    foreach (db()->query('SELECT id, beitrag_id, name, mime, groesse FROM beitrag_anhaenge ORDER BY beitrag_id, reihenfolge, id')->fetchAll() as $a) {
+        $je[(int) $a['beitrag_id']][] = [
+            'id' => (int) $a['id'],
+            'name' => $a['name'],
+            'mime' => $a['mime'],
+            'groesse' => (int) $a['groesse'],
+            'bild' => str_starts_with((string) $a['mime'], 'image/'),
+        ];
+    }
+    return $je;
+}
+

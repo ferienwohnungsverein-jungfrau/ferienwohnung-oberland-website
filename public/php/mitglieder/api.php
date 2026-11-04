@@ -40,6 +40,7 @@ try {
         'admin_beitrag_speichern' => aktion_admin_beitrag_speichern(),
         'admin_beitrag_loeschen' => aktion_admin_beitrag_loeschen(),
         'admin_beitraege_import' => aktion_admin_beitraege_import(),
+        'admin_anhang_loeschen' => aktion_admin_anhang_loeschen(),
         default => fehler('Unbekannte Aktion.', 'Unknown action.', 404),
     };
 } catch (Throwable $e) {
@@ -847,9 +848,10 @@ function aktion_admin_einstellung(): never
 
 // ── Beiträge (Vorstandsinfos, News) ──
 
-function beitrag_fuer_ausgabe(array $b): array
+function beitrag_fuer_ausgabe(array $b, array $anhaenge = []): array
 {
     return [
+        'anhaenge' => $anhaenge[(int) $b['id']] ?? [],
         'id' => (int) $b['id'],
         'art' => $b['art'],
         'datum' => $b['datum'],
@@ -867,7 +869,8 @@ function aktion_beitraege(): never
 {
     sitzung_pflicht();
     $rows = db()->query('SELECT * FROM beitraege ORDER BY datum DESC, id DESC')->fetchAll();
-    antwort(['success' => true, 'beitraege' => array_map('beitrag_fuer_ausgabe', $rows)]);
+    $anh = anhaenge_je_beitrag();
+    antwort(['success' => true, 'beitraege' => array_map(fn($b) => beitrag_fuer_ausgabe($b, $anh), $rows)]);
 }
 
 function aktion_admin_beitrag_speichern(): never
@@ -885,6 +888,22 @@ function aktion_admin_beitrag_speichern(): never
         $pdo->prepare('INSERT INTO beitraege (schluessel, art, datum, titel_de, titel_en, text_de, text_en, gemeinden, autor, link, erstellt, geaendert, erstellt_von) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
             ->execute(['manuell-' . zufall_id(8), $b['art'], $b['datum'], $b['titel_de'], $b['titel_en'], $b['text_de'], $b['text_en'], $b['gemeinden'], $b['autor'], $b['link'], jetzt(), jetzt(), $ich['email']]);
         audit('beitrag_erfasst', $ich, null, $b['titel_de']);
+        $id = (int) $pdo->lastInsertId();
+    }
+    $f = $_FILES['anhaenge'] ?? null;
+    if ($f && is_array($f['name'])) {
+        $st = $pdo->prepare('SELECT COALESCE(MAX(reihenfolge), -1) FROM beitrag_anhaenge WHERE beitrag_id = ?');
+        $st->execute([$id]);
+        $start = (int) $st->fetchColumn() + 1;
+        foreach ($f['name'] as $i => $name) {
+            if (($f['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            if ($f['error'][$i] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'][$i])) {
+                fehler('Ein Anhang konnte nicht hochgeladen werden.', 'An attachment could not be uploaded.');
+            }
+            anhang_speichern($id, $f['tmp_name'][$i], (string) $name, $start + $i);
+        }
     }
     antwort(['success' => true]);
 }
@@ -894,6 +913,7 @@ function aktion_admin_beitrag_loeschen(): never
     post_pruefen();
     $ich = admin_pflicht();
     $id = (int) ($_POST['id'] ?? 0);
+    anhaenge_entfernen($id);
     db()->prepare('DELETE FROM beitraege WHERE id = ?')->execute([$id]);
     audit('beitrag_geloescht', $ich, null, "#{$id}");
     antwort(['success' => true]);
@@ -915,8 +935,26 @@ function aktion_admin_beitraege_import(): never
     if (!is_array($liste) || $liste === [] || count($liste) > 500) {
         fehler('Die Datei enthält keine gültige Beitragsliste.', 'The file does not contain a valid list of posts.');
     }
-    $n = beitraege_importieren($liste, $ich['email']);
+    $dateien = [];
+    $f = $_FILES['anhaenge'] ?? null;
+    if ($f && is_array($f['name'])) {
+        foreach ($f['name'] as $i => $name) {
+            if (($f['error'][$i] ?? 1) === UPLOAD_ERR_OK && is_uploaded_file($f['tmp_name'][$i])) {
+                $dateien[(string) $name] = $f['tmp_name'][$i];
+            }
+        }
+    }
+    $n = beitraege_importieren($liste, $ich['email'], $dateien);
     audit('beitraege_import', $ich, null, "{$n} Beiträge");
     antwort(['success' => true, 'anzahl' => $n]);
+}
+
+function aktion_admin_anhang_loeschen(): never
+{
+    post_pruefen();
+    $ich = admin_pflicht();
+    anhaenge_entfernen((int) ($_POST['beitrag_id'] ?? 0), (int) ($_POST['id'] ?? 0));
+    audit('anhang_geloescht', $ich, null, '#' . (int) ($_POST['id'] ?? 0));
+    antwort(['success' => true]);
 }
 
