@@ -46,8 +46,14 @@ jobs:
 
       - name: Deploy-Hook auf Hosttech auslösen
         run: |
-          # 45 s statt 5 s: Direkt nach dem Neuanlegen liefert GitHub unter «latest» oft noch das
-          # vorherige Paket aus – der Server hat dann den alten Stand installiert (04.11.2026 viermal).
+          # Direkt nach dem Neuanlegen liefert GitHub unter «latest» oft noch das vorherige Paket aus –
+          # der Server installierte dann den alten Stand (04.11.2026 mehrfach, auch mit 45 s Wartezeit).
+          # Deshalb: nach 45 s auslösen und nach weiteren 75 s ein zweites Mal (gleiches Paket, harmlos).
+          hook() {
+            curl -skS --fail-with-body --retry 5 --retry-delay 5 --retry-all-errors --resolve ferienwohnungsverein-jungfrau.ch:443:${{ secrets.DEPLOY_HOST_IP }} \
+              "https://ferienwohnungsverein-jungfrau.ch/deploy-hook.php?token=${{ secrets.DEPLOY_TOKEN }}"
+          }
           sleep 45
-          curl -skS --fail-with-body --retry 5 --retry-delay 5 --retry-all-errors --resolve ferienwohnungsverein-jungfrau.ch:443:${{ secrets.DEPLOY_HOST_IP }} \
-            "https://ferienwohnungsverein-jungfrau.ch/deploy-hook.php?token=${{ secrets.DEPLOY_TOKEN }}"
+          hook
+          sleep 75
+          hook
