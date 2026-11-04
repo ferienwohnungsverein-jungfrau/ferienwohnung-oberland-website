@@ -26,7 +26,6 @@ const faqSchema = {
     },
   ],
 };
-import Zahlenband from '../../../components/Zahlenband.astro';
 import fakten from '../../../data/fakten.json';
 const fw = fakten.wohnungen;
 const zahl = (n: number) => n.toLocaleString('en-US');
@@ -59,8 +58,6 @@ const proz = (n: number) => (Math.round((n / fw.total) * 1000) / 10).toFixed(1) 
       <a href="#arguments">FAQ</a>
     </div>
   </nav>
-
-  <Zahlenband locale="en" />
 
   <!-- Starting point: acknowledge the problem first, then show the solution -->
   <section class="section section--subtle" id="starting-point">
