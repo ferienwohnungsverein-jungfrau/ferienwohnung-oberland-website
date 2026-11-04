@@ -95,6 +95,7 @@ plus PHP-JSON-API in `public/php/mitglieder/`:
 | `api.php` | Login per Mail-Code, Liste, Hochladen/Ersetzen, Bearbeiten, Löschen, Melden, Admin |
 | `datei.php` | Download + Vorschaubilder (nur mit Sitzung) |
 | `freigabe.php` | signierte Freigabe-/Ablehnen-Links für anonyme Uploads (Mail an it@) |
+| `anmelden.php` | Anmeldelink aus der Code-Mail (Magic-Link): GET zeigt Knopf «Jetzt anmelden», erst POST meldet an (Link-Prüfer von Mailprogrammen verbrauchen nichts); Link + Code = dieselbe `login_codes`-Zeile, 10 Min., einmal |
 | `zugang.php` | Knöpfe «Akzeptieren»/«Ablehnen» für Zugangsanfragen (Mail an sekretariat@ + it@; wer zuerst klickt, erledigt – der andere sieht «bereits erledigt») |
 | `_lib.php`, `_pruefung.php` | gemeinsame Funktionen, Dateiprüfung; **alle Grenzwerte als Konstanten oben in `_lib.php`** |
 | `katalog.json` | Kategorien, Sprachen, Themen-Tags, Erkennungswörter DE/EN/FR/IT – einzige Quelle für Browser und Server |
