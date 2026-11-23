@@ -11,7 +11,7 @@ const DATEI = '/php/mitglieder/datei.php';
 
 const wurzel = document.getElementById('mb') as HTMLElement;
 const L: 'de' | 'en' = wurzel?.dataset.locale === 'en' ? 'en' : 'de';
-const IT = 'it@ferienwohnungsverein-jungfrau.ch';
+const SEK = 'sekretariat@ferienwohnungsverein-jungfrau.ch'; // Kontakt für Mitglieder (nicht it@, Stefan 23.11.2026)
 
 const T = {
   de: {
@@ -775,7 +775,7 @@ function zeigeZugang(): void {
         <label class="mb-feld"><span>${T.angaben}</span><input type="text" name="angaben" maxlength="500" placeholder="${T.angabenPh}"></label>
         <button type="submit" class="btn btn-accent">${T.absenden}</button>
       </form>
-      <p class="mb-klein">${LT.neuTitel}? <a href="${LT.neuHref}">${LT.neuKnopf}</a> · ${T.oderMail} <a href="mailto:${IT}">${IT}</a></p>
+      <p class="mb-klein">${LT.neuTitel}? <a href="${LT.neuHref}">${LT.neuKnopf}</a> · ${T.oderMail} <a href="mailto:${SEK}">${SEK}</a></p>
     </div>`;
   $('.mb-zurueck').addEventListener('click', (e) => {
     e.preventDefault();

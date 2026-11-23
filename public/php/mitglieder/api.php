@@ -83,8 +83,8 @@ function aktion_code_anfordern(): never
     $gleich = fn() => antwort([
         'success' => true,
         'message' => sprache() === 'en'
-            ? 'If this address is activated, you will receive an email within a few minutes: tap “Log in now” there – or enter the 6-digit code here. Not activated yet? Write to ' . FWVJ_IT_ADRESSE . '.'
-            : 'Wenn diese Adresse freigeschaltet ist, erhältst du in wenigen Minuten eine E-Mail: Tippe dort auf «Jetzt anmelden» – oder gib hier den 6-stelligen Code ein. Noch nicht freigeschaltet? Schreib an ' . FWVJ_IT_ADRESSE . '.',
+            ? 'If this address is activated, you will receive an email within a few minutes: tap “Log in now” there – or enter the 6-digit code here. Not activated yet? Write to ' . FWVJ_SEKRETARIAT_ADRESSE . '.'
+            : 'Wenn diese Adresse freigeschaltet ist, erhältst du in wenigen Minuten eine E-Mail: Tippe dort auf «Jetzt anmelden» – oder gib hier den 6-stelligen Code ein. Noch nicht freigeschaltet? Schreib an ' . FWVJ_SEKRETARIAT_ADRESSE . '.',
     ]);
 
     if (ip_gesperrt($ip)) {

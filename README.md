@@ -84,7 +84,7 @@ Bild-Uploads werden vom CMS auf 1920 px verkleinert und als WebP abgelegt.
 Ablauf danach: Redakteur:in speichert im CMS → Commit auf GitHub → Pull-Deploy (siehe oben)
 → Seite ist nach ca. 2–3 Minuten live. Rückgängig = Git-Revert.
 
-## Mitgliedschaft anfragen (`/mitgliedschaft/#anmeldung`, `/en/membership/#signup`)
+## Mitglied werden (`/mitgliedschaft/#anmeldung`, `/en/membership/#signup`)
 
 Ablauf (Vorgabe Sekretariat 20.11.2026, gebaut 23.11.2026): Formular (Vorname, Nachname, Firma freiwillig,
 Strasse/Nr., PLZ/Ort, Geburtsdatum, Telefon, E-Mail, Gästebetten) + Beitrittserklärung + Häkchen Statuten und

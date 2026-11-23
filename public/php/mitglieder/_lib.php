@@ -685,11 +685,11 @@ function aufraeumen(): void
 
 // ── Mail ──
 
-function mail_senden(string $an, string $betreff, string $text): bool
+function mail_senden(string $an, string $betreff, string $text, string $replyTo = FWVJ_IT_ADRESSE): bool
 {
     $an = str_replace(["\r", "\n"], '', $an);
     $headers = 'From: ' . FWVJ_ABSENDER . "\r\n"
-        . 'Reply-To: ' . FWVJ_IT_ADRESSE . "\r\n"
+        . 'Reply-To: ' . str_replace(["\r", "\n"], '', $replyTo) . "\r\n"
         . "MIME-Version: 1.0\r\n"
         . "Content-Type: text/plain; charset=UTF-8\r\n"
         . "Content-Transfer-Encoding: 8bit\r\n"
@@ -788,7 +788,7 @@ function begruessung_senden(string $email, string $vorname, string $locale): boo
             . '<p style="margin:0 0 16px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
             . '<p style="margin:0;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
     );
-    return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, 'de'));
+    return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, 'de'), FWVJ_SEKRETARIAT_ADRESSE); // Antworten → Sekretariat
 }
 
 /** Absage an die anfragende Person (neutral formuliert). */
@@ -802,7 +802,7 @@ function absage_senden(string $email, string $vorname, string $locale): bool
         "Hello {$hallo}\n\nUnfortunately we could not confirm a membership for this address, so we cannot activate access to the members’ area.\n\n"
             . "If this is a mistake (e.g. you are registered with a different address), simply reply to this email.\n\nKind regards\nFerienwohnungsverein Jungfrau"
     );
-    return mail_senden($email, $betreff, $text);
+    return mail_senden($email, $betreff, $text, FWVJ_SEKRETARIAT_ADRESSE); // Antworten von Mitgliedern → Sekretariat
 }
 
 /**

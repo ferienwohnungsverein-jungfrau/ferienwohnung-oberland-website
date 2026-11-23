@@ -179,7 +179,7 @@ if ($doppelt) {
 
 $quelle = $locale === 'en' ? '/en/membership/' : '/mitgliedschaft/';
 $leadSubject = 'Neue Mitglied-Anmeldung – ' . $nameSafe;
-$leadBody = "Neue bestätigte Anmeldung über das Formular «Mitgliedschaft anfragen».\n"
+$leadBody = "Neue bestätigte Anmeldung über das Formular «Mitglied werden».\n"
     . "Die Person hat ihre E-Mail-Adresse über den Bestätigungslink bestätigt.\n\n"
     . $angaben
     . 'E-Mail bestätigt: ' . date('d.m.Y H:i') . "\n"
