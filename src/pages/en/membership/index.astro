@@ -83,7 +83,7 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
   <section class="section section--white" id="signup">
     <div class="container anmeldung">
       <h2 class="text-center">Request Membership</h2>
-      <p class="text-center">Request membership without obligation. You'll first receive a confirmation email – only after clicking the link inside will your registration reach us. We'll then get back to you personally. Alternatively, you can reach us by phone at <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
+      <p class="text-center">Fill in the form and confirm the membership declaration. You'll first receive a confirmation email – only after clicking the link inside will your registration reach us. The board decides on admission; we'll get back to you personally. Alternatively, you can reach us by phone at <a href={`tel:${kontakt.vereinsTelefonLink}`}>{kontakt.vereinsTelefon}</a>.</p>
 
       <!-- Membership fee -->
       <div class="beitrag">
@@ -98,7 +98,7 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
       <!-- Success message (shown after submission) -->
       <div id="form-success" class="form-success" style="display:none">
         <h3>Almost done.</h3>
-        <p>Check your inbox – we've sent you a confirmation link by email. Only after clicking that link will we receive your registration of interest.</p>
+        <p>Check your inbox – we've sent you a confirmation link by email. Only after clicking that link will we process your registration.</p>
       </div>
 
       <!-- Form -->
@@ -113,30 +113,70 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
 
           <input type="hidden" name="locale" value="en" />
 
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vorname">First name *</label>
+              <input type="text" id="vorname" name="vorname" required maxlength="80" autocomplete="given-name" />
+            </div>
+            <div class="form-group">
+              <label for="nachname">Last name *</label>
+              <input type="text" id="nachname" name="nachname" required maxlength="80" autocomplete="family-name" />
+            </div>
+          </div>
+
           <div class="form-group">
-            <label for="name">Full Name *</label>
-            <input type="text" id="name" name="name" required placeholder="First name Last name" />
+            <label for="firma">Company <span class="optional">(if any)</span></label>
+            <input type="text" id="firma" name="firma" maxlength="120" autocomplete="organization" />
+          </div>
+
+          <div class="form-group">
+            <label for="strasse">Street and number *</label>
+            <input type="text" id="strasse" name="strasse" required maxlength="120" autocomplete="street-address" />
+          </div>
+
+          <div class="form-group">
+            <label for="plz_ort">Postcode and town *</label>
+            <input type="text" id="plz_ort" name="plz_ort" required maxlength="120" placeholder="e.g. 3800 Interlaken" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="geburtsdatum">Date of birth *</label>
+              <input type="date" id="geburtsdatum" name="geburtsdatum" required min="1900-01-01" autocomplete="bday" />
+            </div>
+            <div class="form-group">
+              <label for="telefon">Phone number *</label>
+              <input type="tel" id="telefon" name="telefon" required maxlength="40" placeholder="079 000 00 00" autocomplete="tel" />
+            </div>
           </div>
 
           <div class="form-group">
             <label for="email">Email *</label>
-            <input type="email" id="email" name="email" required placeholder="you@email.ch" />
+            <input type="email" id="email" name="email" required maxlength="200" placeholder="your@email.ch" autocomplete="email" />
           </div>
 
           <div class="form-group">
-            <label for="telefon">Phone Number <span class="optional">(optional)</span></label>
-            <input type="tel" id="telefon" name="telefon" placeholder="079 000 00 00" />
+            <label for="betten">Number of guest beds *</label>
+            <input type="number" id="betten" name="betten" min="1" max="9999" step="1" required placeholder="e.g. 4" />
           </div>
 
-          <div class="form-group">
-            <label for="betten">Number of Guest Beds *</label>
-            <input type="number" id="betten" name="betten" min="1" step="1" required placeholder="e.g. 4" />
+          <!-- Membership declaration: wording from the secretariat (20.11.2026), translation of the German text on /mitgliedschaft/. On change, update FWVJ_ERKLAERUNG_FASSUNG in public/php/_mitgliedschaft.php. -->
+          <div class="erklaerung" id="erklaerung">
+            <h3>Membership declaration</h3>
+            <p>I have read and understood the current <a href="/en/statutes/" target="_blank" rel="noopener">statutes</a> of the Verein für Immobilieneigentümer und Ferienwohnungsbetreiber Interlaken und Umgebung (igfi) and accept all rights and obligations arising from them. I further confirm that I am aware of the annual membership fee and will pay it on time. The membership fee is CHF 100 per year for hosts with 10 beds or fewer, and CHF 200 per year for hosts with 11 beds or more. The association year runs from 1 January to 31 December. Any resignation must be made in writing. If the statutes are not complied with, the board of the igfi association may take sanctions.</p>
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="statuten" name="statuten" required aria-describedby="erklaerung" />
+            <label for="statuten">
+              I have read the <a href="/en/statutes/" target="_blank" rel="noopener">statutes</a> and agree to the membership declaration above. *
+            </label>
           </div>
 
           <div class="form-check">
             <input type="checkbox" id="datenschutz" name="datenschutz" required />
             <label for="datenschutz">
-              I have read the <a href="/en/privacy/">Privacy Policy</a> and agree to the processing of my data. *
+              I have read the <a href="/en/privacy/" target="_blank" rel="noopener">privacy policy</a> and consent to the processing of my data. *
             </label>
           </div>
 
@@ -229,6 +269,34 @@ import sujet7 from '../../../assets/images/ferienwohnungsverein-jungfrau-sujet-7
     width: 1px;
     height: 1px;
     overflow: hidden;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 560px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  .erklaerung {
+    padding: var(--space-3);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+  }
+
+  .erklaerung h3 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-1);
+  }
+
+  .erklaerung p {
+    margin: 0;
+    text-align: left;
   }
 
   .form-group {

@@ -1,0 +1,28 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StatutenText from '../../components/StatutenText.astro';
+---
+
+<Layout
+  title="Statuten - Ferienwohnungsverein Jungfrau"
+  description="Statuten des Vereins für Immobilieneigentümer und Ferienwohnungsbetreiber Interlaken und Umgebung (igfi), genehmigt an der Gründungsversammlung vom 7. Oktober 2019."
+  langAlt="/en/statutes/"
+>
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Statuten</h1>
+      <p>Verein für Immobilieneigentümer und Ferienwohnungsbetreiber Interlaken und Umgebung (igfi) – genehmigt an der Gründungsversammlung vom 7. Oktober 2019.</p>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container">
+      <StatutenText />
+      <p class="zurueck"><a href="/mitgliedschaft/#anmeldung" class="btn btn-accent">Zur Anmeldung</a></p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .zurueck { text-align: center; margin-top: var(--space-6); }
+</style>

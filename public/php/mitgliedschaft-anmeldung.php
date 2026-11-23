@@ -24,12 +24,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$name = trim($_POST['name'] ?? '');
-$betten = trim($_POST['betten'] ?? '');
-$email = trim($_POST['email'] ?? '');
-$telefon = trim($_POST['telefon'] ?? '');
+require __DIR__ . '/_mitgliedschaft.php';
+
+$vorname = fwvj_feld((string) ($_POST['vorname'] ?? ''), 80);
+$nachname = fwvj_feld((string) ($_POST['nachname'] ?? ''), 80);
+$firma = fwvj_feld((string) ($_POST['firma'] ?? ''), 120);
+$strasse = fwvj_feld((string) ($_POST['strasse'] ?? ''), 120);
+$plzOrt = fwvj_feld((string) ($_POST['plz_ort'] ?? ''), 120);
+$geburtsdatum = fwvj_feld((string) ($_POST['geburtsdatum'] ?? ''), 10);
+$telefon = fwvj_feld((string) ($_POST['telefon'] ?? ''), 40);
+$email = fwvj_feld((string) ($_POST['email'] ?? ''), 200);
+$betten = fwvj_feld((string) ($_POST['betten'] ?? ''), 5);
+$statuten = $_POST['statuten'] ?? '';
 $datenschutz = $_POST['datenschutz'] ?? '';
-$honeypot = trim($_POST['website'] ?? '');
+$honeypot = trim((string) ($_POST['website'] ?? ''));
 $locale = ($_POST['locale'] ?? 'de') === 'en' ? 'en' : 'de';
 
 // Honeypot: verstecktes Feld, das nur Bots ausfüllen. Wenn befüllt, Formular
@@ -42,75 +50,78 @@ if ($honeypot !== '') {
 $messages = [
     'de' => [
         'missing' => 'Bitte füllen Sie alle Pflichtfelder aus.',
+        'zustimmung' => 'Bitte bestätigen Sie die Statuten und die Datenschutzerklärung.',
         'email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
         'betten' => 'Bitte geben Sie die Anzahl Betten als Zahl an.',
+        'geburtsdatum' => 'Bitte geben Sie ein gültiges Geburtsdatum an.',
         'sendError' => 'E-Mail konnte nicht versendet werden. Bitte versuchen Sie es später erneut oder rufen Sie uns an.',
     ],
     'en' => [
         'missing' => 'Please fill in all required fields.',
+        'zustimmung' => 'Please confirm the statutes and the privacy policy.',
         'email' => 'Please enter a valid email address.',
         'betten' => 'Please enter the number of beds as a number.',
+        'geburtsdatum' => 'Please enter a valid date of birth.',
         'sendError' => 'The email could not be sent. Please try again later or call us.',
     ],
 ];
 $m = $messages[$locale];
 
-// Telefon ist optional (E-Mail genügt für das Double-Opt-in)
-if ($name === '' || $betten === '' || $email === '' || $datenschutz === '') {
+function fwvj_fehler(string $text): never
+{
     http_response_code(422);
-    echo json_encode(['success' => false, 'message' => $m['missing']]);
+    echo json_encode(['success' => false, 'message' => $text]);
     exit;
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(422);
-    echo json_encode(['success' => false, 'message' => $m['email']]);
-    exit;
-}
-
-if (!ctype_digit($betten) || (int) $betten < 1) {
-    http_response_code(422);
-    echo json_encode(['success' => false, 'message' => $m['betten']]);
-    exit;
-}
-
-// Kopfzeilen-Injection verhindern
-$nameSafe = str_replace(["\r", "\n"], '', $name);
-$emailSafe = str_replace(["\r", "\n"], '', $email);
-$telefonSafe = str_replace(["\r", "\n"], '', $telefon);
-$bettenSafe = str_replace(["\r", "\n"], '', $betten);
-
-// Secret-Auflösung: 1. Server-Umgebungsvariable, 2. Schlüsseldatei eine Ebene
-// über httpdocs (übersteht den Release-Tausch des Deploy-Hooks), 3. Platzhalter.
-// Muss identisch sein mit mitgliedschaft-bestaetigen.php.
-$secretFile = dirname(__DIR__, 2) . '/form-signing-secret.key';
-$secret = getenv('FORM_SIGNING_SECRET')
-    ?: (is_readable($secretFile) ? trim((string) file_get_contents($secretFile)) : '');
-if ($secret === '') {
-    // Erstlauf: Secret einmalig auf dem Server erzeugen (liegt ausserhalb von
-    // httpdocs, uebersteht Deploys und verlaesst den Server nie).
-    $generiert = bin2hex(random_bytes(32));
-    if (@file_put_contents($secretFile, $generiert . "\n", LOCK_EX) !== false) {
-        @chmod($secretFile, 0600);
-        $secret = $generiert;
-    } else {
-        $secret = 'ferienwohnungsverein-jungfrau-platzhalter-secret';
+// Firma ist freiwillig, alles andere Pflicht (Vorgabe Sekretariat 20.11.2026).
+foreach ([$vorname, $nachname, $strasse, $plzOrt, $geburtsdatum, $telefon, $email, $betten] as $pflicht) {
+    if ($pflicht === '') {
+        fwvj_fehler($m['missing']);
     }
 }
+if ($statuten === '' || $datenschutz === '') {
+    fwvj_fehler($m['zustimmung']);
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    fwvj_fehler($m['email']);
+}
+if (!ctype_digit($betten) || (int) $betten < 1 || (int) $betten > 9999) {
+    fwvj_fehler($m['betten']);
+}
+$geb = DateTimeImmutable::createFromFormat('!Y-m-d', $geburtsdatum);
+if ($geb === false || $geb->format('Y-m-d') !== $geburtsdatum
+    || $geb < new DateTimeImmutable('1900-01-01') || $geb > new DateTimeImmutable('today')) {
+    fwvj_fehler($m['geburtsdatum']);
+}
+
+$nameSafe = trim($vorname . ' ' . $nachname);
+$emailSafe = $email;
 
 $payload = [
-    'name' => $nameSafe,
-    'betten' => $bettenSafe,
-    'email' => $emailSafe,
-    'telefon' => $telefonSafe,
+    'vorname' => $vorname,
+    'nachname' => $nachname,
+    'firma' => $firma,
+    'strasse' => $strasse,
+    'plz_ort' => $plzOrt,
+    'geburtsdatum' => $geburtsdatum,
+    'telefon' => $telefon,
+    'email' => $email,
+    'betten' => $betten,
+    'erklaerung' => FWVJ_ERKLAERUNG_FASSUNG,
     'locale' => $locale,
     'ts' => time(),
 ];
 
-$data = rtrim(strtr(base64_encode((string) json_encode($payload)), '+/', '-_'), '=');
-$signature = hash_hmac('sha256', $data, $secret);
+try {
+    [$data, $signature] = fwvj_anmeldung_verpacken($payload);
+} catch (Throwable) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $m['sendError']]);
+    exit;
+}
 
-$confirmUrl = "https://ferienwohnungsverein-jungfrau.ch/php/mitgliedschaft-bestaetigen.php?d={$data}&s={$signature}";
+$confirmUrl = 'https://ferienwohnungsverein-jungfrau.ch/php/mitgliedschaft-bestaetigen.php?d=' . rawurlencode($data) . '&s=' . $signature;
 $confirmUrlHtml = htmlspecialchars($confirmUrl, ENT_QUOTES, 'UTF-8');
 $nameHtml = htmlspecialchars($nameSafe, ENT_QUOTES, 'UTF-8');
 

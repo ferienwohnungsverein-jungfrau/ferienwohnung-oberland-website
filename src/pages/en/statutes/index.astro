@@ -1,0 +1,37 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import StatutenText from '../../../components/StatutenText.astro';
+---
+
+<Layout
+  title="Statutes - Ferienwohnungsverein Jungfrau"
+  description="Statutes of the Verein für Immobilieneigentümer und Ferienwohnungsbetreiber Interlaken und Umgebung (igfi), approved at the founding meeting on 7 October 2019 (German original)."
+  langAlt="/statuten/"
+>
+  <section class="section page-hero hero--intro">
+    <div class="container">
+      <h1>Statutes</h1>
+      <p>Verein für Immobilieneigentümer und Ferienwohnungsbetreiber Interlaken und Umgebung (igfi) – approved at the founding meeting on 7 October 2019.</p>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container">
+      <p class="hinweis">The statutes exist in German only; the German text below is the legally binding version. If anything is unclear, please contact us before applying – we're happy to explain.</p>
+      <StatutenText />
+      <p class="zurueck"><a href="/en/membership/#signup" class="btn btn-accent">Back to the application</a></p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hinweis {
+    max-width: 760px;
+    margin: 0 auto var(--space-6);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-bg-subtle);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+  }
+  .zurueck { text-align: center; margin-top: var(--space-6); }
+</style>

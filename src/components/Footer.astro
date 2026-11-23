@@ -9,6 +9,7 @@ const { locale = 'de' } = Astro.props;
 const datenschutzHref = locale === 'en' ? '/en/privacy/' : '/datenschutz/';
 const impressumHref = locale === 'en' ? '/en/imprint/' : '/impressum/';
 const mitgliederHref = locale === 'en' ? '/en/members/' : '/mitglieder/';
+const statutenHref = locale === 'en' ? '/en/statutes/' : '/statuten/';
 ---
 
 <footer class="footer">
@@ -19,9 +20,9 @@ const mitgliederHref = locale === 'en' ? '/en/members/' : '/mitglieder/';
     </div>
     <p>
       {locale === 'en' ? (
-        <><a href={mitgliederHref}>Members’ area</a> · <a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></>
+        <><a href={mitgliederHref}>Members’ area</a> · <a href={statutenHref}>Statutes</a> · <a href={impressumHref}>Imprint</a> · <a href={datenschutzHref}>Privacy Policy</a></>
       ) : (
-        <><a href={mitgliederHref}>Mitgliederbereich</a> · <a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></>
+        <><a href={mitgliederHref}>Mitgliederbereich</a> · <a href={statutenHref}>Statuten</a> · <a href={impressumHref}>Impressum</a> · <a href={datenschutzHref}>Datenschutzerklärung</a></>
       )}
     </p>
   </div>

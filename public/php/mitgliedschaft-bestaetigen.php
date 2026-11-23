@@ -82,63 +82,64 @@ if ($data === '' || $signature === '') {
     exit;
 }
 
-// Secret-Auflösung identisch mit mitgliedschaft-anmeldung.php (siehe dort).
-$secretFile = dirname(__DIR__, 2) . '/form-signing-secret.key';
-$secret = getenv('FORM_SIGNING_SECRET')
-    ?: (is_readable($secretFile) ? trim((string) file_get_contents($secretFile)) : '');
-if ($secret === '') {
-    // Erstlauf: Secret einmalig auf dem Server erzeugen (liegt ausserhalb von
-    // httpdocs, uebersteht Deploys und verlaesst den Server nie).
-    $generiert = bin2hex(random_bytes(32));
-    if (@file_put_contents($secretFile, $generiert . "\n", LOCK_EX) !== false) {
-        @chmod($secretFile, 0600);
-        $secret = $generiert;
-    } else {
-        $secret = 'ferienwohnungsverein-jungfrau-platzhalter-secret';
-    }
-}
-$expectedSignature = hash_hmac('sha256', $data, $secret);
+require __DIR__ . '/_mitgliedschaft.php';
 
-if (!hash_equals($expectedSignature, $signature)) {
+$payload = fwvj_anmeldung_entpacken($data, $signature);
+if ($payload === null) {
     http_response_code(403);
     renderPage($texts['de']['invalidTitle'], $texts['de']['invalidSignature'], false);
-    exit;
-}
-
-$json = base64_decode(strtr($data, '-_', '+/'), true);
-$payload = $json !== false ? json_decode($json, true) : null;
-
-if (!is_array($payload) || !isset($payload['name'], $payload['betten'], $payload['email'], $payload['telefon'], $payload['ts'])) {
-    http_response_code(400);
-    renderPage($texts['de']['invalidTitle'], $texts['de']['invalidPayload'], false);
     exit;
 }
 
 $locale = (isset($payload['locale']) && $payload['locale'] === 'en') ? 'en' : 'de';
 $t = $texts[$locale];
 
-$maxAgeSeconds = 48 * 60 * 60;
-if (time() - (int) $payload['ts'] > $maxAgeSeconds) {
+if (time() - (int) $payload['ts'] > FWVJ_ANMELDUNG_MAX_ALTER) {
     http_response_code(410);
     renderPage($t['expiredTitle'], $t['expiredMessage'], false, $locale);
     exit;
 }
 
-$nameSafe = str_replace(["\r", "\n"], '', (string) $payload['name']);
-$bettenSafe = str_replace(["\r", "\n"], '', (string) $payload['betten']);
-$emailSafe = str_replace(["\r", "\n"], '', (string) $payload['email']);
-$telefonSafe = str_replace(["\r", "\n"], '', (string) $payload['telefon']);
-$telefonAnzeige = $telefonSafe !== '' ? $telefonSafe : '(nicht angegeben)';
+$f = static fn (string $k): string => fwvj_feld((string) ($payload[$k] ?? ''), 200);
+$leer = '(nicht angegeben)';
+$zeile = static fn (string $label, string $wert): string => $label . ': ' . ($wert !== '' ? $wert : $leer) . "\n";
 
-$leadSubject = 'Neue Mitglied-Anmeldung – ' . $nameSafe;
-$leadBody = "Neue bestätigte Anmeldung über das Formular \"Mitglied werden\":\n\n"
-    . "Name: {$nameSafe}\n"
-    . "Anzahl Gästebetten: {$bettenSafe}\n"
-    . "E-Mail: {$emailSafe}\n"
-    . "Telefon: {$telefonAnzeige}\n"
-    . "Sprache: " . strtoupper($locale) . "\n"
-    . "Bestätigt am: " . date('Y-m-d H:i:s') . "\n"
-    . "Quelle: " . ($locale === 'en' ? '/en/membership/' : '/mitgliedschaft/') . "\n";
+if (isset($payload['vorname'])) {
+    // Format ab 23.11.2026
+    $nameSafe = trim($f('vorname') . ' ' . $f('nachname'));
+    $geb = DateTimeImmutable::createFromFormat('!Y-m-d', $f('geburtsdatum'));
+    $angaben = $zeile('Vorname', $f('vorname'))
+        . $zeile('Nachname', $f('nachname'))
+        . $zeile('Firma', $f('firma'))
+        . $zeile('Strasse / Nr.', $f('strasse'))
+        . $zeile('PLZ / Ort', $f('plz_ort'))
+        . $zeile('Geburtsdatum', $geb ? $geb->format('d.m.Y') : $f('geburtsdatum'))
+        . $zeile('Telefon', $f('telefon'))
+        . $zeile('E-Mail', $f('email'))
+        . $zeile('Anzahl Gästebetten', $f('betten'))
+        . 'Jahresbeitrag gemäss Angabe: CHF ' . ((int) $f('betten') >= 11 ? '200' : '100') . " (ab 11 Betten 200, sonst 100)\n\n"
+        . 'Beitrittserklärung (Statuten, Jahresbeitrag, Vereinsjahr, Austritt schriftlich) und Datenschutzerklärung '
+        . 'akzeptiert – Wortlaut Fassung ' . ($f('erklaerung') ?: '?') . ', Sprache ' . strtoupper($locale) . ".\n"
+        . 'Formular abgeschickt: ' . date('d.m.Y H:i', (int) $payload['ts']) . "\n";
+} else {
+    // Altes Format (Links vor 23.11.2026, höchstens 48 h gültig)
+    $nameSafe = $f('name');
+    $angaben = $zeile('Name', $f('name'))
+        . $zeile('Anzahl Gästebetten', $f('betten'))
+        . $zeile('E-Mail', $f('email'))
+        . $zeile('Telefon', $f('telefon'))
+        . "(Anmeldung über das frühere Formular – ohne Adresse, Geburtsdatum und Beitrittserklärung)\n";
+}
+$emailSafe = $f('email');
+
+$leadSubject = '=?UTF-8?B?' . base64_encode('Neue Mitglied-Anmeldung – ' . $nameSafe) . '?=';
+$leadBody = "Neue bestätigte Anmeldung über das Formular «Mitgliedschaft anfragen».\n"
+    . "Die Person hat ihre E-Mail-Adresse über den Bestätigungslink bestätigt.\n\n"
+    . $angaben
+    . 'E-Mail bestätigt: ' . date('d.m.Y H:i') . "\n"
+    . 'Quelle: ' . ($locale === 'en' ? '/en/membership/' : '/mitgliedschaft/') . "\n\n"
+    . "Über die Aufnahme entscheidet der Vorstand (Art. 4 der Statuten).\n"
+    . "Antworten auf diese Mail gehen direkt an die anmeldende Person.\n";
 
 // From-Adresse MUSS zur sendenden Domain passen (SPF), siehe Kommentar in
 // mitgliedschaft-anmeldung.php.

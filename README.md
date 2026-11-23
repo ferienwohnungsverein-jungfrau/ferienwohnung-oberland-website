@@ -84,6 +84,16 @@ Bild-Uploads werden vom CMS auf 1920 px verkleinert und als WebP abgelegt.
 Ablauf danach: Redakteur:in speichert im CMS → Commit auf GitHub → Pull-Deploy (siehe oben)
 → Seite ist nach ca. 2–3 Minuten live. Rückgängig = Git-Revert.
 
+## Mitgliedschaft anfragen (`/mitgliedschaft/#anmeldung`, `/en/membership/#signup`)
+
+Ablauf (Vorgabe Sekretariat 20.11.2026, gebaut 23.11.2026): Formular (Vorname, Nachname, Firma freiwillig,
+Strasse/Nr., PLZ/Ort, Geburtsdatum, Telefon, E-Mail, Gästebetten) + Beitrittserklärung + Häkchen Statuten und
+Datenschutz → `php/mitgliedschaft-anmeldung.php` schickt Bestätigungslink (48 h) → Klick →
+`php/mitgliedschaft-bestaetigen.php` mailt alle Angaben an anmeldung@ (Plesk verteilt an sekretariat@ + vorstand@) und it@.
+Der Link ist verschlüsselt (AES-256-GCM, Schlüssel aus `form-signing-secret.key` über httpdocs), gemeinsame Funktionen
+in `php/_mitgliedschaft.php`. **Wortlaut der Beitrittserklärung geändert → `FWVJ_ERKLAERUNG_FASSUNG` nachführen.**
+Statuten: `/statuten/` (EN `/en/statutes/` mit deutschem Originaltext), Text in `src/components/StatutenText.astro`.
+
 ## Mitgliederbereich (`/mitglieder/`, `/en/members/`)
 
 Geschützter Bereich zum Austausch von Vorlagen (Schilder, Hausordnungen, Checklisten …).
