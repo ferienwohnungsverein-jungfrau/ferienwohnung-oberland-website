@@ -23,39 +23,26 @@ function e(string $s): string
     return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 }
 
-function seite(string $titel, string $inhalt, bool $en): never
+require_once dirname(__DIR__) . '/_seite.php';
+
+/** Zweisprachige Seite mit Umschalter (Stefan 23.11.2026); Start in der Sprache des geklickten Mail-Knopfs. */
+function seite2(string $titelDe, string $inhaltDe, string $titelEn, string $inhaltEn, bool $fehler = false): never
 {
-    $t = e($titel);
-    $lang = $en ? 'en' : 'de-CH';
-    echo <<<HTML
-<!doctype html>
-<html lang="{$lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
-<title>{$t} – Ferienwohnungsverein Jungfrau</title>
-<style>
-body{margin:0;background:#F9F9F9;font-family:Arial,Helvetica,sans-serif;color:#334155;line-height:1.5}
-main{max-width:480px;margin:40px auto;padding:28px;background:#fff;border-radius:12px;border:1px solid rgba(0,77,122,.14);text-align:center}
-.kopf{font-weight:700;color:#004D7A;margin:0 0 18px}
-h1{color:#1a1a1a;font-size:1.4rem;margin:0 0 12px}
-button{background:#F4A261;color:#1e293b;border:0;border-radius:6px;padding:14px 28px;font-weight:700;font-size:1.05rem;cursor:pointer;margin-top:8px}
-.klein{font-size:.85rem;color:#64748b}
-a{color:#004D7A}
-</style>
-</head><body><main><p class="kopf">Ferienwohnungsverein Jungfrau</p><h1>{$t}</h1>{$inhalt}</main></body></html>
-HTML;
-    exit;
+    global $en;
+    fwvj_seite(['titel' => $titelDe, 'inhalt' => $inhaltDe], ['titel' => $titelEn, 'inhalt' => $inhaltEn], $en ? 'en' : 'de', $fehler, '480px');
 }
 
-$ungueltig = fn() => seite(
-    $en ? 'Link no longer valid' : 'Link nicht mehr gültig',
-    $en
-        ? '<p>This log-in link has expired or has already been used (valid 10 minutes, once).</p><p><a href="/en/members/">Send a new link</a></p>'
-        : '<p>Dieser Anmeldelink ist abgelaufen oder wurde schon verwendet (10 Minuten gültig, einmal).</p><p><a href="/mitglieder/">Neuen Link anfordern</a></p>',
-    $en
+$ungueltig = fn() => seite2(
+    'Link nicht mehr gültig',
+    '<p>Dieser Anmeldelink ist abgelaufen oder wurde schon verwendet (10 Minuten gültig, einmal).</p><p><a class="btn" href="/mitglieder/">Neuen Link anfordern</a></p>',
+    'Link no longer valid',
+    '<p>This log-in link has expired or has already been used (valid 10 minutes, once).</p><p><a class="btn" href="/en/members/">Send a new link</a></p>',
+    true
 );
 
 $ip = client_ip();
 if (ip_gesperrt($ip) || anzahl('fehlcode', 'ip:' . $ip, 3600) >= LIMIT_FEHLCODES_IP_STUNDE) {
-    seite($en ? 'Too many attempts' : 'Zu viele Versuche', $en ? '<p>Please wait an hour.</p>' : '<p>Bitte warte eine Stunde.</p>', $en);
+    seite2('Zu viele Versuche', '<p>Bitte warte eine Stunde.</p>', 'Too many attempts', '<p>Please wait an hour.</p>', true);
 }
 
 // Schon angemeldet (z. B. Link zweimal angetippt) → direkt in den Bereich
@@ -88,12 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$felder = '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="t" value="' . e($token) . '">'
-    . ($en ? '<input type="hidden" name="l" value="en">' : '');
-seite(
-    $en ? 'Log in to the members’ area' : 'Im Mitgliederbereich anmelden',
-    '<p>' . e((string) $row['email']) . '</p><form method="post">' . $felder
-        . '<button type="submit">' . ($en ? 'Log in now' : 'Jetzt anmelden') . '</button></form>'
-        . '<p class="klein">' . ($en ? 'This device stays signed in for 30 days.' : 'Dieses Gerät bleibt 30 Tage angemeldet.') . '</p>',
-    $en
+$formular = static function (string $l, string $knopf) use ($id, $token): string {
+    return '<form method="post"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="t" value="' . e($token) . '">'
+        . '<input type="hidden" name="l" value="' . $l . '"><button type="submit">' . $knopf . '</button></form>';
+};
+$adr = '<p>' . e((string) $row['email']) . '</p>';
+seite2(
+    'Im Mitgliederbereich anmelden',
+    $adr . $formular('de', 'Jetzt anmelden') . '<p class="klein">Dieses Gerät bleibt 30 Tage angemeldet.</p>',
+    'Log in to the members’ area',
+    $adr . $formular('en', 'Log in now') . '<p class="klein">This device stays signed in for 30 days.</p>'
 );

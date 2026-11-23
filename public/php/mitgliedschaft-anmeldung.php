@@ -122,7 +122,11 @@ try {
 }
 
 $confirmUrl = 'https://ferienwohnungsverein-jungfrau.ch/php/mitgliedschaft-bestaetigen.php?d=' . rawurlencode($data) . '&s=' . $signature;
-$confirmUrlHtml = htmlspecialchars($confirmUrl, ENT_QUOTES, 'UTF-8');
+// Jede Sprache bekommt ihren eigenen Link (?l=), damit der englische Knopf auch englisch öffnet.
+$confirmUrlDe = $confirmUrl . '&l=de';
+$confirmUrlEn = $confirmUrl . '&l=en';
+$confirmUrlHtml = htmlspecialchars($confirmUrlDe, ENT_QUOTES, 'UTF-8');
+$confirmUrlHtmlEn = htmlspecialchars($confirmUrlEn, ENT_QUOTES, 'UTF-8');
 $nameHtml = htmlspecialchars($nameSafe, ENT_QUOTES, 'UTF-8');
 
 // Zweisprachig (Stefan 04.11.2026): Deutsch oben, Englisch darunter.
@@ -130,13 +134,13 @@ $subject = '=?UTF-8?B?' . base64_encode('Bitte bestätigen Sie Ihre Anmeldung / 
 $textBody = "English version below.\n\n"
     . "Guten Tag {$nameSafe}\n\n"
     . "vielen Dank für Ihr Interesse an einer Mitgliedschaft beim Ferienwohnungsverein Jungfrau.\n\n"
-    . "Bitte bestätigen Sie Ihre Anmeldung über den folgenden Link, damit wir Ihre Anfrage erhalten:\n{$confirmUrl}\n\n"
+    . "Bitte bestätigen Sie Ihre Anmeldung über den folgenden Link, damit wir Ihre Anfrage erhalten:\n{$confirmUrlDe}\n\n"
     . "Der Link ist 48 Stunden gültig.\n\n"
     . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau\n\n"
     . "--- English ---\n\n"
     . "Hello {$nameSafe}\n\n"
     . "Thank you for your interest in becoming a member of the Ferienwohnungsverein Jungfrau.\n\n"
-    . "Please confirm your application via the following link, so that we receive your request:\n{$confirmUrl}\n\n"
+    . "Please confirm your application via the following link, so that we receive your request:\n{$confirmUrlEn}\n\n"
     . "This link is valid for 48 hours.\n\n"
     . "Kind regards\nFerienwohnungsverein Jungfrau\nhttps://ferienwohnungsverein-jungfrau.ch\n";
 $htmlLang = 'de-CH';
@@ -150,7 +154,7 @@ $htmlInhalt = '<p style="margin:0 0 20px;color:#666666;font-size:13px;">English 
     . '<p style="margin:0 0 12px;color:#666666;font-size:12px;letter-spacing:.08em;text-transform:uppercase;">English</p>'
     . "<p style=\"margin:0 0 16px;\">Hello {$nameHtml}</p>"
     . '<p style="margin:0 0 24px;">Thank you for your interest in becoming a member of the Ferienwohnungsverein Jungfrau. Please confirm your application, so that we receive your request:</p>'
-    . "<p style=\"margin:0 0 16px;text-align:center;\"><a href=\"{$confirmUrlHtml}\" style=\"{$knopfStil}\">Confirm application</a></p>"
+    . "<p style=\"margin:0 0 16px;text-align:center;\"><a href=\"{$confirmUrlHtmlEn}\" style=\"{$knopfStil}\">Confirm application</a></p>"
     . '<p style="margin:0 0 16px;color:#666666;font-size:13px;">This link is valid for 48 hours.</p>'
     . '<p style="margin:0;color:#666666;font-size:13px;">Freundliche Grüsse · Kind regards<br>Ferienwohnungsverein Jungfrau<br><a href="https://ferienwohnungsverein-jungfrau.ch" style="color:#004D7A;">ferienwohnungsverein-jungfrau.ch</a></p>';
 

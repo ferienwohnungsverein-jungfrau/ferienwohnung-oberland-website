@@ -24,40 +24,32 @@ function e(string $s): string
     return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 }
 
-function seite(string $titel, string $inhalt): never
+require_once dirname(__DIR__) . '/_seite.php';
+
+/** Zweisprachige Seite mit Umschalter (Stefan 23.11.2026); Start = Sprache des geklickten Mail-Knopfs (?l=). */
+function seite2(string $titelDe, string $inhaltDe, string $titelEn, string $inhaltEn, bool $fehler = false): never
 {
-    $t = e($titel);
-    echo <<<HTML
-<!doctype html>
-<html lang="de-CH"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
-<title>{$t} – Mitgliederbereich</title>
-<style>
-body{margin:0;background:#F9F9F9;font-family:Arial,Helvetica,sans-serif;color:#334155;line-height:1.5}
-main{max-width:520px;margin:32px auto;padding:28px;background:#fff;border-radius:12px;border:1px solid rgba(0,77,122,.14)}
-h1{color:#004D7A;font-size:1.4rem;margin:0 0 16px}
-label{display:block;margin:12px 0;font-size:.95rem}
-label.feld span{display:block;font-weight:700;margin-bottom:4px}
-input[type=text]{width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:4px;font-size:1rem}
-button{background:#F4A261;color:#1e293b;border:0;border-radius:4px;padding:12px 24px;font-weight:700;font-size:1rem;cursor:pointer;margin-top:12px}
-button.nein{background:#fee2e2;color:#b91c1c}
-.daten{background:#F0F5FA;border-radius:6px;padding:12px 16px}
-.klein{font-size:.85rem;color:#64748b}
-a{color:#004D7A}
-</style>
-</head><body><main><h1>{$t}</h1>{$inhalt}</main></body></html>
-HTML;
-    exit;
+    fwvj_seite(['titel' => $titelDe, 'inhalt' => $inhaltDe], ['titel' => $titelEn, 'inhalt' => $inhaltEn], fwvj_seiten_sprache('de'), $fehler);
 }
 
 $st = db()->prepare('SELECT * FROM zugangsanfragen WHERE id = ?');
 $st->execute([$id]);
 $a = $st->fetch();
+$admin = ['de' => '<a href="/mitglieder/#admin">Admin-Reiter</a>', 'en' => '<a href="/en/members/#admin">Admin tab</a>'];
 if ($aktion === '' || !$a || $exp < jetzt() || !hash_equals(signatur('zugang_' . $aktion, (string) $id, $exp), $sig)) {
-    seite('Link ungültig', '<p>Der Link ist ungültig oder abgelaufen (gültig ' . ANFRAGE_GUELTIG_TAGE . ' Tage). Offene Anfragen findest du im <a href="/mitglieder/#admin">Admin-Reiter</a>.</p>');
+    seite2(
+        'Link ungültig', '<p>Der Link ist ungültig oder abgelaufen (gültig ' . ANFRAGE_GUELTIG_TAGE . ' Tage). Offene Anfragen findest du im ' . $admin['de'] . '.</p>',
+        'Invalid link', '<p>The link is invalid or has expired (valid ' . ANFRAGE_GUELTIG_TAGE . ' days). Open requests are listed in the ' . $admin['en'] . '.</p>',
+        true
+    );
 }
 if ($a['status'] !== 'offen') {
-    seite('Schon erledigt', '<p>Die Anfrage von <strong>' . e($a['email']) . '</strong> wurde bereits ' . ($a['status'] === 'angenommen' ? 'akzeptiert' : 'abgelehnt')
-        . ' (' . e($a['erledigt_von']) . ', ' . date('d.m.Y H:i', (int) $a['erledigt_am']) . ').</p><p><a href="/mitglieder/#admin">Zur Admin-Ansicht</a></p>');
+    $wann = e($a['erledigt_von']) . ', ' . date('d.m.Y H:i', (int) $a['erledigt_am']);
+    $ja = $a['status'] === 'angenommen';
+    seite2(
+        'Schon erledigt', '<p>Die Anfrage von <strong>' . e($a['email']) . '</strong> wurde bereits ' . ($ja ? 'angenommen' : 'abgelehnt') . " ({$wann}).</p><p>" . $admin['de'] . '</p>',
+        'Already handled', '<p>The request from <strong>' . e($a['email']) . '</strong> has already been ' . ($ja ? 'accepted' : 'declined') . " ({$wann}).</p><p>" . $admin['en'] . '</p>'
+    );
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -65,32 +57,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = sauber((string) ($_POST['name'] ?? ''), 80) ?: $a['name'];
     $mail = !empty($_POST['mail']);
     $ergebnis = anfrage_entscheiden($a, $aktion === 'annehmen', $vorname, $name, $mail, null);
+    $wer = e("{$vorname} {$name}") . ' (' . e($a['email']) . ')';
     if ($ergebnis === 'gesperrt') {
-        seite('Adresse gesperrt', '<p>' . e($a['email']) . ' ist im Mitgliederbereich gesperrt. Bitte zuerst im <a href="/mitglieder/#admin">Admin-Reiter</a> entsperren.</p>');
+        seite2(
+            'Adresse gesperrt', '<p>' . e($a['email']) . ' ist im Mitgliederbereich gesperrt. Bitte zuerst im ' . $admin['de'] . ' entsperren.</p>',
+            'Address blocked', '<p>' . e($a['email']) . ' is blocked in the members’ area. Please unblock it in the ' . $admin['en'] . ' first.</p>',
+            true
+        );
     }
     if ($ergebnis === 'angenommen') {
-        seite('Freigeschaltet', '<p><strong>' . e("{$vorname} {$name}") . '</strong> (' . e($a['email']) . ') kann sich jetzt anmelden.</p>'
-            . '<p>' . ($mail ? 'Die Begrüssungsmail mit dem Link ist unterwegs.' : 'Es wurde keine Mail verschickt – bitte selbst Bescheid geben.') . '</p>');
+        seite2(
+            'Aufgenommen & freigeschaltet', "<p><strong>{$wer}</strong> kann sich jetzt im Mitgliederbereich anmelden.</p><p>"
+                . ($mail ? 'Die Begrüssungsmail mit dem Link ist unterwegs.' : 'Es wurde keine Mail verschickt – bitte selbst Bescheid geben.') . '</p>',
+            'Admitted & activated', "<p><strong>{$wer}</strong> can now log in to the members’ area.</p><p>"
+                . ($mail ? 'The welcome email with the link is on its way.' : 'No email was sent – please let the person know yourself.') . '</p>'
+        );
     }
-    seite('Abgelehnt', '<p>Die Anfrage von ' . e($a['email']) . ' ist abgelehnt.' . ($mail ? ' Die Person hat eine kurze Absage per Mail erhalten.' : ' Es wurde keine Mail verschickt.') . '</p>');
+    seite2(
+        'Abgelehnt', '<p>Die Anfrage von ' . e($a['email']) . ' ist abgelehnt.' . ($mail ? ' Die Person hat eine kurze Absage per Mail erhalten.' : ' Es wurde keine Mail verschickt.') . '</p>',
+        'Declined', '<p>The request from ' . e($a['email']) . ' has been declined.' . ($mail ? ' The person received a short rejection email.' : ' No email was sent.') . '</p>'
+    );
 }
 
-$felder = '';
-foreach (['a' => $aktion, 'id' => (string) $id, 'exp' => (string) $exp, 's' => $sig] as $k => $v) {
-    $felder .= '<input type="hidden" name="' . $k . '" value="' . e($v) . '">';
-}
-$daten = '<div class="daten"><strong>' . e($a['vorname'] . ' ' . $a['name']) . '</strong><br>' . e($a['email'])
+$felder = static function (string $l) use ($aktion, $id, $exp, $sig): string {
+    $f = '';
+    foreach (['a' => $aktion, 'id' => (string) $id, 'exp' => (string) $exp, 's' => $sig, 'l' => $l] as $k => $v) {
+        $f .= '<input type="hidden" name="' . $k . '" value="' . e($v) . '">';
+    }
+    return $f;
+};
+$daten = static fn (string $l): string => '<div class="daten"><strong>' . e($a['vorname'] . ' ' . $a['name']) . '</strong><br>' . e($a['email'])
     . ($a['angaben'] !== '' ? '<br><span class="klein">' . e($a['angaben']) . '</span>' : '')
-    . '<br><span class="klein">Anfrage vom ' . date('d.m.Y H:i', (int) $a['zeit']) . '</span></div>';
+    . '<br><span class="klein">' . ($l === 'en' ? 'Request of ' : 'Anfrage vom ') . date('d.m.Y H:i', (int) $a['zeit']) . '</span></div>';
 
 if ($aktion === 'annehmen') {
-    seite('Zugang freischalten?', $daten . '<form method="post">' . $felder
-        . '<label class="feld"><span>Vorname</span><input type="text" name="vorname" maxlength="80" value="' . e($a['vorname']) . '"></label>'
-        . '<label class="feld"><span>Name</span><input type="text" name="name" maxlength="80" value="' . e($a['name']) . '"></label>'
-        . '<p class="klein">Vorname und Name erscheinen im Mitgliederbereich als Autor.</p>'
-        . '<label><input type="checkbox" name="mail" value="1" checked> Begrüssungsmail mit Link an die Person senden</label>'
-        . '<button type="submit">✓ Ja, freischalten</button></form>');
+    $namen = static fn (string $vn, string $nn): string =>
+        '<label class="feld"><span>' . $vn . '</span><input type="text" name="vorname" maxlength="80" value="' . e($a['vorname']) . '"></label>'
+        . '<label class="feld"><span>' . $nn . '</span><input type="text" name="name" maxlength="80" value="' . e($a['name']) . '"></label>';
+    seite2(
+        'Aufnehmen & freischalten?',
+        $daten('de') . '<form method="post">' . $felder('de') . $namen('Vorname', 'Nachname')
+            . '<p class="klein">Vorname und Nachname erscheinen im Mitgliederbereich als Autor.</p>'
+            . '<label class="check"><input type="checkbox" name="mail" value="1" checked> Begrüssungsmail mit Link an die Person senden</label>'
+            . '<button type="submit">✓ Ja, aufnehmen & freischalten</button></form>',
+        'Admit & activate?',
+        $daten('en') . '<form method="post">' . $felder('en') . $namen('First name', 'Last name')
+            . '<p class="klein">First and last name are shown as author in the members’ area.</p>'
+            . '<label class="check"><input type="checkbox" name="mail" value="1" checked> Send a welcome email with the link to the person</label>'
+            . '<button type="submit">✓ Yes, admit & activate</button></form>'
+    );
 }
-seite('Anfrage ablehnen?', $daten . '<form method="post">' . $felder
-    . '<label><input type="checkbox" name="mail" value="1" checked> Kurze, neutrale Absage per Mail senden («keine Mitgliedschaft bestätigt, bei Irrtum antworten»)</label>'
-    . '<button type="submit" class="nein">✕ Ja, ablehnen</button></form>');
+seite2(
+    'Anfrage ablehnen?',
+    $daten('de') . '<form method="post">' . $felder('de')
+        . '<label class="check"><input type="checkbox" name="mail" value="1" checked> Kurze, neutrale Absage per Mail senden («keine Mitgliedschaft bestätigt, bei Irrtum antworten»)</label>'
+        . '<button type="submit" class="nein">✕ Ja, ablehnen</button></form>',
+    'Decline request?',
+    $daten('en') . '<form method="post">' . $felder('en')
+        . '<label class="check"><input type="checkbox" name="mail" value="1" checked> Send a short, neutral rejection email (“no membership confirmed, reply if this is a mistake”)</label>'
+        . '<button type="submit" class="nein">✕ Yes, decline</button></form>'
+);

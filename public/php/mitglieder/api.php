@@ -256,22 +256,37 @@ function aktion_zugang_beantragen(): never
     $e = fn(string $x) => htmlspecialchars($x, ENT_QUOTES, 'UTF-8');
     $ja = anfrage_link('annehmen', $id);
     $nein = anfrage_link('ablehnen', $id);
-    $hinweisGesperrt = $status === 'gesperrt' ? "\nACHTUNG: Diese Adresse ist im Mitgliederbereich gesperrt.\n" : '';
-    $text = "Neue Anfrage für den Mitgliederbereich.\n\nName: {$vorname} {$name}\nE-Mail: {$email}\n"
-        . ($angaben !== '' ? "Angaben: {$angaben}\n" : '') . $hinweisGesperrt
-        . "\nBitte prüfen, ob die Person Mitglied ist.\n\nAkzeptieren: {$ja}\n\nAblehnen: {$nein}\n\n"
-        . 'Die Links sind ' . ANFRAGE_GUELTIG_TAGE . " Tage gültig. Alternativ im Admin-Reiter: " . basis_url() . "/mitglieder/#admin\n";
-    $html = '<p style="margin:0 0 16px;"><strong>Neue Anfrage für den Mitgliederbereich</strong></p>'
+    $gesperrt = $status === 'gesperrt';
+    $admin = basis_url() . '/mitglieder/#admin';
+    $a_ja = $ja;     // vor den Pfeilfunktionen setzen (sie übernehmen Werte beim Erstellen)
+    $a_nein = $nein;
+    $txt = static fn (string $kopf, string $angabenLabel, string $warnung, string $pruefen, string $ja, string $nein, string $gueltig, string $l): string =>
+        "{$kopf}\n\nName: {$vorname} {$name}\nE-Mail: {$email}\n" . ($angaben !== '' ? "{$angabenLabel}: {$angaben}\n" : '')
+        . ($gesperrt ? "\n{$warnung}\n" : '') . "\n{$pruefen}\n\n{$ja}: {$a_ja}&l={$l}\n\n{$nein}: {$a_nein}&l={$l}\n\n{$gueltig}\n";
+    $text = zweisprachig_text(
+        $txt('Neue Anfrage für den Mitgliederbereich.', 'Angaben', 'ACHTUNG: Diese Adresse ist im Mitgliederbereich gesperrt.', 'Bitte prüfen, ob die Person Mitglied ist.', 'Akzeptieren', 'Ablehnen',
+            'Die Links sind ' . ANFRAGE_GUELTIG_TAGE . " Tage gültig. Alternativ im Admin-Reiter: {$admin}", 'de'),
+        $txt('New request for the members’ area.', 'Details', 'WARNING: This address is blocked in the members’ area.', 'Please check whether the person is a member.', 'Accept', 'Decline',
+            'The links are valid for ' . ANFRAGE_GUELTIG_TAGE . " days. Alternatively in the Admin tab: {$admin}", 'en')
+    );
+    $teil = static fn (string $kopf, string $angabenLabel, string $warnung, string $pruefen, string $kJa, string $kNein, string $info, string $l): string =>
+        '<p style="margin:0 0 16px;"><strong>' . $e($kopf) . '</strong></p>'
         . '<table role="presentation" style="margin:0 0 16px;font-size:15px;">'
         . '<tr><td style="color:#666;padding-right:16px;">Name</td><td><strong>' . $e("{$vorname} {$name}") . '</strong></td></tr>'
         . '<tr><td style="color:#666;padding-right:16px;">E-Mail</td><td>' . $e($email) . '</td></tr>'
-        . ($angaben !== '' ? '<tr><td style="color:#666;padding-right:16px;vertical-align:top;">Angaben</td><td>' . $e($angaben) . '</td></tr>' : '')
+        . ($angaben !== '' ? '<tr><td style="color:#666;padding-right:16px;vertical-align:top;">' . $e($angabenLabel) . '</td><td>' . $e($angaben) . '</td></tr>' : '')
         . '</table>'
-        . ($status === 'gesperrt' ? '<p style="margin:0 0 16px;color:#b91c1c;"><strong>Achtung: Diese Adresse ist im Mitgliederbereich gesperrt.</strong></p>' : '')
-        . '<p style="margin:0 0 20px;">Bitte prüfen, ob die Person Mitglied ist.</p>'
-        . '<p style="margin:0 0 16px;">' . mail_knopf($ja, '✓ Akzeptieren') . mail_knopf($nein, '✕ Ablehnen', false) . '</p>'
-        . '<p style="margin:0;color:#666666;font-size:13px;">Der Knopf öffnet eine Bestätigungsseite – dort Namen prüfen und mit einem Klick abschliessen. Beim Akzeptieren erhält die Person automatisch eine Begrüssungsmail. Links ' . ANFRAGE_GUELTIG_TAGE . ' Tage gültig; alternativ im <a href="' . $e(basis_url() . '/mitglieder/#admin') . '" style="color:#004D7A;">Admin-Reiter</a>.</p>';
-    mail_senden_html(FWVJ_ANFRAGE_EMPFAENGER, "[Mitgliederbereich] Zugangsanfrage: {$vorname} {$name}", $text, mail_html_rahmen($html), $email);
+        . ($gesperrt ? '<p style="margin:0 0 16px;color:#b91c1c;"><strong>' . $e($warnung) . '</strong></p>' : '')
+        . '<p style="margin:0 0 20px;">' . $e($pruefen) . '</p>'
+        . '<p style="margin:0 0 16px;">' . mail_knopf("{$a_ja}&l={$l}", $kJa) . mail_knopf("{$a_nein}&l={$l}", $kNein, false) . '</p>'
+        . '<p style="margin:0;color:#666666;font-size:13px;">' . $info . '</p>';
+    $html = zweisprachig_html(
+        $teil('Neue Anfrage für den Mitgliederbereich', 'Angaben', 'Achtung: Diese Adresse ist im Mitgliederbereich gesperrt.', 'Bitte prüfen, ob die Person Mitglied ist.', '✓ Akzeptieren', '✕ Ablehnen',
+            'Der Knopf öffnet eine Bestätigungsseite – dort Namen prüfen und mit einem Klick abschliessen. Beim Akzeptieren erhält die Person automatisch eine Begrüssungsmail. Links ' . ANFRAGE_GUELTIG_TAGE . ' Tage gültig; alternativ im <a href="' . $e($admin) . '" style="color:#004D7A;">Admin-Reiter</a>.', 'de'),
+        $teil('New request for the members’ area', 'Details', 'Warning: This address is blocked in the members’ area.', 'Please check whether the person is a member.', '✓ Accept', '✕ Decline',
+            'The button opens a confirmation page – check the name there and finish with one click. When accepted, the person automatically receives a welcome email. Links valid for ' . ANFRAGE_GUELTIG_TAGE . ' days; alternatively in the <a href="' . $e(basis_url() . '/en/members/#admin') . '" style="color:#004D7A;">Admin tab</a>.', 'en')
+    );
+    mail_senden_html(FWVJ_ANFRAGE_EMPFAENGER, "[Mitgliederbereich] Zugangsanfrage / Access request: {$vorname} {$name}", $text, mail_html_rahmen($html), $email);
     $ok();
 }
 

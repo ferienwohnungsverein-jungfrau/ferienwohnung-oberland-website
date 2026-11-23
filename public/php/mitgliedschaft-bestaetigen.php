@@ -8,42 +8,22 @@ declare(strict_types=1);
 // Zielpostfach für Lead-Benachrichtigungen: anmeldung@ — die Verteilung an
 // sekretariat@ und vorstand@ ist in Plesk als Weiterleitung hinterlegt.
 
-function renderPage(string $title, string $message, bool $success, string $locale = 'de'): void
+require_once __DIR__ . '/_seite.php';
+
+/**
+ * Rückmeldeseite – immer zweisprachig mit Umschalter (Stefan 23.11.2026). Startsprache:
+ * ?l= aus dem geklickten Mail-Knopf, sonst die Sprache des Formulars.
+ */
+function renderPage(string $titelKey, string $textKey, bool $success, string $locale = 'de'): never
 {
-    $titleHtml = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
-    $messageHtml = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
-    $accent = $success ? '#004D7A' : '#dc2626';
-    $htmlLang = $locale === 'en' ? 'en' : 'de-CH';
-    $backLabel = $locale === 'en' ? 'Back to the website' : 'Zurück zur Website';
-    $backHref = $locale === 'en' ? 'https://ferienwohnungsverein-jungfrau.ch/en/' : 'https://ferienwohnungsverein-jungfrau.ch/';
-    echo <<<HTML
-<!doctype html>
-<html lang="{$htmlLang}">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{$titleHtml} – Ferienwohnungsverein Jungfrau</title>
-<style>
-  body { margin:0; font-family: 'Open Sans', Arial, sans-serif; background:#F9F9F9; color:#334155; }
-  .wrap { max-width:520px; margin:64px auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.08); }
-  .head { background:#004D7A; color:#fff; padding:24px 32px; font-family: 'Poppins', Arial, sans-serif; font-weight:700; font-size:18px; }
-  .body { padding:32px; }
-  h1 { color:{$accent}; font-family: 'Poppins', Arial, sans-serif; font-size:1.5rem; margin:0 0 16px; }
-  a.btn { display:inline-block; margin-top:16px; background:#F4A261; color:#fff; text-decoration:none; font-weight:700; padding:12px 24px; border-radius:6px; }
-</style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="head">Ferienwohnungsverein Jungfrau</div>
-    <div class="body">
-      <h1>{$titleHtml}</h1>
-      <p>{$messageHtml}</p>
-      <a class="btn" href="{$backHref}">{$backLabel}</a>
-    </div>
-  </div>
-</body>
-</html>
-HTML;
+    global $texts;
+    $h = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+    $teil = static fn (string $l): array => [
+        'titel' => $texts[$l][$titelKey],
+        'inhalt' => '<p>' . $h($texts[$l][$textKey]) . '</p><a class="btn" href="https://ferienwohnungsverein-jungfrau.ch' . ($l === 'en' ? '/en/' : '/') . '">'
+            . ($l === 'en' ? 'Back to the website' : 'Zurück zur Website') . '</a>',
+    ];
+    fwvj_seite($teil('de'), $teil('en'), fwvj_seiten_sprache($locale), !$success);
 }
 
 $texts = [
@@ -78,7 +58,7 @@ $signature = $_GET['s'] ?? '';
 
 if ($data === '' || $signature === '') {
     http_response_code(400);
-    renderPage($texts['de']['invalidTitle'], $texts['de']['invalidIncomplete'], false);
+    renderPage('invalidTitle', 'invalidIncomplete', false);
     exit;
 }
 
@@ -87,7 +67,7 @@ require __DIR__ . '/_mitgliedschaft.php';
 $payload = fwvj_anmeldung_entpacken($data, $signature);
 if ($payload === null) {
     http_response_code(403);
-    renderPage($texts['de']['invalidTitle'], $texts['de']['invalidSignature'], false);
+    renderPage('invalidTitle', 'invalidSignature', false);
     exit;
 }
 
@@ -96,39 +76,50 @@ $t = $texts[$locale];
 
 if (time() - (int) $payload['ts'] > FWVJ_ANMELDUNG_MAX_ALTER) {
     http_response_code(410);
-    renderPage($t['expiredTitle'], $t['expiredMessage'], false, $locale);
+    renderPage('expiredTitle', 'expiredMessage', false, $locale);
     exit;
 }
 
 $f = static fn (string $k): string => fwvj_feld((string) ($payload[$k] ?? ''), 200);
-$leer = '(nicht angegeben)';
-$zeile = static fn (string $label, string $wert): string => $label . ': ' . ($wert !== '' ? $wert : $leer) . "\n";
 
+// Angaben als Zeilen [Bezeichnung DE, Bezeichnung EN, Wert] – daraus entsteht die Mail in beiden Sprachen.
 if (isset($payload['vorname'])) {
     // Format ab 23.11.2026
     $nameSafe = trim($f('vorname') . ' ' . $f('nachname'));
     $geb = DateTimeImmutable::createFromFormat('!Y-m-d', $f('geburtsdatum'));
-    $angaben = $zeile('Vorname', $f('vorname'))
-        . $zeile('Nachname', $f('nachname'))
-        . $zeile('Firma', $f('firma'))
-        . $zeile('Strasse / Nr.', $f('strasse'))
-        . $zeile('PLZ / Ort', $f('plz_ort'))
-        . $zeile('Geburtsdatum', $geb ? $geb->format('d.m.Y') : $f('geburtsdatum'))
-        . $zeile('Telefon', $f('telefon'))
-        . $zeile('E-Mail', $f('email'))
-        . $zeile('Anzahl Gästebetten', $f('betten'))
-        . 'Jahresbeitrag gemäss Angabe: CHF ' . ((int) $f('betten') >= 11 ? '200' : '100') . " (ab 11 Betten 200, sonst 100)\n\n"
-        . 'Beitrittserklärung (Statuten, Jahresbeitrag, Vereinsjahr, Austritt schriftlich) und Datenschutzerklärung '
-        . 'akzeptiert – Wortlaut Fassung ' . ($f('erklaerung') ?: '?') . ', Sprache ' . strtoupper($locale) . ".\n"
-        . 'Formular abgeschickt: ' . date('d.m.Y H:i', (int) $payload['ts']) . "\n";
+    $beitrag = (int) $f('betten') >= 11 ? '200' : '100';
+    $felder = [
+        ['Vorname', 'First name', $f('vorname')],
+        ['Nachname', 'Last name', $f('nachname')],
+        ['Firma', 'Company', $f('firma')],
+        ['Strasse / Nr.', 'Street / no.', $f('strasse')],
+        ['PLZ / Ort', 'Postcode / town', $f('plz_ort')],
+        ['Geburtsdatum', 'Date of birth', $geb ? $geb->format('d.m.Y') : $f('geburtsdatum')],
+        ['Telefon', 'Phone', $f('telefon')],
+        ['E-Mail', 'Email', $f('email')],
+        ['Anzahl Gästebetten', 'Guest beds', $f('betten')],
+        ['Jahresbeitrag', 'Annual fee', "CHF {$beitrag}"],
+    ];
+    $fassung = $f('erklaerung') ?: '?';
+    $sp = strtoupper($locale);
+    $abgeschickt = date('d.m.Y H:i', (int) $payload['ts']);
+    $notiz = [
+        'de' => "Beitrittserklärung (Statuten, Jahresbeitrag, Vereinsjahr, Austritt schriftlich) und Datenschutzerklärung akzeptiert – Wortlaut Fassung {$fassung}, Formular {$sp}, abgeschickt {$abgeschickt}.",
+        'en' => "Membership declaration (statutes, annual fee, association year, written resignation) and privacy policy accepted – wording version {$fassung}, form {$sp}, submitted {$abgeschickt}.",
+    ];
 } else {
     // Altes Format (Links vor 23.11.2026, höchstens 48 h gültig)
     $nameSafe = $f('name');
-    $angaben = $zeile('Name', $f('name'))
-        . $zeile('Anzahl Gästebetten', $f('betten'))
-        . $zeile('E-Mail', $f('email'))
-        . $zeile('Telefon', $f('telefon'))
-        . "(Anmeldung über das frühere Formular – ohne Adresse, Geburtsdatum und Beitrittserklärung)\n";
+    $felder = [
+        ['Name', 'Name', $f('name')],
+        ['Anzahl Gästebetten', 'Guest beds', $f('betten')],
+        ['E-Mail', 'Email', $f('email')],
+        ['Telefon', 'Phone', $f('telefon')],
+    ];
+    $notiz = [
+        'de' => 'Anmeldung über das frühere Formular – ohne Adresse, Geburtsdatum und Beitrittserklärung.',
+        'en' => 'Submitted via the previous form – without address, date of birth and membership declaration.',
+    ];
 }
 $emailSafe = $f('email');
 
@@ -137,7 +128,7 @@ $emailSafe = $f('email');
 // Begrüssungsmail. Klappt das nicht (z. B. Datenbank nicht erreichbar), geht die Mail trotzdem
 // raus – dann ohne Knöpfe, mit Hinweis auf den Admin-Reiter.
 $knoepfe = null;      // [ja, nein] oder null
-$zugangHinweis = '';
+$zugangHinweis = ['de' => '', 'en' => ''];
 $doppelt = false;
 try {
     define('FWVJ_MITGLIEDER', true);
@@ -153,9 +144,9 @@ try {
     if ($st->fetchColumn()) {
         $doppelt = true;
     } elseif ($status === 'aktiv') {
-        $zugangHinweis = 'Diese Adresse hat bereits Zugang zum Mitgliederbereich.';
+        $zugangHinweis = ['de' => 'Diese Adresse hat bereits Zugang zum Mitgliederbereich.', 'en' => 'This address already has access to the members’ area.'];
     } else {
-        $kurz = 'Neue Mitgliedschaft (Formular) · ' . $f('betten') . ' Betten' . ($f('plz_ort') !== '' ? ' · ' . $f('plz_ort') : '') . ($f('firma') !== '' ? ' · ' . $f('firma') : '');
+        $kurz = 'Neue Mitgliedschaft / New membership · ' . $f('betten') . ' Betten/beds' . ($f('plz_ort') !== '' ? ' · ' . $f('plz_ort') : '') . ($f('firma') !== '' ? ' · ' . $f('firma') : '');
         $nachname = isset($payload['vorname']) ? $f('nachname') : '';
         $vorname = isset($payload['vorname']) ? $f('vorname') : $f('name');
         $pdo->prepare('INSERT INTO zugangsanfragen (email, vorname, name, angaben, locale, zeit, ip) VALUES (?, ?, ?, ?, ?, ?, ?)')
@@ -164,70 +155,100 @@ try {
         audit('anfrage', null, null, "{$nameSafe}: {$kurz}", 0, $emailNorm);
         $knoepfe = [anfrage_link('annehmen', $id), anfrage_link('ablehnen', $id)];
         if ($status === 'gesperrt') {
-            $zugangHinweis = 'ACHTUNG: Diese Adresse ist im Mitgliederbereich gesperrt.';
+            $zugangHinweis = ['de' => 'ACHTUNG: Diese Adresse ist im Mitgliederbereich gesperrt.', 'en' => 'WARNING: This address is blocked in the members’ area.'];
         }
     }
 } catch (Throwable $e) {
     error_log('mitgliedschaft-bestaetigen: Zugangsanfrage nicht angelegt: ' . $e->getMessage());
-    $zugangHinweis = 'Zugang zum Mitgliederbereich konnte nicht automatisch vorbereitet werden – bitte im Admin-Reiter von Hand freischalten.';
+    $zugangHinweis = ['de' => 'Zugang zum Mitgliederbereich konnte nicht automatisch vorbereitet werden – bitte im Admin-Reiter von Hand freischalten.', 'en' => 'Access to the members’ area could not be prepared automatically – please activate it manually in the Admin tab.'];
 }
 
 if ($doppelt) {
-    renderPage($t['successTitle'], $t['successMessage'], true, $locale);
+    renderPage('successTitle', 'successMessage', true, $locale);
     exit;
 }
 
+if (!defined('ANFRAGE_GUELTIG_TAGE_TEXT')) {
+    define('ANFRAGE_GUELTIG_TAGE_TEXT', defined('ANFRAGE_GUELTIG_TAGE') ? (string) ANFRAGE_GUELTIG_TAGE : '14');
+}
 $quelle = $locale === 'en' ? '/en/membership/' : '/mitgliedschaft/';
-$leadSubject = 'Neue Mitglied-Anmeldung – ' . $nameSafe;
-$leadBody = "Neue bestätigte Anmeldung über das Formular «Mitglied werden».\n"
-    . "Die Person hat ihre E-Mail-Adresse über den Bestätigungslink bestätigt.\n\n"
-    . $angaben
-    . 'E-Mail bestätigt: ' . date('d.m.Y H:i') . "\n"
-    . "Quelle: {$quelle}\n\n"
-    . ($zugangHinweis !== '' ? $zugangHinweis . "\n\n" : '')
-    . ($knoepfe
-        ? "Aufnehmen und Zugang zum Mitgliederbereich freischalten (Person erhält eine Begrüssungsmail):\n{$knoepfe[0]}\n\nAblehnen:\n{$knoepfe[1]}\n\n"
-            . 'Die Links sind ' . ANFRAGE_GUELTIG_TAGE . " Tage gültig; wer zuerst klickt, erledigt. Alternativ im Admin-Reiter des Mitgliederbereichs.\n\n"
-        : '')
-    . "Über die Aufnahme entscheidet der Vorstand (Art. 4 der Statuten).\n"
-    . "Antworten auf diese Mail gehen direkt an die anmeldende Person.\n";
-
+$bestaetigt = date('d.m.Y H:i');
+$leadSubject = 'Neue Mitglied-Anmeldung / New membership application – ' . $nameSafe;
 // anmeldung@ verteilt in Plesk an sekretariat@ + vorstand@; it@ zusätzlich direkt (Stefan 30.10.2026).
 $empfaenger = 'anmeldung@ferienwohnungsverein-jungfrau.ch, it@ferienwohnungsverein-jungfrau.ch';
 
+$L = [
+    'de' => [
+        'kopf' => 'Neue Mitglied-Anmeldung', 'leer' => '(nicht angegeben)',
+        'intro' => "Neue bestätigte Anmeldung über das Formular «Mitglied werden» – E-Mail-Adresse bestätigt am {$bestaetigt}.",
+        'ja' => '✓ Aufnehmen & freischalten', 'nein' => '✕ Ablehnen',
+        'jaText' => 'Aufnehmen und Zugang zum Mitgliederbereich freischalten (Person erhält eine Begrüssungsmail)',
+        'neinText' => 'Ablehnen',
+        'knopfInfo' => '«Aufnehmen» schaltet den Zugang zum Mitgliederbereich frei; die Person erhält automatisch eine Begrüssungsmail. Der Knopf öffnet zuerst eine Bestätigungsseite. Links ' . ANFRAGE_GUELTIG_TAGE_TEXT . ' Tage gültig, wer zuerst klickt, erledigt – alternativ im Admin-Reiter des Mitgliederbereichs.',
+        'schluss' => 'Über die Aufnahme entscheidet der Vorstand (Art. 4 der Statuten). Antworten auf diese Mail gehen direkt an die anmeldende Person.',
+        'admin' => '/mitglieder/#admin', 'adminText' => 'Admin-Reiter',
+    ],
+    'en' => [
+        'kopf' => 'New membership application', 'leer' => '(not provided)',
+        'intro' => "New confirmed application via the “Become a member” form – email address confirmed on {$bestaetigt}.",
+        'ja' => '✓ Admit & activate', 'nein' => '✕ Decline',
+        'jaText' => 'Admit and activate access to the members’ area (the person receives a welcome email)',
+        'neinText' => 'Decline',
+        'knopfInfo' => '“Admit” activates access to the members’ area; the person automatically receives a welcome email. The button first opens a confirmation page. Links valid for ' . ANFRAGE_GUELTIG_TAGE_TEXT . ' days, whoever clicks first handles it – or use the Admin tab of the members’ area.',
+        'schluss' => 'The board decides on admission (Art. 4 of the statutes). Replies to this email go directly to the applicant.',
+        'admin' => '/en/members/#admin', 'adminText' => 'Admin tab',
+    ],
+];
+$linkL = static fn (string $url, string $l): string => $url . '&l=' . $l;
+
+$text = static function (string $l) use ($L, $felder, $notiz, $zugangHinweis, $knoepfe, $quelle, $linkL): string {
+    $t = $L[$l];
+    $out = $t['intro'] . "\n\n";
+    foreach ($felder as $z) {
+        $out .= ($l === 'en' ? $z[1] : $z[0]) . ': ' . ($z[2] !== '' ? $z[2] : $t['leer']) . "\n";
+    }
+    $out .= "\n" . $notiz[$l] . "\n\n";
+    if ($zugangHinweis[$l] !== '') {
+        $out .= $zugangHinweis[$l] . "\n\n";
+    }
+    if ($knoepfe) {
+        $out .= $t['jaText'] . ":\n" . $linkL($knoepfe[0], $l) . "\n\n" . $t['neinText'] . ":\n" . $linkL($knoepfe[1], $l) . "\n\n" . $t['knopfInfo'] . "\n\n";
+    }
+    return $out . $t['schluss'] . "\nQuelle / Source: {$quelle}\n";
+};
+
 if (function_exists('mail_senden_html')) {
     $h = static fn (string $x): string => htmlspecialchars($x, ENT_QUOTES, 'UTF-8');
-    $zeilen = '';
-    foreach (explode("\n", trim($angaben)) as $z) {
-        if ($z === '') {
-            $zeilen .= '<tr><td colspan="2" style="height:10px;"></td></tr>';
-        } elseif (preg_match('/^([^:]{1,40}): (.*)$/u', $z, $m) && !str_starts_with($z, 'Beitrittserklärung')) {
-            $zeilen .= '<tr><td style="color:#666;padding:2px 16px 2px 0;vertical-align:top;white-space:nowrap;">' . $h($m[1]) . '</td><td style="padding:2px 0;"><strong>' . $h($m[2]) . '</strong></td></tr>';
-        } else {
-            $zeilen .= '<tr><td colspan="2" style="padding:2px 0;color:#444;font-size:13px;">' . $h($z) . '</td></tr>';
+    $html = static function (string $l) use ($L, $felder, $notiz, $zugangHinweis, $knoepfe, $quelle, $linkL, $h): string {
+        $t = $L[$l];
+        $zeilen = '';
+        foreach ($felder as $z) {
+            $zeilen .= '<tr><td style="color:#666;padding:2px 16px 2px 0;vertical-align:top;white-space:nowrap;">' . $h($l === 'en' ? $z[1] : $z[0])
+                . '</td><td style="padding:2px 0;"><strong>' . $h($z[2] !== '' ? $z[2] : $t['leer']) . '</strong></td></tr>';
         }
-    }
-    $html = '<p style="margin:0 0 16px;"><strong>Neue Mitglied-Anmeldung</strong> – E-Mail-Adresse bestätigt am ' . date('d.m.Y H:i') . '</p>'
-        . '<table role="presentation" style="margin:0 0 20px;font-size:15px;border-collapse:collapse;">' . $zeilen . '</table>'
-        . ($zugangHinweis !== '' ? '<p style="margin:0 0 16px;color:#b91c1c;"><strong>' . $h($zugangHinweis) . '</strong></p>' : '')
-        . ($knoepfe
-            ? '<p style="margin:0 0 16px;">' . mail_knopf($knoepfe[0], '✓ Aufnehmen & freischalten') . mail_knopf($knoepfe[1], '✕ Ablehnen', false) . '</p>'
-                . '<p style="margin:0 0 16px;color:#666666;font-size:13px;">«Aufnehmen» schaltet den Zugang zum Mitgliederbereich frei; die Person erhält automatisch eine Begrüssungsmail. Der Knopf öffnet zuerst eine Bestätigungsseite. Links ' . ANFRAGE_GUELTIG_TAGE . ' Tage gültig, wer zuerst klickt, erledigt – alternativ im <a href="' . $h(basis_url() . '/mitglieder/#admin') . '" style="color:#004D7A;">Admin-Reiter</a>.</p>'
-            : '')
-        . '<p style="margin:0;color:#666666;font-size:13px;">Über die Aufnahme entscheidet der Vorstand (Art. 4 der Statuten). Antworten auf diese Mail gehen direkt an die anmeldende Person. Quelle: ' . $h($quelle) . '</p>';
-    $mailSent = mail_senden_html($empfaenger, $leadSubject, $leadBody, mail_html_rahmen($html), $emailSafe);
+        return '<p style="margin:0 0 16px;"><strong>' . $h($t['kopf']) . '</strong><br><span style="color:#666;font-size:13px;">' . $h($t['intro']) . '</span></p>'
+            . '<table role="presentation" style="margin:0 0 12px;font-size:15px;border-collapse:collapse;">' . $zeilen . '</table>'
+            . '<p style="margin:0 0 20px;color:#444;font-size:13px;">' . $h($notiz[$l]) . '</p>'
+            . ($zugangHinweis[$l] !== '' ? '<p style="margin:0 0 16px;color:#b91c1c;"><strong>' . $h($zugangHinweis[$l]) . '</strong></p>' : '')
+            . ($knoepfe
+                ? '<p style="margin:0 0 16px;">' . mail_knopf($linkL($knoepfe[0], $l), $t['ja']) . mail_knopf($linkL($knoepfe[1], $l), $t['nein'], false) . '</p>'
+                    . '<p style="margin:0 0 16px;color:#666666;font-size:13px;">' . $h($t['knopfInfo']) . ' <a href="' . $h(basis_url() . $t['admin']) . '" style="color:#004D7A;">' . $h($t['adminText']) . '</a></p>'
+                : '')
+            . '<p style="margin:0;color:#666666;font-size:13px;">' . $h($t['schluss']) . ' · ' . $h($quelle) . '</p>';
+    };
+    $mailSent = mail_senden_html($empfaenger, $leadSubject, zweisprachig_text($text('de'), $text('en')), mail_html_rahmen(zweisprachig_html($html('de'), $html('en'))), $emailSafe);
 } else {
-    // From-Adresse MUSS zur sendenden Domain passen (SPF), siehe mitgliedschaft-anmeldung.php.
+    // Ohne Mitgliederbereich-Bibliothek: schlichte Textmail. From MUSS zur Domain passen (SPF).
     $leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
         . "Reply-To: {$emailSafe}\r\n"
         . "Content-Type: text/plain; charset=UTF-8\r\n";
-    $mailSent = @mail($empfaenger, '=?UTF-8?B?' . base64_encode($leadSubject) . '?=', $leadBody, $leadHeaders);
+    $mailSent = @mail($empfaenger, '=?UTF-8?B?' . base64_encode($leadSubject) . '?=', $text('de') . "\n--- English ---\n\n" . $text('en'), $leadHeaders);
 }
 
 if (!$mailSent) {
     http_response_code(500);
-    renderPage($t['sendErrorTitle'], $t['sendErrorMessage'], false, $locale);
+    renderPage('sendErrorTitle', 'sendErrorMessage', false, $locale);
     exit;
 }
 
-renderPage($t['successTitle'], $t['successMessage'], true, $locale);
+renderPage('successTitle', 'successMessage', true, $locale);
