@@ -90,6 +90,10 @@ Ablauf (Vorgabe Sekretariat 20.11.2026, gebaut 23.11.2026): Formular (Vorname, N
 Strasse/Nr., PLZ/Ort, Geburtsdatum, Telefon, E-Mail, Gästebetten) + Beitrittserklärung + Häkchen Statuten und
 Datenschutz → `php/mitgliedschaft-anmeldung.php` schickt Bestätigungslink (48 h) → Klick →
 `php/mitgliedschaft-bestaetigen.php` mailt alle Angaben an anmeldung@ (Plesk verteilt an sekretariat@ + vorstand@) und it@.
+Dabei legt es im Mitgliederbereich automatisch eine offene Zugangsanfrage an (Stefan 23.11.2026) – die Mail trägt die
+Knöpfe «Aufnehmen & freischalten» / «Ablehnen» (`mitglieder/zugang.php`); doppelt geklickte Bestätigungslinks erzeugen
+nichts doppelt. Login-Seite seit 23.11.2026: Anmelden (nur E-Mail) → «Schau in dein Postfach» (Code als Ausweichweg,
+erneut senden, andere Adresse) · «Noch kein Zugang?» → «Zugang anfragen» (`/mitglieder/#zugang`) oder «Mitglied werden».
 Der Link ist verschlüsselt (AES-256-GCM, Schlüssel aus `form-signing-secret.key` über httpdocs), gemeinsame Funktionen
 in `php/_mitgliedschaft.php`. **Wortlaut der Beitrittserklärung geändert → `FWVJ_ERKLAERUNG_FASSUNG` nachführen.**
 Statuten: `/statuten/` (EN `/en/statutes/` mit deutschem Originaltext), Text in `src/components/StatutenText.astro`.

@@ -132,23 +132,97 @@ if (isset($payload['vorname'])) {
 }
 $emailSafe = $f('email');
 
-$leadSubject = '=?UTF-8?B?' . base64_encode('Neue Mitglied-Anmeldung – ' . $nameSafe) . '?=';
+// ── Mitgliederbereich: jede bestätigte Anmeldung wird dort als offene Zugangsanfrage erfasst
+// (Stefan 23.11.2026). Das Sekretariat entscheidet mit EINEM Klick: aufnehmen = Zugang frei +
+// Begrüssungsmail. Klappt das nicht (z. B. Datenbank nicht erreichbar), geht die Mail trotzdem
+// raus – dann ohne Knöpfe, mit Hinweis auf den Admin-Reiter.
+$knoepfe = null;      // [ja, nein] oder null
+$zugangHinweis = '';
+$doppelt = false;
+try {
+    define('FWVJ_MITGLIEDER', true);
+    require_once __DIR__ . '/mitglieder/_lib.php';
+    $emailNorm = email_norm($emailSafe);
+    $pdo = db();
+    $st = $pdo->prepare('SELECT status FROM mitglieder WHERE email = ?');
+    $st->execute([$emailNorm]);
+    $status = (string) ($st->fetchColumn() ?: '');
+    // Link doppelt geklickt? Dann gibt es seit dem Absenden schon eine Anfrage → nichts doppelt.
+    $st = $pdo->prepare("SELECT id FROM zugangsanfragen WHERE email = ? AND zeit >= ? AND angaben LIKE 'Neue Mitgliedschaft%'");
+    $st->execute([$emailNorm, (int) $payload['ts']]);
+    if ($st->fetchColumn()) {
+        $doppelt = true;
+    } elseif ($status === 'aktiv') {
+        $zugangHinweis = 'Diese Adresse hat bereits Zugang zum Mitgliederbereich.';
+    } else {
+        $kurz = 'Neue Mitgliedschaft (Formular) · ' . $f('betten') . ' Betten' . ($f('plz_ort') !== '' ? ' · ' . $f('plz_ort') : '') . ($f('firma') !== '' ? ' · ' . $f('firma') : '');
+        $nachname = isset($payload['vorname']) ? $f('nachname') : '';
+        $vorname = isset($payload['vorname']) ? $f('vorname') : $f('name');
+        $pdo->prepare('INSERT INTO zugangsanfragen (email, vorname, name, angaben, locale, zeit, ip) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute([$emailNorm, $vorname, $nachname, mb_substr($kurz, 0, 500), $locale, jetzt(), client_ip()]);
+        $id = (int) $pdo->lastInsertId();
+        audit('anfrage', null, null, "{$nameSafe}: {$kurz}", 0, $emailNorm);
+        $knoepfe = [anfrage_link('annehmen', $id), anfrage_link('ablehnen', $id)];
+        if ($status === 'gesperrt') {
+            $zugangHinweis = 'ACHTUNG: Diese Adresse ist im Mitgliederbereich gesperrt.';
+        }
+    }
+} catch (Throwable $e) {
+    error_log('mitgliedschaft-bestaetigen: Zugangsanfrage nicht angelegt: ' . $e->getMessage());
+    $zugangHinweis = 'Zugang zum Mitgliederbereich konnte nicht automatisch vorbereitet werden – bitte im Admin-Reiter von Hand freischalten.';
+}
+
+if ($doppelt) {
+    renderPage($t['successTitle'], $t['successMessage'], true, $locale);
+    exit;
+}
+
+$quelle = $locale === 'en' ? '/en/membership/' : '/mitgliedschaft/';
+$leadSubject = 'Neue Mitglied-Anmeldung – ' . $nameSafe;
 $leadBody = "Neue bestätigte Anmeldung über das Formular «Mitgliedschaft anfragen».\n"
     . "Die Person hat ihre E-Mail-Adresse über den Bestätigungslink bestätigt.\n\n"
     . $angaben
     . 'E-Mail bestätigt: ' . date('d.m.Y H:i') . "\n"
-    . 'Quelle: ' . ($locale === 'en' ? '/en/membership/' : '/mitgliedschaft/') . "\n\n"
+    . "Quelle: {$quelle}\n\n"
+    . ($zugangHinweis !== '' ? $zugangHinweis . "\n\n" : '')
+    . ($knoepfe
+        ? "Aufnehmen und Zugang zum Mitgliederbereich freischalten (Person erhält eine Begrüssungsmail):\n{$knoepfe[0]}\n\nAblehnen:\n{$knoepfe[1]}\n\n"
+            . 'Die Links sind ' . ANFRAGE_GUELTIG_TAGE . " Tage gültig; wer zuerst klickt, erledigt. Alternativ im Admin-Reiter des Mitgliederbereichs.\n\n"
+        : '')
     . "Über die Aufnahme entscheidet der Vorstand (Art. 4 der Statuten).\n"
     . "Antworten auf diese Mail gehen direkt an die anmeldende Person.\n";
 
-// From-Adresse MUSS zur sendenden Domain passen (SPF), siehe Kommentar in
-// mitgliedschaft-anmeldung.php.
-$leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
-    . "Reply-To: {$emailSafe}\r\n"
-    . "Content-Type: text/plain; charset=UTF-8\r\n";
-
 // anmeldung@ verteilt in Plesk an sekretariat@ + vorstand@; it@ zusätzlich direkt (Stefan 30.10.2026).
-$mailSent = @mail('anmeldung@ferienwohnungsverein-jungfrau.ch, it@ferienwohnungsverein-jungfrau.ch', $leadSubject, $leadBody, $leadHeaders);
+$empfaenger = 'anmeldung@ferienwohnungsverein-jungfrau.ch, it@ferienwohnungsverein-jungfrau.ch';
+
+if (function_exists('mail_senden_html')) {
+    $h = static fn (string $x): string => htmlspecialchars($x, ENT_QUOTES, 'UTF-8');
+    $zeilen = '';
+    foreach (explode("\n", trim($angaben)) as $z) {
+        if ($z === '') {
+            $zeilen .= '<tr><td colspan="2" style="height:10px;"></td></tr>';
+        } elseif (preg_match('/^([^:]{1,40}): (.*)$/u', $z, $m) && !str_starts_with($z, 'Beitrittserklärung')) {
+            $zeilen .= '<tr><td style="color:#666;padding:2px 16px 2px 0;vertical-align:top;white-space:nowrap;">' . $h($m[1]) . '</td><td style="padding:2px 0;"><strong>' . $h($m[2]) . '</strong></td></tr>';
+        } else {
+            $zeilen .= '<tr><td colspan="2" style="padding:2px 0;color:#444;font-size:13px;">' . $h($z) . '</td></tr>';
+        }
+    }
+    $html = '<p style="margin:0 0 16px;"><strong>Neue Mitglied-Anmeldung</strong> – E-Mail-Adresse bestätigt am ' . date('d.m.Y H:i') . '</p>'
+        . '<table role="presentation" style="margin:0 0 20px;font-size:15px;border-collapse:collapse;">' . $zeilen . '</table>'
+        . ($zugangHinweis !== '' ? '<p style="margin:0 0 16px;color:#b91c1c;"><strong>' . $h($zugangHinweis) . '</strong></p>' : '')
+        . ($knoepfe
+            ? '<p style="margin:0 0 16px;">' . mail_knopf($knoepfe[0], '✓ Aufnehmen & freischalten') . mail_knopf($knoepfe[1], '✕ Ablehnen', false) . '</p>'
+                . '<p style="margin:0 0 16px;color:#666666;font-size:13px;">«Aufnehmen» schaltet den Zugang zum Mitgliederbereich frei; die Person erhält automatisch eine Begrüssungsmail. Der Knopf öffnet zuerst eine Bestätigungsseite. Links ' . ANFRAGE_GUELTIG_TAGE . ' Tage gültig, wer zuerst klickt, erledigt – alternativ im <a href="' . $h(basis_url() . '/mitglieder/#admin') . '" style="color:#004D7A;">Admin-Reiter</a>.</p>'
+            : '')
+        . '<p style="margin:0;color:#666666;font-size:13px;">Über die Aufnahme entscheidet der Vorstand (Art. 4 der Statuten). Antworten auf diese Mail gehen direkt an die anmeldende Person. Quelle: ' . $h($quelle) . '</p>';
+    $mailSent = mail_senden_html($empfaenger, $leadSubject, $leadBody, mail_html_rahmen($html), $emailSafe);
+} else {
+    // From-Adresse MUSS zur sendenden Domain passen (SPF), siehe mitgliedschaft-anmeldung.php.
+    $leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
+        . "Reply-To: {$emailSafe}\r\n"
+        . "Content-Type: text/plain; charset=UTF-8\r\n";
+    $mailSent = @mail($empfaenger, '=?UTF-8?B?' . base64_encode($leadSubject) . '?=', $leadBody, $leadHeaders);
+}
 
 if (!$mailSent) {
     http_response_code(500);

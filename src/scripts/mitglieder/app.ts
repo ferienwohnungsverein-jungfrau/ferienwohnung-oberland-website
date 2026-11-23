@@ -555,124 +555,247 @@ async function start(): Promise<void> {
 }
 
 // ── Login ──
+// Drei klare Ansichten (Stefan 23.11.2026): 1 Anmelden (nur E-Mail) → 2 «Schau in dein Postfach»
+// (Code als Ausweichweg, erneut senden, andere Adresse) · 3 «Zugang anfragen» als eigene Ansicht
+// unter #zugang. Darunter immer «Noch kein Zugang?» mit zwei Wegen: schon Mitglied / Mitglied werden.
+
+const LT = L === 'en'
+  ? {
+      titel: 'Log in',
+      text: 'No password needed – enter your email address and we’ll send you a log-in link.',
+      senden: 'Send log-in link',
+      postfachTitel: 'Check your inbox',
+      postfachText: (m: string) => `If <strong>${m}</strong> is activated, you’ll receive an email within a few minutes. Tap <strong>“Log in now”</strong> in it.`,
+      codeText: 'Opened the email on another device? Enter the 6-digit code here:',
+      erneut: 'Send again',
+      erneutIn: (s: number) => `Send again (${s} s)`,
+      erneutOk: 'A new email is on its way.',
+      andere: 'Use a different email address',
+      keineMail: 'No email? Check your spam folder. If your address isn’t activated yet,',
+      keineMailLink: 'request access',
+      keinZugang: 'No access yet?',
+      mitgliedTitel: 'Already a member of the association',
+      mitgliedText: 'Have your email address activated for the members’ area.',
+      mitgliedKnopf: 'Request access',
+      neuTitel: 'Not a member yet',
+      neuText: 'Join the association – access to the members’ area is included.',
+      neuKnopf: 'Become a member',
+      neuHref: '/en/membership/#signup',
+      zugangTitel: 'Request access',
+      zugangText: 'For members of the Ferienwohnungsverein Jungfrau who don’t have access yet. The board checks your membership and activates you – you’ll then receive an email.',
+      zurueck: '← Back to log in',
+      ungueltig: 'Please enter a valid email address.',
+      pflicht: 'Please fill in email, first and last name.',
+      codeFalsch: 'Please enter the 6-digit code from the email.',
+    }
+  : {
+      titel: 'Anmelden',
+      text: 'Kein Passwort nötig – gib deine E-Mail-Adresse ein, wir schicken dir einen Anmeldelink.',
+      senden: 'Anmeldelink senden',
+      postfachTitel: 'Schau in dein Postfach',
+      postfachText: (m: string) => `Falls <strong>${m}</strong> freigeschaltet ist, kommt in wenigen Minuten eine E-Mail. Tippe dort auf <strong>«Jetzt anmelden»</strong>.`,
+      codeText: 'Mail auf einem anderen Gerät geöffnet? Dann gib hier den 6-stelligen Code ein:',
+      erneut: 'Erneut senden',
+      erneutIn: (s: number) => `Erneut senden (${s} s)`,
+      erneutOk: 'Eine neue Mail ist unterwegs.',
+      andere: 'Andere E-Mail-Adresse verwenden',
+      keineMail: 'Keine Mail erhalten? Schau im Spam-Ordner nach. Ist deine Adresse noch nicht freigeschaltet,',
+      keineMailLink: 'frag den Zugang an',
+      keinZugang: 'Noch kein Zugang?',
+      mitgliedTitel: 'Schon Mitglied im Verein',
+      mitgliedText: 'Lass deine E-Mail-Adresse für den Mitgliederbereich freischalten.',
+      mitgliedKnopf: 'Zugang anfragen',
+      neuTitel: 'Noch nicht Mitglied',
+      neuText: 'Werde Mitglied – der Zugang zum Mitgliederbereich ist inbegriffen.',
+      neuKnopf: 'Mitglied werden',
+      neuHref: '/mitgliedschaft/#anmeldung',
+      zugangTitel: 'Zugang anfragen',
+      zugangText: 'Für Mitglieder des Ferienwohnungsvereins Jungfrau, die noch keinen Zugang haben. Der Vorstand prüft die Mitgliedschaft und schaltet dich frei – du bekommst dann eine E-Mail.',
+      zurueck: '← Zurück zur Anmeldung',
+      ungueltig: 'Bitte gib eine gültige E-Mail-Adresse ein.',
+      pflicht: 'Bitte E-Mail, Vorname und Nachname ausfüllen.',
+      codeFalsch: 'Bitte gib den 6-stelligen Code aus der E-Mail ein.',
+    };
+
+let loginEmail = '';      // zuletzt eingegebene Adresse (bleibt beim Wechsel der Ansicht erhalten)
+let linkPruefung = false; // Anmeldung über den Mail-Link in einem anderen Tab erkennen (einmal einrichten)
+
+function loginFehler(form: HTMLElement, text: string): void {
+  let el = form.querySelector('.mb-login-fehler') as HTMLElement | null;
+  if (!el) {
+    el = document.createElement('p');
+    el.className = 'mb-login-fehler';
+    el.setAttribute('role', 'alert');
+    form.querySelector('button[type=submit]')?.before(el);
+  }
+  el.textContent = text;
+}
+
+function loginWege(): string {
+  return `
+    <div class="mb-wege">
+      <h2 class="mb-wege__titel">${LT.keinZugang}</h2>
+      <div class="mb-wege__liste">
+        <div class="mb-karte mb-weg">
+          <h3>${LT.mitgliedTitel}</h3>
+          <p>${LT.mitgliedText}</p>
+          <a class="btn btn-outline" href="#zugang">${LT.mitgliedKnopf}</a>
+        </div>
+        <div class="mb-karte mb-weg">
+          <h3>${LT.neuTitel}</h3>
+          <p>${LT.neuText}</p>
+          <a class="btn btn-outline" href="${LT.neuHref}">${LT.neuKnopf}</a>
+        </div>
+      </div>
+    </div>`;
+}
 
 function zeigeLogin(): void {
   ich = null;
   $('#mb-bereich').hidden = true;
   $('#mb-leiste').hidden = true;
   $('#mb-login').hidden = false;
+  if (location.hash === '#zugang') return zeigeZugang();
   $('#mb-login').innerHTML = `
     <div class="mb-karte mb-login">
-      <h2>${T.loginTitel}</h2>
+      <h2>${LT.titel}</h2>
+      <p>${LT.text}</p>
       <form id="mb-form-email" class="mb-form" novalidate>
-        <p>${T.loginText}</p>
         <label class="mb-feld"><span>${T.email}</span>
-          <input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="name@beispiel.ch"></label>
-        <button type="submit" class="btn btn-accent">${T.codeAnfordern}</button>
+          <input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="name@beispiel.ch" value="${esc(loginEmail)}"></label>
+        <button type="submit" class="btn btn-accent">${LT.senden}</button>
       </form>
-      <form id="mb-form-code" class="mb-form" hidden novalidate>
-        <p id="mb-code-info"></p>
-        <label class="mb-feld"><span>${T.code}</span>
-          <input type="text" name="code" required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" placeholder="123456"></label>
-        <button type="submit" class="btn btn-accent">${T.anmelden}</button>
-        <button type="button" class="mb-link" data-aktion="andere-adresse">${T.andereAdresse}</button>
-      </form>
-      <p class="mb-klein" id="mb-beantragen-hinweis">${T.nochNicht} <button type="button" class="mb-link" data-aktion="beantragen">${T.beantragen}</button></p>
-      <form id="mb-form-antrag" class="mb-form" hidden novalidate>
-        <h2>${T.beantragenTitel}</h2>
-        <p>${T.beantragenText}</p>
-        <div class="hp-feld" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-        <label class="mb-feld"><span>${T.email} *</span><input type="email" name="email" required autocomplete="email" inputmode="email"></label>
-        <label class="mb-feld"><span>${T.vorname} *</span><input type="text" name="vorname" required maxlength="80" autocomplete="given-name"></label>
-        <label class="mb-feld"><span>${T.name} *</span><input type="text" name="name" required maxlength="80" autocomplete="family-name"></label>
-        <label class="mb-feld"><span>${T.angaben}</span><input type="text" name="angaben" maxlength="500" placeholder="${T.angabenPh}"></label>
-        <button type="submit" class="btn btn-accent">${T.absenden}</button>
-        <button type="button" class="mb-link" data-aktion="zurueck-login">${T.zurueckLogin}</button>
-        <p class="mb-klein">${T.oderMail} <a href="mailto:${IT}">${IT}</a></p>
-      </form>
-    </div>`;
-  const fAntrag = $<HTMLFormElement>('#mb-form-antrag');
-  const anmeldeTeile = () => [$('#mb-form-email'), $('#mb-beantragen-hinweis'), wurzel.querySelector('.mb-login > h2') as HTMLElement];
-  $('[data-aktion=beantragen]').addEventListener('click', () => {
-    anmeldeTeile().forEach((el) => (el.hidden = true));
-    $('#mb-form-code').hidden = true;
-    fAntrag.hidden = false;
-    const mail = ($<HTMLFormElement>('#mb-form-email').email as HTMLInputElement).value;
-    if (mail) (fAntrag.email as HTMLInputElement).value = mail;
-    (fAntrag.email as HTMLInputElement).focus();
-  });
-  fAntrag.querySelector('[data-aktion=zurueck-login]')!.addEventListener('click', () => {
-    fAntrag.hidden = true;
-    anmeldeTeile().forEach((el) => (el.hidden = false));
-  });
-  fAntrag.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = fAntrag.querySelector('button[type=submit]') as HTMLButtonElement;
-    if (!fAntrag.checkValidity()) return meldung(L === 'en' ? 'Please fill in email, first and last name.' : 'Bitte E-Mail, Vorname und Name ausfüllen.', 'fehler');
-    btn.disabled = true;
-    const r = await api('zugang_beantragen', Object.fromEntries(new FormData(fAntrag)) as Record<string, string>);
-    btn.disabled = false;
-    if (!r.success) return meldung(r.message || T.fehler, 'fehler');
-    fAntrag.innerHTML = `<h2>${T.beantragenTitel}</h2><p class="mb-hinweis">${esc(r.message)}</p>`;
-  });
+    </div>
+    ${loginWege()}`;
   const fEmail = $<HTMLFormElement>('#mb-form-email');
-  const fCode = $<HTMLFormElement>('#mb-form-code');
-  let email = '';
   fEmail.addEventListener('submit', async (e) => {
     e.preventDefault();
-    email = (fEmail.email as HTMLInputElement).value.trim();
-    if (!email || !(fEmail.email as HTMLInputElement).checkValidity()) {
-      meldung(L === 'en' ? 'Please enter a valid email address.' : 'Bitte gib eine gültige E-Mail-Adresse ein.', 'fehler');
-      return;
-    }
+    const feld = fEmail.email as HTMLInputElement;
+    loginEmail = feld.value.trim();
+    if (!loginEmail || !feld.checkValidity()) return loginFehler(fEmail, LT.ungueltig);
     const btn = fEmail.querySelector('button')!;
     btn.disabled = true;
-    const r = await api('code_anfordern', { email });
+    const r = await api('code_anfordern', { email: loginEmail });
     btn.disabled = false;
-    if (!r.success) return meldung(r.message || T.fehler, 'fehler');
-    fEmail.hidden = true;
-    fCode.hidden = false;
-    $('#mb-code-info').textContent = r.message || '';
-    (fCode.code as HTMLInputElement).focus();
-    warteAufLink();
+    if (!r.success) return loginFehler(fEmail, r.message || T.fehler);
+    zeigePostfach();
   });
+}
 
-  // Wurde in diesem Browser über den Mail-Link angemeldet (anderer Tab), hier automatisch weiter.
-  let linkPruefung = false;
-  function warteAufLink() {
-    if (linkPruefung) return;
-    linkPruefung = true;
-    const pruefen = async () => {
-      if (fCode.hidden || document.visibilityState !== 'visible') return;
-      const i = await api<{ angemeldet: boolean; csrf: string; ich: Ich }>('ich');
-      if (i.angemeldet) {
-        csrf = i.csrf;
-        ich = i.ich;
-        await zeigeBereich();
-      }
-    };
-    document.addEventListener('visibilitychange', pruefen);
-    window.addEventListener('focus', pruefen);
-  }
+function zeigePostfach(): void {
+  $('#mb-login').innerHTML = `
+    <div class="mb-karte mb-login">
+      <p class="mb-login-symbol" aria-hidden="true">✉️</p>
+      <h2>${LT.postfachTitel}</h2>
+      <p>${LT.postfachText(esc(loginEmail))}</p>
+      <form id="mb-form-code" class="mb-form mb-form--code" novalidate>
+        <label class="mb-feld"><span>${LT.codeText}</span>
+          <input type="text" name="code" required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" placeholder="123456"></label>
+        <button type="submit" class="btn btn-accent">${T.anmelden}</button>
+      </form>
+      <p class="mb-login-aktionen">
+        <button type="button" class="mb-link" data-aktion="erneut">${LT.erneut}</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="mb-link" data-aktion="andere">${LT.andere}</button>
+      </p>
+      <p class="mb-klein">${LT.keineMail} <a href="#zugang">${LT.keineMailLink}</a>.</p>
+    </div>`;
+  const fCode = $<HTMLFormElement>('#mb-form-code');
   fCode.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const code = (fCode.code as HTMLInputElement).value.replace(/\s/g, '');
+    if (!/^\d{6}$/.test(code)) return loginFehler(fCode, LT.codeFalsch);
     const btn = fCode.querySelector('button[type=submit]') as HTMLButtonElement;
     btn.disabled = true;
-    const r = await api('code_pruefen', { email, code: (fCode.code as HTMLInputElement).value });
+    const r = await api('code_pruefen', { email: loginEmail, code });
     btn.disabled = false;
-    if (!r.success) return meldung(r.message || T.fehler, 'fehler');
-    const i = await api<{ angemeldet: boolean; csrf: string; ich: Ich }>('ich');
-    if (i.angemeldet) {
-      csrf = i.csrf;
-      ich = i.ich;
-      await zeigeBereich();
-    }
+    if (!r.success) return loginFehler(fCode, r.message || T.fehler);
+    await angemeldetPruefen();
   });
-  fCode.querySelector('[data-aktion=andere-adresse]')!.addEventListener('click', () => {
-    fCode.hidden = true;
-    fEmail.hidden = false;
-    (fEmail.email as HTMLInputElement).focus();
+  $('[data-aktion=andere]').addEventListener('click', () => zeigeLogin());
+  const erneut = $<HTMLButtonElement>('[data-aktion=erneut]');
+  // Sperre gegen Dauerklicken; der Server begrenzt zusätzlich (3 Codes je 15 Min.).
+  const sperren = (sek: number) => {
+    erneut.disabled = true;
+    const tick = () => {
+      if (!erneut.isConnected) return;
+      if (sek <= 0) { erneut.disabled = false; erneut.textContent = LT.erneut; return; }
+      erneut.textContent = LT.erneutIn(sek--);
+      window.setTimeout(tick, 1000);
+    };
+    tick();
+  };
+  sperren(60);
+  erneut.addEventListener('click', async () => {
+    erneut.disabled = true;
+    const r = await api('code_anfordern', { email: loginEmail });
+    if (!r.success) { loginFehler(fCode, r.message || T.fehler); erneut.disabled = false; return; }
+    meldung(LT.erneutOk);
+    sperren(60);
   });
+  (fCode.code as HTMLInputElement).focus();
+  warteAufLink();
+}
+
+async function angemeldetPruefen(): Promise<void> {
+  const i = await api<{ angemeldet: boolean; csrf: string; ich: Ich }>('ich');
+  if (i.angemeldet) {
+    csrf = i.csrf;
+    ich = i.ich;
+    if (location.hash === '#zugang') history.replaceState(null, '', location.pathname);
+    await zeigeBereich();
+  }
+}
+
+// Wurde in diesem Browser über den Mail-Link angemeldet (anderer Tab), hier automatisch weiter.
+function warteAufLink(): void {
+  if (linkPruefung) return;
+  linkPruefung = true;
+  const pruefen = () => {
+    if (ich || !$('#mb-form-code') || document.visibilityState !== 'visible') return;
+    void angemeldetPruefen();
+  };
+  document.addEventListener('visibilitychange', pruefen);
+  window.addEventListener('focus', pruefen);
+}
+
+function zeigeZugang(): void {
+  $('#mb-login').innerHTML = `
+    <div class="mb-karte mb-login">
+      <p><a href="#" class="mb-link mb-zurueck">${LT.zurueck}</a></p>
+      <h2>${LT.zugangTitel}</h2>
+      <p>${LT.zugangText}</p>
+      <form id="mb-form-antrag" class="mb-form" novalidate>
+        <div class="hp-feld" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <label class="mb-feld"><span>${T.email} *</span><input type="email" name="email" required autocomplete="email" inputmode="email" value="${esc(loginEmail)}"></label>
+        <div class="mb-form-zeile">
+          <label class="mb-feld"><span>${T.vorname} *</span><input type="text" name="vorname" required maxlength="80" autocomplete="given-name"></label>
+          <label class="mb-feld"><span>${L === 'en' ? 'Last name' : 'Nachname'} *</span><input type="text" name="name" required maxlength="80" autocomplete="family-name"></label>
+        </div>
+        <label class="mb-feld"><span>${T.angaben}</span><input type="text" name="angaben" maxlength="500" placeholder="${T.angabenPh}"></label>
+        <button type="submit" class="btn btn-accent">${T.absenden}</button>
+      </form>
+      <p class="mb-klein">${LT.neuTitel}? <a href="${LT.neuHref}">${LT.neuKnopf}</a> · ${T.oderMail} <a href="mailto:${IT}">${IT}</a></p>
+    </div>`;
+  $('.mb-zurueck').addEventListener('click', (e) => {
+    e.preventDefault();
+    history.pushState(null, '', location.pathname);
+    zeigeLogin();
+  });
+  const fAntrag = $<HTMLFormElement>('#mb-form-antrag');
+  fAntrag.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!fAntrag.checkValidity()) return loginFehler(fAntrag, LT.pflicht);
+    const btn = fAntrag.querySelector('button[type=submit]') as HTMLButtonElement;
+    btn.disabled = true;
+    loginEmail = (fAntrag.email as HTMLInputElement).value.trim();
+    const r = await api('zugang_beantragen', Object.fromEntries(new FormData(fAntrag)) as Record<string, string>);
+    btn.disabled = false;
+    if (!r.success) return loginFehler(fAntrag, r.message || T.fehler);
+    fAntrag.outerHTML = `<p class="mb-hinweis">${esc(r.message)}</p>`;
+  });
+  wurzel.scrollIntoView({ block: 'start' });
+  ($<HTMLInputElement>(loginEmail ? '#mb-form-antrag [name=vorname]' : '#mb-form-antrag [name=email]')).focus({ preventScroll: true });
 }
 
 // ── Bereich ──
@@ -1683,6 +1806,9 @@ wurzel?.addEventListener('click', async (e) => {
   }
 });
 
-window.addEventListener('hashchange', () => ich && reiterAus(location.hash.replace('#', '')));
+window.addEventListener('hashchange', () => {
+  if (ich) reiterAus(location.hash.replace('#', ''));
+  else if (!$('#mb-login').hidden) zeigeLogin(); // #zugang ↔ Anmeldung (auch Zurück-Taste)
+});
 
 if (wurzel) start();

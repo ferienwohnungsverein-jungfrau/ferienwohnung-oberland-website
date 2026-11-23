@@ -773,18 +773,18 @@ function begruessung_senden(string $email, string $vorname, string $locale): boo
     $text = zweisprachig_text(
         "Hallo {$hallo}\n\nDeine Adresse ist für den Mitgliederbereich des Ferienwohnungsvereins Jungfrau freigeschaltet.\n\n"
             . "Anmelden: {$de}\nDiese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.\n\n"
-            . "Dort findest du Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) und kannst eigene hochladen.\n\n"
+            . "Dort findest du die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) – eigene kannst du hochladen.\n\n"
             . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau",
         "Hello {$hallo}\n\nYour address has been activated for the members’ area of the Ferienwohnungsverein Jungfrau.\n\n"
             . "Log in: {$en}\nEnter this email address – you will receive a log-in link by email, no password needed.\n\n"
-            . "There you will find templates for renting (signs, house rules, checklists …) and can upload your own.\n\n"
+            . "There you will find updates from the board, regional news, the community and templates for renting (signs, house rules, checklists …) – you can upload your own.\n\n"
             . "Kind regards\nFerienwohnungsverein Jungfrau"
     );
     $html = zweisprachig_html(
-        "<p style=\"margin:0 0 16px;\">Hallo {$h}</p><p style=\"margin:0 0 16px;\">Deine Adresse ist für den Mitgliederbereich freigeschaltet. Dort findest du Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) und kannst eigene hochladen.</p>"
+        "<p style=\"margin:0 0 16px;\">Hallo {$h}</p><p style=\"margin:0 0 16px;\">Deine Adresse ist für den Mitgliederbereich freigeschaltet. Dort findest du die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung – eigene kannst du hochladen.</p>"
             . '<p style="margin:0 0 16px;">' . mail_knopf($de, 'Zum Mitgliederbereich') . '</p>'
             . '<p style="margin:0;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.</p>',
-        "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\">Your address has been activated for the members’ area. There you will find templates for renting (signs, house rules, checklists …) and can upload your own.</p>"
+        "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\">Your address has been activated for the members’ area. There you will find updates from the board, regional news, the community and templates for renting – you can upload your own.</p>"
             . '<p style="margin:0 0 16px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
             . '<p style="margin:0;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
     );
