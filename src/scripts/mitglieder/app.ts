@@ -909,7 +909,7 @@ function textHtml(t: string): string {
 // Texte für News-Lauf und Wochenmail (24.11.2026)
 const WT = L === 'en'
   ? {
-      auto: 'published automatically',
+      auto: 'automatic',
       autoTitel: 'Found and published automatically by the monthly news search – please check the source.',
       wmLabel: 'Weekly email with news from the members’ area',
       wmText: 'Once a week, only when there is something new. You can switch it off at any time.',
@@ -929,7 +929,7 @@ const WT = L === 'en'
       aSchluesselZeigen: 'Shown only once. Store it in the Mac keychain with this command (Terminal), then paste the key when asked:',
     }
   : {
-      auto: 'automatisch veröffentlicht',
+      auto: 'automatisch',
       autoTitel: 'Vom monatlichen News-Suchlauf gefunden und automatisch veröffentlicht – bitte Quelle prüfen.',
       wmLabel: 'Wochenmail mit Neuigkeiten aus dem Mitgliederbereich',
       wmText: 'Einmal pro Woche, nur wenn es Neues gibt. Jederzeit abschaltbar.',
@@ -950,7 +950,8 @@ const WT = L === 'en'
     };
 
 function autoMarke(b: Beitrag): string {
-  return b.automatisch ? `<span class="mb-auto" title="${esc(WT.autoTitel)}">🤖 ${WT.auto}</span>` : '';
+  // Variante A (Stefan 24.11.2026): klein in der Datumszeile, ohne Rahmen – konkurriert nicht mit den Ortschaften
+  return b.automatisch ? ` · <span class="mb-auto" title="${esc(WT.autoTitel)}">🤖 ${WT.auto}</span>` : '';
 }
 
 function kurzeListe(art: Beitrag['art']): string {
@@ -958,9 +959,8 @@ function kurzeListe(art: Beitrag['art']): string {
   if (!liste.length) return `<p class="mb-klein">${T.nochNichts}</p>`;
   return `<ul class="mb-dash__liste">${liste.map((b) => `
     <li><button type="button" class="mb-dash__eintrag" data-oeffne="${b.id}">
-      <span class="mb-dash__datum">${datumKurz(b.datum)}</span>
+      <span class="mb-dash__datum">${datumKurz(b.datum)}${autoMarke(b)}</span>
       <span class="mb-dash__titel">${esc(titelVon(b))}${b.anhaenge?.length ? ' 📎' : ''}</span>
-      ${autoMarke(b)}
       ${b.gemeinden.length ? `<span class="mb-dash__gem">${gemeindePills(b)}</span>` : ''}
     </button></li>`).join('')}</ul>`;
 }
@@ -1072,7 +1072,7 @@ function infosZeigen(): void {
   ziel.innerHTML = liste.length ? liste.map((b) => `
     <details class="mb-karte mb-info mb-info--${b.art}" data-beitrag="${b.id}">
       <summary>
-        <span class="mb-info__meta"><span class="mb-info__art">${artName(b.art)}</span> · ${datumKurz(b.datum)}${b.autor ? ` · ${esc(b.autor)}` : ''}${b.automatisch ? ` · ${autoMarke(b)}` : ''}</span>
+        <span class="mb-info__meta"><span class="mb-info__art">${artName(b.art)}</span> · ${datumKurz(b.datum)}${b.automatisch ? autoMarke(b) : b.autor ? ` · ${esc(b.autor)}` : ''}</span>
         <span class="mb-info__titel">${esc(titelVon(b))}</span>
         ${b.gemeinden.length ? `<span class="mb-tags">${gemeindePills(b)}</span>` : ''}
       </summary>

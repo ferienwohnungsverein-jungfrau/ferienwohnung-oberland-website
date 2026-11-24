@@ -89,8 +89,7 @@ const en = locale === 'en';
   .mb-weg .btn:hover, .mb-weg .btn:focus-visible { background: var(--color-primary); color: var(--color-white); }
 
   /* News-Lauf und Wochenmail (24.11.2026) */
-  .mb-auto { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--color-text); background: var(--color-bg-subtle); border: 1px dashed var(--color-border); border-radius: 999px; padding: 0.05rem 0.5rem; white-space: nowrap; }
-  .mb-dash__eintrag .mb-auto { margin-top: 0.25rem; }
+  .mb-auto { white-space: nowrap; cursor: help; } /* erbt Schrift/Farbe der Datumszeile */
   .mb-wochenmail { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: var(--space-2); cursor: pointer; max-width: 640px; }
   .mb-wochenmail input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--color-primary); flex-shrink: 0; }
   .mb-admin-unter { font-size: var(--text-base); margin: var(--space-3) 0 var(--space-1); }
