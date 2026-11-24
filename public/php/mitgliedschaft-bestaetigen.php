@@ -5,7 +5,8 @@ declare(strict_types=1);
 // mail aufgerufen. Prüft die Signatur, prüft das Alter des Links (max. 48h)
 // und verschickt erst dann die eigentliche Anmeldung an den Verein.
 //
-// Zielpostfach für Lead-Benachrichtigungen: anmeldung@ — die Verteilung an
+// Zielpostfächer für Lead-Benachrichtigungen: direkt sekretariat@ + vorstand@ + it@ (seit 24.11.2026;
+// vorher anmeldung@ mit Plesk-Weiterleitung – kam beim Sekretariat nicht an). Frühere Notiz: die Verteilung an
 // sekretariat@ und vorstand@ ist in Plesk als Weiterleitung hinterlegt.
 
 require_once __DIR__ . '/_seite.php';
@@ -174,8 +175,9 @@ if (!defined('ANFRAGE_GUELTIG_TAGE_TEXT')) {
 $quelle = $locale === 'en' ? '/en/membership/' : '/mitgliedschaft/';
 $bestaetigt = date('d.m.Y H:i');
 $leadSubject = 'Neue Mitglied-Anmeldung / New membership application – ' . $nameSafe;
-// anmeldung@ verteilt in Plesk an sekretariat@ + vorstand@; it@ zusätzlich direkt (Stefan 30.10.2026).
-$empfaenger = 'anmeldung@ferienwohnungsverein-jungfrau.ch, it@ferienwohnungsverein-jungfrau.ch';
+// Direkt an alle drei statt über die Weiterleitung anmeldung@ (24.11.2026: Mails kamen bei it@ an,
+// über anmeldung@ aber nicht bei sekretariat@). Verteilung wie bisher gewollt: Sekretariat + Vorstand + IT.
+$empfaenger = 'sekretariat@ferienwohnungsverein-jungfrau.ch, vorstand@ferienwohnungsverein-jungfrau.ch, it@ferienwohnungsverein-jungfrau.ch';
 
 $L = [
     'de' => [

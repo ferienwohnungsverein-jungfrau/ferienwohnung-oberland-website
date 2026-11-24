@@ -89,7 +89,7 @@ Ablauf danach: Redakteur:in speichert im CMS → Commit auf GitHub → Pull-Depl
 Ablauf (Vorgabe Sekretariat 20.11.2026, gebaut 23.11.2026): Formular (Vorname, Nachname, Firma freiwillig,
 Strasse/Nr., PLZ/Ort, Geburtsdatum, Telefon, E-Mail, Gästebetten) + Beitrittserklärung + Häkchen Statuten und
 Datenschutz → `php/mitgliedschaft-anmeldung.php` schickt Bestätigungslink (48 h) → Klick →
-`php/mitgliedschaft-bestaetigen.php` mailt alle Angaben an anmeldung@ (Plesk verteilt an sekretariat@ + vorstand@) und it@.
+`php/mitgliedschaft-bestaetigen.php` mailt alle Angaben direkt an sekretariat@, vorstand@ und it@ (seit 24.11.2026; die Plesk-Weiterleitung anmeldung@ kam beim Sekretariat nicht an).
 Dabei legt es im Mitgliederbereich automatisch eine offene Zugangsanfrage an (Stefan 23.11.2026) – die Mail trägt die
 Knöpfe «Aufnehmen & freischalten» / «Ablehnen» (`mitglieder/zugang.php`); doppelt geklickte Bestätigungslinks erzeugen
 nichts doppelt. Login-Seite seit 23.11.2026: Anmelden (nur E-Mail) → «Schau in dein Postfach» (Code als Ausweichweg,
