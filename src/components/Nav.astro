@@ -193,6 +193,7 @@ const mitgliederAktiv = isActive(mitglieder.href);
   /* «Mehr»: klappt nach unten auf – per Hover (Maus) oder Klick/Enter auf den Knopf (Touch, Tastatur) */
   .nav__mehr {
     position: relative;
+    display: flex; /* keine Zeilenbox um den Knopf – sonst sitzt «Mehr» tiefer als die Links (Stefan 24.11.2026) */
   }
 
   .nav__mehr-knopf {
@@ -204,6 +205,10 @@ const mitgliederAktiv = isActive(mitglieder.href);
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    /* Browser-Vorgaben für Knöpfe auf die Werte der Links zurücksetzen */
+    margin: 0;
+    padding: 0 0 2px;
+    line-height: inherit;
     font-size: 0.95rem;
   }
 
