@@ -136,6 +136,11 @@ und `wochenmail` (wöchentlich: Mail «Neu im Mitgliederbereich» mit allem seit
 Mail; Einstellung `wochenmail_aktiv` = 0 → nur Vorschau an it@). Mitglieder schalten die Wochenmail in der Übersicht oder
 per Abmeldelink (`abmelden.php`, GET zeigt Knopf, POST meldet ab) aus (`mitglieder.wochenmail`). Migration v8.
 
+**Rollen (24.11.2026):** Admin ist **nur it@** (Server erzwingt es; Migration v9 hat andere Admins zu Redaktion
+zurückgestuft, Eintrag `admin_entzogen` im Protokoll). **Redaktion** (`mitglieder.redaktion = 1`, vorstand@ + sekretariat@
+ab Migration v9, weitere per Mitgliederliste «Redaktion») sieht den Reiter **«Beiträge»** (erfassen, bearbeiten, löschen,
+JSON-Import) – nicht den übrigen Admin-Bereich. Prüfung serverseitig `redaktion_pflicht()`.
+
 **Backup:** den ganzen Ordner `fwvj-mitglieder/` (Plesk-Dateimanager oder FTP) herunterladen – Datenbank
 und Dateien gehören zusammen. Wiederherstellen = Ordner zurückkopieren.
 

@@ -69,6 +69,7 @@ function aktion_ich(): never
             'vorname' => $m['vorname'],
             'name' => $m['name'],
             'admin' => $m['rolle'] === 'admin',
+            'redaktion' => $m['rolle'] === 'admin' || (int) ($m['redaktion'] ?? 0) === 1,
             'wochenmail' => (int) ($m['wochenmail'] ?? 1) === 1,
         ],
         'limits' => ['max_bytes' => MAX_DATEI_BYTES, 'max_bild_seite' => MAX_BILD_PIXEL_SEITE],
@@ -718,7 +719,7 @@ function admin_dokument_ausfuehren(array $d, ?array $ich, string $was, bool $spe
 function aktion_admin_mitglieder(): never
 {
     admin_pflicht();
-    $rows = db()->query("SELECT m.id, m.email, m.vorname, m.name, m.rolle, m.status, m.angelegt_am, m.angelegt_von, m.letzte_anmeldung,
+    $rows = db()->query("SELECT m.id, m.email, m.vorname, m.name, m.rolle, m.redaktion, m.status, m.angelegt_am, m.angelegt_von, m.letzte_anmeldung,
         (SELECT COUNT(*) FROM dokumente d WHERE d.autor_id = m.id AND d.status NOT IN ('geloescht','abgelehnt')) AS uploads
         FROM mitglieder m ORDER BY m.name, m.vorname, m.email")->fetchAll();
     antwort(['success' => true, 'mitglieder' => $rows, 'mail_bei_veroeffentlichung' => einstellung('mail_bei_veroeffentlichung', '1') === '1',
@@ -733,7 +734,9 @@ function aktion_admin_mitglied_speichern(): never
     $email = email_norm((string) ($_POST['email'] ?? ''));
     $vorname = sauber((string) ($_POST['vorname'] ?? ''), 80);
     $name = sauber((string) ($_POST['name'] ?? ''), 80);
-    $rolle = ($_POST['rolle'] ?? '') === 'admin' ? 'admin' : 'mitglied';
+    // Admin ist nur it@ (Stefan 24.11.2026) – im Formular gibt es nur Mitglied / Redaktion.
+    $rolle = $email === FWVJ_ERST_ADMIN ? 'admin' : 'mitglied';
+    $redaktion = ($_POST['rolle'] ?? '') === 'redaktion' ? 1 : 0;
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         fehler('Bitte eine gültige E-Mail-Adresse eingeben.', 'Please enter a valid email address.');
     }
@@ -745,15 +748,12 @@ function aktion_admin_mitglied_speichern(): never
     $st->execute([$email]);
     $vorhanden = $st->fetch();
     if ($vorhanden) {
-        if ((int) $vorhanden['id'] === (int) $ich['id'] && $rolle !== 'admin') {
-            fehler('Du kannst dir die Admin-Rolle nicht selbst entziehen.', 'You cannot remove your own admin role.');
-        }
-        $pdo->prepare('UPDATE mitglieder SET vorname = ?, name = ?, rolle = ? WHERE id = ?')->execute([$vorname, $name, $rolle, $vorhanden['id']]);
-        audit('mitglied_geaendert', $ich, null, "{$email}: {$vorname} {$name}, {$rolle}");
+        $pdo->prepare('UPDATE mitglieder SET vorname = ?, name = ?, rolle = ?, redaktion = ? WHERE id = ?')->execute([$vorname, $name, $rolle, $redaktion, $vorhanden['id']]);
+        audit('mitglied_geaendert', $ich, null, "{$email}: {$vorname} {$name}, {$rolle}" . ($redaktion ? ', Redaktion' : ''));
     } else {
-        $pdo->prepare("INSERT INTO mitglieder (email, vorname, name, rolle, status, angelegt_am, angelegt_von) VALUES (?, ?, ?, ?, 'aktiv', ?, ?)")
-            ->execute([$email, $vorname, $name, $rolle, jetzt(), $ich['email']]);
-        audit('mitglied_freigeschaltet', $ich, null, "{$email}: {$vorname} {$name}, {$rolle}");
+        $pdo->prepare("INSERT INTO mitglieder (email, vorname, name, rolle, redaktion, status, angelegt_am, angelegt_von) VALUES (?, ?, ?, ?, ?, 'aktiv', ?, ?)")
+            ->execute([$email, $vorname, $name, $rolle, $redaktion, jetzt(), $ich['email']]);
+        audit('mitglied_freigeschaltet', $ich, null, "{$email}: {$vorname} {$name}, {$rolle}" . ($redaktion ? ', Redaktion' : ''));
         if (!empty($_POST['begruessung'])) {
             begruessung_senden($email, $vorname, ($_POST['mail_sprache'] ?? '') === 'en' ? 'en' : 'de');
         }
@@ -935,7 +935,7 @@ function aktion_beitraege(): never
 function aktion_admin_beitrag_speichern(): never
 {
     post_pruefen();
-    $ich = admin_pflicht();
+    $ich = redaktion_pflicht();
     $b = beitrag_pruefen($_POST);
     $id = (int) ($_POST['id'] ?? 0);
     $pdo = db();
@@ -970,7 +970,7 @@ function aktion_admin_beitrag_speichern(): never
 function aktion_admin_beitrag_loeschen(): never
 {
     post_pruefen();
-    $ich = admin_pflicht();
+    $ich = redaktion_pflicht();
     $id = (int) ($_POST['id'] ?? 0);
     anhaenge_entfernen($id);
     db()->prepare('DELETE FROM beitraege WHERE id = ?')->execute([$id]);
@@ -982,7 +982,7 @@ function aktion_admin_beitrag_loeschen(): never
 function aktion_admin_beitraege_import(): never
 {
     post_pruefen();
-    $ich = admin_pflicht();
+    $ich = redaktion_pflicht();
     $roh = '';
     if (!empty($_FILES['datei']['tmp_name']) && is_uploaded_file($_FILES['datei']['tmp_name']) && (int) $_FILES['datei']['size'] <= 2 * 1024 * 1024) {
         $roh = (string) file_get_contents($_FILES['datei']['tmp_name']);
@@ -1011,7 +1011,7 @@ function aktion_admin_beitraege_import(): never
 function aktion_admin_anhang_loeschen(): never
 {
     post_pruefen();
-    $ich = admin_pflicht();
+    $ich = redaktion_pflicht();
     anhaenge_entfernen((int) ($_POST['beitrag_id'] ?? 0), (int) ($_POST['id'] ?? 0));
     audit('anhang_geloescht', $ich, null, '#' . (int) ($_POST['id'] ?? 0));
     antwort(['success' => true]);

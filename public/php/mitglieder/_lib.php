@@ -456,7 +456,25 @@ SQL);
         $pdo->exec("INSERT OR IGNORE INTO einstellungen (schluessel, wert) VALUES ('maschinen_schluessel_hash', '')");
         $pdo->exec('PRAGMA user_version = 8');
     }
-    // Künftige Schemaänderungen: if ($version < 9) { … PRAGMA user_version = 9 } – idempotent halten.
+    if ($version < 9) {
+        // 24.11.2026 (Stefan): Admin ist NUR it@. Neue Berechtigung «Redaktion» = Beiträge erfassen/bearbeiten/
+        // importieren (Reiter «Beiträge»), ohne übrigen Admin-Bereich. vorstand@ + sekretariat@ erhalten sie.
+        $spalten = array_column($pdo->query('PRAGMA table_info(mitglieder)')->fetchAll(), 'name');
+        if (!in_array('redaktion', $spalten, true)) {
+            $pdo->exec('ALTER TABLE mitglieder ADD COLUMN redaktion INTEGER NOT NULL DEFAULT 0');
+        }
+        $st = $pdo->prepare("UPDATE mitglieder SET redaktion = 1 WHERE email IN (?, ?)");
+        $st->execute([FWVJ_SEKRETARIAT_ADRESSE, 'vorstand@ferienwohnungsverein-jungfrau.ch']);
+        $st = $pdo->prepare("SELECT id, email FROM mitglieder WHERE rolle = 'admin' AND email <> ?");
+        $st->execute([FWVJ_ERST_ADMIN]);
+        foreach ($st->fetchAll() as $alt) {
+            $pdo->prepare("UPDATE mitglieder SET rolle = 'mitglied', redaktion = 1 WHERE id = ?")->execute([$alt['id']]);
+            $pdo->prepare('INSERT INTO audit (zeit, mitglied_id, email, aktion, dokument_id, ip, user_agent, details, haengt_an_datei) VALUES (?, NULL, ?, ?, NULL, ?, ?, ?, 0)')
+                ->execute([time(), $alt['email'], 'admin_entzogen', '', 'migration', 'Admin nur it@ (Stefan 24.11.2026) – neu Redaktion']);
+        }
+        $pdo->exec('PRAGMA user_version = 9');
+    }
+    // Künftige Schemaänderungen: if ($version < 10) { … PRAGMA user_version = 10 } – idempotent halten.
 }
 
 function einstellung_setzen(string $schluessel, string $wert): void
@@ -612,6 +630,16 @@ function sitzung(): ?array
     }
     $cache = $row;
     return $row;
+}
+
+/** Beiträge erfassen/bearbeiten/importieren: Admin (it@) oder Mitglied mit Berechtigung «Redaktion». */
+function redaktion_pflicht(): array
+{
+    $m = sitzung_pflicht();
+    if ($m['rolle'] !== 'admin' && (int) ($m['redaktion'] ?? 0) !== 1) {
+        fehler('Nur für die Redaktion (Vorstand/Sekretariat).', 'Editors only (board/secretariat).', 403);
+    }
+    return $m;
 }
 
 function sitzung_pflicht(): array

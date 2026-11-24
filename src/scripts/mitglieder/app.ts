@@ -420,7 +420,7 @@ const SEITENFORMAT: Record<string, string> = L === 'en'
 
 // ── Zustand ──
 
-interface Ich { id: number; email: string; vorname: string; name: string; admin: boolean; wochenmail?: boolean }
+interface Ich { id: number; email: string; vorname: string; name: string; admin: boolean; redaktion?: boolean; wochenmail?: boolean }
 interface Beitrag {
   id: number; art: 'vorstand' | 'news' | 'community'; datum: string; titel_de: string; titel_en: string;
   text_de: string; text_en: string; gemeinden: string[]; autor: string; link: string; automatisch?: boolean;
@@ -429,7 +429,11 @@ interface Beitrag {
 const ANHANG = '/php/mitglieder/beitrag-datei.php';
 let beitraege: Beitrag[] = [];
 const infoFilter = { art: '', gem: '', q: '' };
-const REITER = ['uebersicht', 'infos', 'vorlagen', 'hochladen', 'admin'];
+const REITER = ['uebersicht', 'infos', 'vorlagen', 'hochladen', 'beitraege', 'admin'];
+// Rollen (24.11.2026): Admin = nur it@ · Redaktion (Vorstand/Sekretariat) = Reiter «Beiträge»
+const RT = L === 'en'
+  ? { reiter: 'Posts', redaktion: 'Editor (can post)', rolleHinweis: 'Admin is it@ only. “Editor” may create, edit and import posts (tab “Posts”).' }
+  : { reiter: 'Beiträge', redaktion: 'Redaktion (darf Beiträge erfassen)', rolleHinweis: 'Admin ist nur it@. «Redaktion» darf Beiträge erfassen, bearbeiten und importieren (Reiter «Beiträge»).' };
 const GEMEINDEN = ['interlaken', 'unterseen', 'matten', 'wilderswil', 'boenigen', 'region'];
 interface Dok {
   id: string; titel: string; kategorie: string; sprache: string; format: string; tags: string[];
@@ -814,6 +818,7 @@ async function zeigeBereich(): Promise<void> {
     <button type="button" role="tab" data-reiter="infos">${T.reiterInfos}</button>
     <button type="button" role="tab" data-reiter="vorlagen">${T.reiterVorlagen}</button>
     <button type="button" role="tab" data-reiter="hochladen">${T.reiterHochladen}</button>
+    ${ich.admin || ich.redaktion ? `<button type="button" role="tab" data-reiter="beitraege">${RT.reiter}</button>` : ''}
     ${ich.admin ? `<button type="button" role="tab" data-reiter="admin">${T.reiterAdmin}</button>` : ''}`;
   filterAufbauen();
   hochladenAufbauen();
@@ -825,13 +830,14 @@ async function zeigeBereich(): Promise<void> {
 }
 
 function reiterAus(name: string): void {
-  if (!REITER.includes(name) || (name === 'admin' && !ich?.admin)) name = 'uebersicht';
+  if (!REITER.includes(name) || (name === 'admin' && !ich?.admin) || (name === 'beitraege' && !(ich?.admin || ich?.redaktion))) name = 'uebersicht';
   wurzel.querySelectorAll<HTMLButtonElement>('[data-reiter]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.reiter === name)));
   wurzel.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== name));
   const url = new URL(location.href);
   url.hash = name === 'uebersicht' ? '' : name;
   history.replaceState(null, '', url);
   if (name === 'admin') adminLaden();
+  if (name === 'beitraege') redaktionLaden();
 }
 
 function hervorheben(id: string): void {
@@ -864,7 +870,7 @@ async function beitraegeLaden(): Promise<void> {
   beitraege = r.beitraege;
   uebersichtZeigen();
   infosZeigen();
-  if (ich?.admin && $('#mb-a-beitraege')) adminBeitraegeListe();
+  if ((ich?.admin || ich?.redaktion) && $('#mb-a-beitraege')) adminBeitraegeListe();
 }
 
 const artName = (a: string) => (a === 'vorstand' ? T.artVorstand : a === 'community' ? T.artCommunity : T.artNews);
@@ -1525,14 +1531,13 @@ function meldenDialog(d: Dok): void {
 
 // ── Admin ──
 
-async function adminLaden(): Promise<void> {
-  const p = $('[data-panel=admin]');
-  if (!p.dataset.aufgebaut) {
-    p.dataset.aufgebaut = '1';
-    p.innerHTML = `
-      <section class="mb-admin-teil"><h2>${T.aAnfragen}</h2><div id="mb-a-anfragen"></div></section>
-      <section class="mb-admin-teil"><h2>${T.aWartend}</h2><div class="mb-grid" id="mb-a-wartend"></div></section>
-      <section class="mb-admin-teil"><h2>${T.aGemeldet}</h2><div class="mb-grid" id="mb-a-gemeldet"></div></section>
+// ── Reiter «Beiträge» (Admin + Redaktion, 24.11.2026) ──
+
+function redaktionLaden(): void {
+  const p = $('[data-panel=beitraege]');
+  if (p.dataset.aufgebaut) { adminBeitraegeListe(); return; }
+  p.dataset.aufgebaut = '1';
+  p.innerHTML = `
       <section class="mb-admin-teil mb-karte">
         <h2>${T.aBeitraege}</h2><p class="mb-klein">${T.aBeitraegeText}</p>
         <form class="mb-form" id="mb-a-beitrag">
@@ -1558,14 +1563,55 @@ async function adminLaden(): Promise<void> {
           </div>
         </form>
         <div class="mb-tabelle-wrap"><table class="mb-tabelle" id="mb-a-beitraege"></table></div>
-      </section>
+      </section>`;
+    const fB = $<HTMLFormElement>('#mb-a-beitrag');
+    fB.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(fB);
+      const gem = fd.getAll('gemeinden').join(',');
+      fd.delete('gemeinden');
+      fd.append('gemeinden', gem);
+      const r = await api('admin_beitrag_speichern', fd);
+      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
+      fB.reset();
+      (fB.elements.namedItem('id') as HTMLInputElement).value = '';
+      $('#mb-a-anh').innerHTML = '';
+      meldung(T.gespeichert);
+      beitraegeLaden();
+    });
+    $('#mb-a-beitrag-neu').addEventListener('click', () => { fB.reset(); (fB.elements.namedItem('id') as HTMLInputElement).value = ''; $('#mb-a-anh').innerHTML = ''; });
+    $<HTMLInputElement>('#mb-a-import').addEventListener('change', async (e) => {
+      const inp = e.target as HTMLInputElement;
+      const alle = Array.from(inp.files || []);
+      const json = alle.find((f) => f.name.toLowerCase().endsWith('.json'));
+      if (!json) { inp.value = ''; return meldung(T.fehler, 'fehler'); }
+      const fd = new FormData();
+      fd.append('datei', json);
+      alle.filter((f) => f !== json).forEach((f) => fd.append('anhaenge[]', f, f.name));
+      const r = await api<{ anzahl: number }>('admin_beitraege_import', fd);
+      inp.value = '';
+      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
+      meldung(T.bImportiert(r.anzahl));
+      beitraegeLaden();
+    });
+  adminBeitraegeListe();
+}
+
+async function adminLaden(): Promise<void> {
+  const p = $('[data-panel=admin]');
+  if (!p.dataset.aufgebaut) {
+    p.dataset.aufgebaut = '1';
+    p.innerHTML = `
+      <section class="mb-admin-teil"><h2>${T.aAnfragen}</h2><div id="mb-a-anfragen"></div></section>
+      <section class="mb-admin-teil"><h2>${T.aWartend}</h2><div class="mb-grid" id="mb-a-wartend"></div></section>
+      <section class="mb-admin-teil"><h2>${T.aGemeldet}</h2><div class="mb-grid" id="mb-a-gemeldet"></div></section>
       <section class="mb-admin-teil mb-karte">
-        <h2>${T.aMitglieder}</h2><p class="mb-klein">${T.aMitgliederText}</p>
+        <h2>${T.aMitglieder}</h2><p class="mb-klein">${T.aMitgliederText} ${RT.rolleHinweis}</p>
         <form class="mb-form mb-form--reihe" id="mb-a-mitglied">
           <label class="mb-feld"><span>${T.email} *</span><input type="email" name="email" required></label>
           <label class="mb-feld"><span>${T.vorname} *</span><input type="text" name="vorname" required maxlength="80"></label>
           <label class="mb-feld"><span>${T.name} *</span><input type="text" name="name" required maxlength="80"></label>
-          <label class="mb-feld"><span>${T.rolle}</span><select name="rolle"><option value="mitglied">${T.rolleMitglied}</option><option value="admin">${T.rolleAdmin}</option></select></label>
+          <label class="mb-feld"><span>${T.rolle}</span><select name="rolle"><option value="mitglied">${T.rolleMitglied}</option><option value="redaktion">${RT.redaktion}</option></select></label>
           <label class="mb-feld"><span>${T.mailSprache}</span><select name="mail_sprache"><option value="de">Deutsch</option><option value="en">English</option></select></label>
           <label class="mb-check"><input type="checkbox" name="begruessung" value="1" checked> ${T.begruessung}</label>
           <button type="submit" class="btn btn-accent">${T.freischalten}</button>
@@ -1604,36 +1650,6 @@ async function adminLaden(): Promise<void> {
         <label class="mb-feld"><span>${T.auditFilter}</span><input type="search" id="mb-a-audit-filter"></label>
         <div class="mb-tabelle-wrap"><table class="mb-tabelle mb-tabelle--klein" id="mb-a-audit"></table></div>
       </section>`;
-    const fB = $<HTMLFormElement>('#mb-a-beitrag');
-    fB.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(fB);
-      const gem = fd.getAll('gemeinden').join(',');
-      fd.delete('gemeinden');
-      fd.append('gemeinden', gem);
-      const r = await api('admin_beitrag_speichern', fd);
-      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
-      fB.reset();
-      (fB.elements.namedItem('id') as HTMLInputElement).value = '';
-      $('#mb-a-anh').innerHTML = '';
-      meldung(T.gespeichert);
-      beitraegeLaden();
-    });
-    $('#mb-a-beitrag-neu').addEventListener('click', () => { fB.reset(); (fB.elements.namedItem('id') as HTMLInputElement).value = ''; $('#mb-a-anh').innerHTML = ''; });
-    $<HTMLInputElement>('#mb-a-import').addEventListener('change', async (e) => {
-      const inp = e.target as HTMLInputElement;
-      const alle = Array.from(inp.files || []);
-      const json = alle.find((f) => f.name.toLowerCase().endsWith('.json'));
-      if (!json) { inp.value = ''; return meldung(T.fehler, 'fehler'); }
-      const fd = new FormData();
-      fd.append('datei', json);
-      alle.filter((f) => f !== json).forEach((f) => fd.append('anhaenge[]', f, f.name));
-      const r = await api<{ anzahl: number }>('admin_beitraege_import', fd);
-      inp.value = '';
-      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
-      meldung(T.bImportiert(r.anzahl));
-      beitraegeLaden();
-    });
     $<HTMLFormElement>('#mb-a-mitglied').addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.currentTarget as HTMLFormElement;
@@ -1767,11 +1783,11 @@ async function adminMitglieder(): Promise<void> {
     <tr${m.status === 'gesperrt' ? ' class="mb-gesperrt"' : ''}>
       <td>${esc(`${m.vorname} ${m.name}`)}${m.status === 'gesperrt' ? ` <span class="mb-status mb-status--versteckt">${T.gesperrt}</span>` : ''}</td>
       <td>${esc(m.email)}</td>
-      <td>${m.rolle === 'admin' ? T.rolleAdmin : T.rolleMitglied}</td>
+      <td>${m.rolle === 'admin' ? T.rolleAdmin : Number(m.redaktion) === 1 ? RT.reiter : T.rolleMitglied}</td>
       <td>${esc(m.uploads)}</td>
       <td>${m.letzte_anmeldung ? zeitpunkt(Number(m.letzte_anmeldung)) : '–'}</td>
       <td class="mb-nowrap">
-        <button type="button" class="mb-link" data-aktion="mitglied-bearbeiten" data-email="${esc(m.email)}" data-vorname="${esc(m.vorname)}" data-name="${esc(m.name)}" data-rolle="${esc(m.rolle)}">${T.bearbeiten}</button>
+        <button type="button" class="mb-link" data-aktion="mitglied-bearbeiten" data-email="${esc(m.email)}" data-vorname="${esc(m.vorname)}" data-name="${esc(m.name)}" data-rolle="${Number(m.redaktion) === 1 ? 'redaktion' : 'mitglied'}">${T.bearbeiten}</button>
         ${Number(m.id) === ich?.id ? '' : `<button type="button" class="mb-link ${m.status === 'gesperrt' ? '' : 'mb-link--rot'}" data-aktion="mitglied-status" data-id="${m.id}" data-email="${esc(m.email)}" data-status="${m.status === 'gesperrt' ? 'aktiv' : 'gesperrt'}">${m.status === 'gesperrt' ? T.entsperren : T.sperren}</button>`}
       </td>
     </tr>`).join('')}</tbody>`;
