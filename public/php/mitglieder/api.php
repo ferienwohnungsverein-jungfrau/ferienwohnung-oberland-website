@@ -36,6 +36,9 @@ try {
         'admin_ip_sperre_setzen' => aktion_admin_ip_sperre_setzen(),
         'admin_ip_sperre_aufheben' => aktion_admin_ip_sperre_aufheben(),
         'admin_einstellung' => aktion_admin_einstellung(),
+        'admin_wochenmail' => aktion_admin_wochenmail(),
+        'admin_maschinenschluessel' => aktion_admin_maschinenschluessel(),
+        'wochenmail_einstellen' => aktion_wochenmail_einstellen(),
         'beitraege' => aktion_beitraege(),
         'admin_beitrag_speichern' => aktion_admin_beitrag_speichern(),
         'admin_beitrag_loeschen' => aktion_admin_beitrag_loeschen(),
@@ -66,6 +69,7 @@ function aktion_ich(): never
             'vorname' => $m['vorname'],
             'name' => $m['name'],
             'admin' => $m['rolle'] === 'admin',
+            'wochenmail' => (int) ($m['wochenmail'] ?? 1) === 1,
         ],
         'limits' => ['max_bytes' => MAX_DATEI_BYTES, 'max_bild_seite' => MAX_BILD_PIXEL_SEITE],
     ]);
@@ -717,7 +721,9 @@ function aktion_admin_mitglieder(): never
     $rows = db()->query("SELECT m.id, m.email, m.vorname, m.name, m.rolle, m.status, m.angelegt_am, m.angelegt_von, m.letzte_anmeldung,
         (SELECT COUNT(*) FROM dokumente d WHERE d.autor_id = m.id AND d.status NOT IN ('geloescht','abgelehnt')) AS uploads
         FROM mitglieder m ORDER BY m.name, m.vorname, m.email")->fetchAll();
-    antwort(['success' => true, 'mitglieder' => $rows, 'mail_bei_veroeffentlichung' => einstellung('mail_bei_veroeffentlichung', '1') === '1']);
+    antwort(['success' => true, 'mitglieder' => $rows, 'mail_bei_veroeffentlichung' => einstellung('mail_bei_veroeffentlichung', '1') === '1',
+        'wochenmail_aktiv' => einstellung('wochenmail_aktiv', '0') === '1', 'maschinen_schluessel' => einstellung('maschinen_schluessel_hash', '') !== '',
+        'letzte_wochenmail' => (int) einstellung('letzte_wochenmail', '0')]);
 }
 
 function aktion_admin_mitglied_speichern(): never
@@ -854,10 +860,47 @@ function aktion_admin_einstellung(): never
 {
     post_pruefen();
     $ich = admin_pflicht();
+    if (isset($_POST['wochenmail_aktiv'])) {
+        $wert = !empty($_POST['wochenmail_aktiv']) ? '1' : '0';
+        einstellung_setzen('wochenmail_aktiv', $wert);
+        audit('einstellung', $ich, null, 'Wochenmail an alle Mitglieder: ' . ($wert === '1' ? 'an' : 'aus (nur Vorschau an it@)'));
+        antwort(['success' => true]);
+    }
     $wert = !empty($_POST['mail_bei_veroeffentlichung']) ? '1' : '0';
     db()->prepare("INSERT OR REPLACE INTO einstellungen (schluessel, wert) VALUES ('mail_bei_veroeffentlichung', ?)")->execute([$wert]);
     audit('einstellung', $ich, null, 'Mail bei Veröffentlichung: ' . ($wert === '1' ? 'an' : 'aus'));
     antwort(['success' => true]);
+}
+
+/** Admin: Vorschau der Wochenmail jetzt an it@ (setzt den Stand nicht weiter). */
+function aktion_admin_wochenmail(): never
+{
+    post_pruefen();
+    admin_pflicht();
+    $r = wochenmail_senden(true);
+    antwort(['success' => true] + $r);
+}
+
+/** Admin: neuen Schlüssel für den News-Lauf auf dem Mac erzeugen. Wird EINMAL angezeigt, gespeichert ist nur der Hash. */
+function aktion_admin_maschinenschluessel(): never
+{
+    post_pruefen();
+    $ich = admin_pflicht();
+    $schluessel = bin2hex(random_bytes(32));
+    einstellung_setzen('maschinen_schluessel_hash', hash('sha256', $schluessel));
+    audit('einstellung', $ich, null, 'Neuer Maschinen-Schlüssel (News-Lauf) erzeugt – der alte gilt nicht mehr');
+    antwort(['success' => true, 'schluessel' => $schluessel]);
+}
+
+/** Mitglied: Wochenmail für sich selbst an/aus. */
+function aktion_wochenmail_einstellen(): never
+{
+    post_pruefen();
+    $m = sitzung_pflicht();
+    $an = !empty($_POST['an']) ? 1 : 0;
+    db()->prepare('UPDATE mitglieder SET wochenmail = ? WHERE id = ?')->execute([$an, (int) $m['id']]);
+    audit('wochenmail_' . ($an ? 'an' : 'aus'), $m);
+    antwort(['success' => true, 'wochenmail' => $an === 1]);
 }
 
 
@@ -877,6 +920,7 @@ function beitrag_fuer_ausgabe(array $b, array $anhaenge = []): array
         'gemeinden' => $b['gemeinden'] === '' ? [] : explode(',', $b['gemeinden']),
         'autor' => $b['autor'],
         'link' => $b['link'],
+        'automatisch' => (int) ($b['automatisch'] ?? 0) === 1,
     ];
 }
 

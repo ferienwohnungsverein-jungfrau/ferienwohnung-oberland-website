@@ -128,6 +128,14 @@ Login-Seite «Zugang beantragen» → Mail an sekretariat@ + it@ mit Knöpfen «
 Gleiches geht im Reiter «Admin» (offene Anfragen; Freischalten von Hand mit Häkchen «Begrüssungsmail»). Dort auch: anonyme Uploads
 freigeben, Gemeldetes prüfen, Konten/IP-Adressen sperren, Audit-Log, Mail bei Veröffentlichung an/aus.
 
+**News-Lauf und Wochenmail (24.11.2026):** `php/mitglieder/maschine.php` nimmt vom Mac (Stefan-OS
+`02_Skripte/verein/fwvj_lauf.py`, LaunchAgents) zwei Aufträge an, geschützt mit Kopfzeile `X-FWVJ-Schluessel`
+(Schlüssel im Admin-Reiter erzeugen; Server speichert nur den SHA-256): `news_import` (monatlich, nur Art `news`,
+mit Quelle, Dubletten per Link übersprungen, Kennzeichen «automatisch veröffentlicht» = Spalte `beitraege.automatisch`)
+und `wochenmail` (wöchentlich: Mail «Neu im Mitgliederbereich» mit allem seit `letzte_wochenmail`; nichts Neues = keine
+Mail; Einstellung `wochenmail_aktiv` = 0 → nur Vorschau an it@). Mitglieder schalten die Wochenmail in der Übersicht oder
+per Abmeldelink (`abmelden.php`, GET zeigt Knopf, POST meldet ab) aus (`mitglieder.wochenmail`). Migration v8.
+
 **Backup:** den ganzen Ordner `fwvj-mitglieder/` (Plesk-Dateimanager oder FTP) herunterladen – Datenbank
 und Dateien gehören zusammen. Wiederherstellen = Ordner zurückkopieren.
 

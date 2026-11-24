@@ -420,10 +420,10 @@ const SEITENFORMAT: Record<string, string> = L === 'en'
 
 // ── Zustand ──
 
-interface Ich { id: number; email: string; vorname: string; name: string; admin: boolean }
+interface Ich { id: number; email: string; vorname: string; name: string; admin: boolean; wochenmail?: boolean }
 interface Beitrag {
   id: number; art: 'vorstand' | 'news' | 'community'; datum: string; titel_de: string; titel_en: string;
-  text_de: string; text_en: string; gemeinden: string[]; autor: string; link: string;
+  text_de: string; text_en: string; gemeinden: string[]; autor: string; link: string; automatisch?: boolean;
   anhaenge: { id: number; name: string; mime: string; groesse: number; bild: boolean }[];
 }
 const ANHANG = '/php/mitglieder/beitrag-datei.php';
@@ -900,6 +900,53 @@ function textHtml(t: string): string {
   }).join('');
 }
 
+// Texte für News-Lauf und Wochenmail (24.11.2026)
+const WT = L === 'en'
+  ? {
+      auto: 'published automatically',
+      autoTitel: 'Found and published automatically by the monthly news search – please check the source.',
+      wmLabel: 'Weekly email with news from the members’ area',
+      wmText: 'Once a week, only when there is something new. You can switch it off at any time.',
+      wmAn: 'Weekly email switched on.', wmAus: 'Weekly email switched off.',
+      aTitel: 'Weekly email & news search',
+      aAktiv: 'Send the weekly email “New in the members’ area” to all members',
+      aAktivText: 'Off = the weekly email only goes to it@ as a preview. Switch on after checking the preview.',
+      aVorschau: 'Send preview to it@ now',
+      aVorschauOk: (n: number) => `Preview with ${n} new items sent to it@.`,
+      aVorschauLeer: 'Nothing new since the last weekly email – no preview sent.',
+      aLetzte: 'Last weekly email to members',
+      aNie: 'not yet',
+      aSchluessel: 'Key for the news search (Mac)',
+      aSchluesselDa: 'A key is set.', aSchluesselFehlt: 'No key yet – the news search cannot publish.',
+      aSchluesselNeu: 'Create new key',
+      aSchluesselWarn: 'Creating a new key invalidates the old one. Continue?',
+      aSchluesselZeigen: 'Shown only once. Store it in the Mac keychain with this command (Terminal), then paste the key when asked:',
+    }
+  : {
+      auto: 'automatisch veröffentlicht',
+      autoTitel: 'Vom monatlichen News-Suchlauf gefunden und automatisch veröffentlicht – bitte Quelle prüfen.',
+      wmLabel: 'Wochenmail mit Neuigkeiten aus dem Mitgliederbereich',
+      wmText: 'Einmal pro Woche, nur wenn es Neues gibt. Jederzeit abschaltbar.',
+      wmAn: 'Wochenmail eingeschaltet.', wmAus: 'Wochenmail ausgeschaltet.',
+      aTitel: 'Wochenmail & News-Suchlauf',
+      aAktiv: 'Wochenmail «Neu im Mitgliederbereich» an alle Mitglieder senden',
+      aAktivText: 'Aus = die Wochenmail geht nur als Vorschau an it@. Erst nach Prüfung der Vorschau einschalten.',
+      aVorschau: 'Vorschau jetzt an it@ senden',
+      aVorschauOk: (n: number) => `Vorschau mit ${n} Neuigkeiten an it@ gesendet.`,
+      aVorschauLeer: 'Seit der letzten Wochenmail nichts Neues – keine Vorschau gesendet.',
+      aLetzte: 'Letzte Wochenmail an die Mitglieder',
+      aNie: 'noch nie',
+      aSchluessel: 'Schlüssel für den News-Suchlauf (Mac)',
+      aSchluesselDa: 'Ein Schlüssel ist gesetzt.', aSchluesselFehlt: 'Noch kein Schlüssel – der News-Lauf kann nichts veröffentlichen.',
+      aSchluesselNeu: 'Neuen Schlüssel erzeugen',
+      aSchluesselWarn: 'Ein neuer Schlüssel macht den alten ungültig. Weiter?',
+      aSchluesselZeigen: 'Wird nur einmal angezeigt. Im Schlüsselbund des Mac ablegen mit diesem Befehl (Terminal), dann den Schlüssel einfügen, wenn danach gefragt wird:',
+    };
+
+function autoMarke(b: Beitrag): string {
+  return b.automatisch ? `<span class="mb-auto" title="${esc(WT.autoTitel)}">🤖 ${WT.auto}</span>` : '';
+}
+
 function kurzeListe(art: Beitrag['art']): string {
   const liste = beitraege.filter((b) => b.art === art).slice(0, 3);
   if (!liste.length) return `<p class="mb-klein">${T.nochNichts}</p>`;
@@ -907,6 +954,7 @@ function kurzeListe(art: Beitrag['art']): string {
     <li><button type="button" class="mb-dash__eintrag" data-oeffne="${b.id}">
       <span class="mb-dash__datum">${datumKurz(b.datum)}</span>
       <span class="mb-dash__titel">${esc(titelVon(b))}${b.anhaenge?.length ? ' 📎' : ''}</span>
+      ${autoMarke(b)}
       ${b.gemeinden.length ? `<span class="mb-dash__gem">${gemeindePills(b)}</span>` : ''}
     </button></li>`).join('')}</ul>`;
 }
@@ -920,6 +968,8 @@ function uebersichtZeigen(): void {
     <div class="mb-dash__gruss">
       <h2>${esc(T.willkommen(ich.vorname || ich.email))}</h2>
       <p>${T.willkommenText}</p>
+      <label class="mb-wochenmail"><input type="checkbox" id="mb-wochenmail"${ich.wochenmail !== false ? ' checked' : ''}>
+        <span><strong>📬 ${WT.wmLabel}</strong><br><span class="mb-klein">${WT.wmText}</span></span></label>
     </div>
     <div class="mb-dash">
       <section class="mb-karte mb-dash__karte mb-dash__karte--vorstand">
@@ -950,6 +1000,13 @@ function uebersichtZeigen(): void {
         <a class="btn btn-accent mb-btn-klein" href="${L === 'en' ? '/en/membership/business-offers/' : '/mitgliedschaft/gewerbeangebote/'}">${T.zuAngeboten}</a>
       </section>
     </div>`;
+  $<HTMLInputElement>('#mb-wochenmail').addEventListener('change', async (e) => {
+    const an = (e.target as HTMLInputElement).checked;
+    const r = await api<{ wochenmail: boolean }>('wochenmail_einstellen', { an: an ? '1' : '' });
+    if (!r.success) { (e.target as HTMLInputElement).checked = !an; return meldung(r.message || T.fehler, 'fehler'); }
+    if (ich) ich.wochenmail = r.wochenmail;
+    meldung(r.wochenmail ? WT.wmAn : WT.wmAus);
+  });
   p.querySelectorAll<HTMLButtonElement>('[data-geh]').forEach((b) => b.addEventListener('click', () => {
     if (b.dataset.art !== undefined) { infoFilter.art = b.dataset.art; infoFilter.gem = ''; infoFilter.q = ''; infosFilterSetzen(); infosZeigen(); }
     reiterAus(b.dataset.geh!);
@@ -1009,7 +1066,7 @@ function infosZeigen(): void {
   ziel.innerHTML = liste.length ? liste.map((b) => `
     <details class="mb-karte mb-info mb-info--${b.art}" data-beitrag="${b.id}">
       <summary>
-        <span class="mb-info__meta"><span class="mb-info__art">${artName(b.art)}</span> · ${datumKurz(b.datum)}${b.autor ? ` · ${esc(b.autor)}` : ''}</span>
+        <span class="mb-info__meta"><span class="mb-info__art">${artName(b.art)}</span> · ${datumKurz(b.datum)}${b.autor ? ` · ${esc(b.autor)}` : ''}${b.automatisch ? ` · ${autoMarke(b)}` : ''}</span>
         <span class="mb-info__titel">${esc(titelVon(b))}</span>
         ${b.gemeinden.length ? `<span class="mb-tags">${gemeindePills(b)}</span>` : ''}
       </summary>
@@ -1532,6 +1589,17 @@ async function adminLaden(): Promise<void> {
         <label class="mb-check"><input type="checkbox" id="mb-a-mail"> ${T.mailVeroeffentlichung}</label>
       </section>
       <section class="mb-admin-teil mb-karte">
+        <h2>${WT.aTitel}</h2>
+        <label class="mb-check"><input type="checkbox" id="mb-a-wochenmail"> ${WT.aAktiv}</label>
+        <p class="mb-klein">${WT.aAktivText}</p>
+        <p class="mb-klein">${WT.aLetzte}: <span id="mb-a-wm-letzte">–</span></p>
+        <button type="button" class="btn btn-accent mb-btn-klein" id="mb-a-wm-vorschau">${WT.aVorschau}</button>
+        <h3 class="mb-admin-unter">${WT.aSchluessel}</h3>
+        <p class="mb-klein" id="mb-a-schluessel-stand">–</p>
+        <button type="button" class="mb-link" id="mb-a-schluessel-neu">${WT.aSchluesselNeu}</button>
+        <div id="mb-a-schluessel-zeigen" hidden></div>
+      </section>
+      <section class="mb-admin-teil mb-karte">
         <h2>${T.aAudit}</h2><p class="mb-klein">${T.aAuditText}</p>
         <label class="mb-feld"><span>${T.auditFilter}</span><input type="search" id="mb-a-audit-filter"></label>
         <div class="mb-tabelle-wrap"><table class="mb-tabelle mb-tabelle--klein" id="mb-a-audit"></table></div>
@@ -1583,6 +1651,29 @@ async function adminLaden(): Promise<void> {
       f.reset();
       meldung(T.gespeichert);
       adminSperren();
+    });
+    $<HTMLInputElement>('#mb-a-wochenmail').addEventListener('change', async (e) => {
+      const r = await api('admin_einstellung', { wochenmail_aktiv: (e.target as HTMLInputElement).checked ? '1' : '' });
+      meldung(r.success ? T.gespeichert : r.message || T.fehler, r.success ? 'ok' : 'fehler');
+    });
+    $<HTMLButtonElement>('#mb-a-wm-vorschau').addEventListener('click', async (e) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      btn.disabled = true;
+      const r = await api<{ status: string; beitraege: number }>('admin_wochenmail', {});
+      btn.disabled = false;
+      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
+      meldung(r.status === 'nichts' ? WT.aVorschauLeer : WT.aVorschauOk(r.beitraege));
+    });
+    $<HTMLButtonElement>('#mb-a-schluessel-neu').addEventListener('click', async () => {
+      if (!window.confirm(WT.aSchluesselWarn)) return;
+      const r = await api<{ schluessel: string }>('admin_maschinenschluessel', {});
+      if (!r.success) return meldung(r.message || T.fehler, 'fehler');
+      const ziel = $('#mb-a-schluessel-zeigen');
+      ziel.hidden = false;
+      ziel.innerHTML = `<p class="mb-hinweis">${WT.aSchluesselZeigen}</p>
+        <pre class="mb-code">security add-generic-password -U -s fwvj_maschine -a it@ferienwohnungsverein-jungfrau.ch -w</pre>
+        <pre class="mb-code mb-code--schluessel">${esc(r.schluessel)}</pre>`;
+      $('#mb-a-schluessel-stand').textContent = WT.aSchluesselDa;
     });
     $<HTMLInputElement>('#mb-a-mail').addEventListener('change', async (e) => {
       const r = await api('admin_einstellung', { mail_bei_veroeffentlichung: (e.target as HTMLInputElement).checked ? '1' : '' });
@@ -1665,9 +1756,13 @@ function adminDokumente(): void {
 }
 
 async function adminMitglieder(): Promise<void> {
-  const r = await api<{ mitglieder: Record<string, string | number | null>[]; mail_bei_veroeffentlichung: boolean }>('admin_mitglieder');
+  const r = await api<{ mitglieder: Record<string, string | number | null>[]; mail_bei_veroeffentlichung: boolean;
+    wochenmail_aktiv: boolean; maschinen_schluessel: boolean; letzte_wochenmail: number }>('admin_mitglieder');
   if (!r.success) return;
   $<HTMLInputElement>('#mb-a-mail').checked = r.mail_bei_veroeffentlichung;
+  $<HTMLInputElement>('#mb-a-wochenmail').checked = r.wochenmail_aktiv;
+  $('#mb-a-schluessel-stand').textContent = r.maschinen_schluessel ? WT.aSchluesselDa : WT.aSchluesselFehlt;
+  $('#mb-a-wm-letzte').textContent = r.wochenmail_aktiv && r.letzte_wochenmail ? zeitpunkt(r.letzte_wochenmail) : WT.aNie;
   $('#mb-a-mitglieder').innerHTML = `<thead><tr><th>${T.name}</th><th>${T.email}</th><th>${T.rolle}</th><th>${T.uploads}</th><th>${T.letzteAnmeldung}</th><th></th></tr></thead><tbody>${r.mitglieder.map((m) => `
     <tr${m.status === 'gesperrt' ? ' class="mb-gesperrt"' : ''}>
       <td>${esc(`${m.vorname} ${m.name}`)}${m.status === 'gesperrt' ? ` <span class="mb-status mb-status--versteckt">${T.gesperrt}</span>` : ''}</td>

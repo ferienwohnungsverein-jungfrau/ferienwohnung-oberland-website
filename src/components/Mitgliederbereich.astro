@@ -86,6 +86,14 @@ const en = locale === 'en';
   .mb-weg p { margin: 0 0 var(--space-2); flex: 1; }
   .mb-weg .btn { align-self: flex-start; background: transparent; border: 2px solid var(--color-primary); color: var(--color-primary); }
   .mb-weg .btn:hover, .mb-weg .btn:focus-visible { background: var(--color-primary); color: var(--color-white); }
+
+  /* News-Lauf und Wochenmail (24.11.2026) */
+  .mb-auto { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--color-text); background: var(--color-bg-subtle); border: 1px dashed var(--color-border); border-radius: 999px; padding: 0.05rem 0.5rem; white-space: nowrap; }
+  .mb-dash__eintrag .mb-auto { margin-top: 0.25rem; }
+  .mb-wochenmail { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: var(--space-2); cursor: pointer; max-width: 640px; }
+  .mb-wochenmail input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--color-primary); flex-shrink: 0; }
+  .mb-admin-unter { font-size: var(--text-base); margin: var(--space-3) 0 var(--space-1); }
+  .mb-code { background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2); font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; user-select: all; }
   .mb-login .mb-klein { margin-top: var(--space-3); }
   .mb-login .mb-klein .mb-link { font-size: inherit; padding: 0; }
   .hp-feld { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

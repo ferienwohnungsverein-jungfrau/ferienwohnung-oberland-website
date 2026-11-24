@@ -439,7 +439,29 @@ CREATE INDEX IF NOT EXISTS ix_anhaenge_beitrag ON beitrag_anhaenge(beitrag_id);
 SQL);
         $pdo->exec('PRAGMA user_version = 7');
     }
-    // Künftige Schemaänderungen: if ($version < 8) { … PRAGMA user_version = 8 } – idempotent halten.
+    if ($version < 8) {
+        // 24.11.2026: automatischer News-Lauf (Kennzeichen «automatisch veröffentlicht») und
+        // Wochenmail «Neu im Mitgliederbereich» (je Mitglied abschaltbar). Die Wochenmail an die
+        // Mitglieder ist zuerst AUS – bis dahin geht sie nur als Vorschau an it@ (Stefan prüft sie).
+        $spalten = static fn (string $t): array => array_column($pdo->query("PRAGMA table_info({$t})")->fetchAll(), 'name');
+        if (!in_array('automatisch', $spalten('beitraege'), true)) {
+            $pdo->exec('ALTER TABLE beitraege ADD COLUMN automatisch INTEGER NOT NULL DEFAULT 0');
+        }
+        if (!in_array('wochenmail', $spalten('mitglieder'), true)) {
+            $pdo->exec('ALTER TABLE mitglieder ADD COLUMN wochenmail INTEGER NOT NULL DEFAULT 1');
+        }
+        $pdo->exec("INSERT OR IGNORE INTO einstellungen (schluessel, wert) VALUES ('wochenmail_aktiv', '0')");
+        $st = $pdo->prepare("INSERT OR IGNORE INTO einstellungen (schluessel, wert) VALUES ('letzte_wochenmail', ?)");
+        $st->execute([(string) time()]); // Erste Wochenmail zeigt nur, was ab jetzt neu ist
+        $pdo->exec("INSERT OR IGNORE INTO einstellungen (schluessel, wert) VALUES ('maschinen_schluessel_hash', '')");
+        $pdo->exec('PRAGMA user_version = 8');
+    }
+    // Künftige Schemaänderungen: if ($version < 9) { … PRAGMA user_version = 9 } – idempotent halten.
+}
+
+function einstellung_setzen(string $schluessel, string $wert): void
+{
+    db()->prepare('INSERT OR REPLACE INTO einstellungen (schluessel, wert) VALUES (?, ?)')->execute([$schluessel, $wert]);
 }
 
 function einstellung(string $schluessel, string $standard = ''): string
@@ -1049,5 +1071,132 @@ function anhaenge_je_beitrag(): array
         ];
     }
     return $je;
+}
+
+
+// ── Wochenmail «Neu im Mitgliederbereich» (Stefan 24.11.2026) ──
+// Einmal pro Woche (ausgelöst vom Mac über maschine.php, oder im Admin-Reiter von Hand) eine Mail
+// mit allem, was seit der letzten Wochenmail neu ist: Vorstandsinfos, News, Community, Vorlagen.
+// Nichts Neues = keine Mail. Solange «wochenmail_aktiv» aus ist, geht sie nur als VORSCHAU an it@.
+
+const FWVJ_NEWS_AUTOR = 'Automatischer News-Lauf';
+
+function wochenmail_abmelde_link(int $mitgliedId): string
+{
+    return basis_url() . '/php/mitglieder/abmelden.php?' . http_build_query([
+        'm' => $mitgliedId, 's' => signatur('wochenmail_ab', (string) $mitgliedId, 0),
+    ]);
+}
+
+/** Was seit $seit neu ist: ['vorstand' => [...], 'news' => [...], 'community' => [...], 'vorlagen' => [...]]. */
+function wochenmail_inhalt(int $seit): array
+{
+    $pdo = db();
+    $st = $pdo->prepare('SELECT art, titel_de, titel_en, automatisch FROM beitraege WHERE erstellt > ? ORDER BY datum DESC, id DESC');
+    $st->execute([$seit]);
+    $inhalt = ['vorstand' => [], 'news' => [], 'community' => [], 'vorlagen' => []];
+    foreach ($st->fetchAll() as $b) {
+        if (isset($inhalt[$b['art']])) {
+            $inhalt[$b['art']][] = ['de' => $b['titel_de'], 'en' => $b['titel_en'] !== '' ? $b['titel_en'] : $b['titel_de'], 'auto' => (int) $b['automatisch'] === 1];
+        }
+    }
+    $st = $pdo->prepare("SELECT titel FROM dokumente WHERE status = 'sichtbar' AND erstellt > ? ORDER BY erstellt DESC");
+    $st->execute([$seit]);
+    foreach ($st->fetchAll() as $d) {
+        $inhalt['vorlagen'][] = ['de' => $d['titel'], 'en' => $d['titel'], 'auto' => false];
+    }
+    return $inhalt;
+}
+
+function wochenmail_bauen(array $inhalt, string $vorname, string $abmelden, string $vorschauHinweis = ''): array
+{
+    $h = static fn (string $x): string => htmlspecialchars($x, ENT_QUOTES, 'UTF-8');
+    $teile = [
+        'vorstand' => ['📣 Vorstandsinfos', '📣 Board updates'],
+        'news' => ['📰 News aus der Region', '📰 News from the region'],
+        'community' => ['👥 Community', '👥 Community'],
+        'vorlagen' => ['📄 Neue Vorlagen', '📄 New templates'],
+    ];
+    $bau = static function (string $l) use ($inhalt, $vorname, $abmelden, $vorschauHinweis, $teile, $h): array {
+        $i = $l === 'en' ? 1 : 0;
+        $bereich = basis_url() . ($l === 'en' ? '/en/members/' : '/mitglieder/');
+        $auto = $l === 'en' ? 'published automatically' : 'automatisch veröffentlicht';
+        $text = ($vorschauHinweis !== '' ? $vorschauHinweis . "\n\n" : '')
+            . ($l === 'en' ? "Hello {$vorname}\n\nThis is new in the members’ area this week:\n" : "Hallo {$vorname}\n\nDas ist diese Woche neu im Mitgliederbereich:\n");
+        $html = ($vorschauHinweis !== '' ? '<p style="margin:0 0 16px;padding:10px 12px;background:#fff7ed;border:1px solid #fdba74;border-radius:6px;font-size:13px;">' . $h($vorschauHinweis) . '</p>' : '')
+            . '<p style="margin:0 0 16px;">' . $h($l === 'en' ? "Hello {$vorname}" : "Hallo {$vorname}") . '</p>'
+            . '<p style="margin:0 0 16px;">' . ($l === 'en' ? 'This is new in the members’ area this week:' : 'Das ist diese Woche neu im Mitgliederbereich:') . '</p>';
+        foreach ($teile as $art => $titel) {
+            if (!$inhalt[$art]) {
+                continue;
+            }
+            $text .= "\n" . $titel[$i] . "\n";
+            $html .= '<p style="margin:16px 0 6px;font-weight:700;color:#004D7A;">' . $h($titel[$i]) . '</p><ul style="margin:0 0 8px;padding-left:20px;">';
+            foreach (array_slice($inhalt[$art], 0, 12) as $e) {
+                $text .= '– ' . $e[$l] . ($e['auto'] ? " ({$auto})" : '') . "\n";
+                $html .= '<li style="margin:0 0 4px;">' . $h($e[$l]) . ($e['auto'] ? ' <span style="color:#666;font-size:12px;">(' . $h($auto) . ')</span>' : '') . '</li>';
+            }
+            if (count($inhalt[$art]) > 12) {
+                $mehr = count($inhalt[$art]) - 12;
+                $text .= $l === 'en' ? "… and {$mehr} more\n" : "… und {$mehr} weitere\n";
+                $html .= '<li style="color:#666;">' . ($l === 'en' ? "… and {$mehr} more" : "… und {$mehr} weitere") . '</li>';
+            }
+            $html .= '</ul>';
+        }
+        $text .= "\n" . ($l === 'en' ? 'Go to the members’ area: ' : 'Zum Mitgliederbereich: ') . $bereich . "\n\n"
+            . ($l === 'en' ? "Don’t want these weekly emails? Unsubscribe: {$abmelden}&l=en\n" : "Keine Wochenmail mehr? Abmelden: {$abmelden}\n");
+        $html .= '<p style="margin:20px 0 16px;">' . mail_knopf($bereich, $l === 'en' ? 'Go to the members’ area' : 'Zum Mitgliederbereich') . '</p>'
+            . '<p style="margin:0;color:#666666;font-size:12px;">' . ($l === 'en'
+                ? 'You receive this email once a week when there is something new. <a href="' . $h($abmelden . '&l=en') . '" style="color:#666;">Unsubscribe</a> – or switch it off in the members’ area.'
+                : 'Diese Mail kommt einmal pro Woche, wenn es Neues gibt. <a href="' . $h($abmelden) . '" style="color:#666;">Abmelden</a> – oder im Mitgliederbereich ausschalten.') . '</p>';
+        return [$text, $html];
+    };
+    [$tDe, $hDe] = $bau('de');
+    [$tEn, $hEn] = $bau('en');
+    return [zweisprachig_text($tDe, $tEn), zweisprachig_html($hDe, $hEn)];
+}
+
+/**
+ * Wochenmail senden. Rückgabe: ['status' => 'nichts'|'vorschau'|'gesendet', 'empfaenger' => n, 'beitraege' => n].
+ * $nurVorschau erzwingt die Vorschau an it@ (Knopf im Admin-Reiter), ohne den Stand weiterzusetzen.
+ */
+function wochenmail_senden(bool $nurVorschau = false): array
+{
+    $pdo = db();
+    $seit = (int) einstellung('letzte_wochenmail', '0');
+    $inhalt = wochenmail_inhalt($seit);
+    $anzahl = array_sum(array_map('count', $inhalt));
+    if ($anzahl === 0) {
+        audit('wochenmail', null, null, 'nichts Neues – keine Mail');
+        return ['status' => 'nichts', 'empfaenger' => 0, 'beitraege' => 0];
+    }
+    $mitglieder = $pdo->query("SELECT id, email, vorname FROM mitglieder WHERE status = 'aktiv' AND wochenmail = 1 ORDER BY id")->fetchAll();
+    $betreff = zweisprachig_betreff('Neu im Mitgliederbereich', 'New in the members’ area');
+    if ($nurVorschau || einstellung('wochenmail_aktiv', '0') !== '1') {
+        $hinweis = 'VORSCHAU – diese Wochenmail ginge an ' . count($mitglieder) . ' Mitglieder. Versand an die Mitglieder einschalten: Mitgliederbereich → Admin → «Wochenmail an alle Mitglieder senden». / PREVIEW – this would go to ' . count($mitglieder) . ' members.';
+        [$text, $html] = wochenmail_bauen($inhalt, 'Stefan', wochenmail_abmelde_link(0), $hinweis);
+        mail_senden_html(FWVJ_IT_ADRESSE, '[Vorschau] ' . $betreff, $text, mail_html_rahmen($html), FWVJ_SEKRETARIAT_ADRESSE);
+        audit('wochenmail', null, null, "Vorschau an it@ ({$anzahl} Neuigkeiten, " . count($mitglieder) . ' Mitglieder mit Wochenmail)');
+        return ['status' => 'vorschau', 'empfaenger' => 1, 'beitraege' => $anzahl];
+    }
+    $ok = 0;
+    foreach ($mitglieder as $m) {
+        $vorname = trim((string) $m['vorname']) !== '' ? (string) $m['vorname'] : '';
+        [$text, $html] = wochenmail_bauen($inhalt, $vorname, wochenmail_abmelde_link((int) $m['id']));
+        if (mail_senden_html((string) $m['email'], $betreff, $text, mail_html_rahmen($html), FWVJ_SEKRETARIAT_ADRESSE)) {
+            $ok++;
+        }
+        usleep(200000); // Mailserver schonen
+    }
+    einstellung_setzen('letzte_wochenmail', (string) jetzt());
+    audit('wochenmail', null, null, "gesendet an {$ok} von " . count($mitglieder) . " Mitgliedern ({$anzahl} Neuigkeiten)");
+    return ['status' => 'gesendet', 'empfaenger' => $ok, 'beitraege' => $anzahl];
+}
+
+/** Maschinen-Schlüssel prüfen (News-Lauf und Wochenmail-Auslöser vom Mac). */
+function maschine_pruefen(string $schluessel): bool
+{
+    $soll = einstellung('maschinen_schluessel_hash', '');
+    return $soll !== '' && strlen($schluessel) >= 32 && hash_equals($soll, hash('sha256', $schluessel));
 }
 
