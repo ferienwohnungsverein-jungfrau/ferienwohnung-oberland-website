@@ -241,8 +241,41 @@ if (function_exists('mail_senden_html')) {
     // Ohne Mitgliederbereich-Bibliothek: schlichte Textmail. From MUSS zur Domain passen (SPF).
     $leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
         . "Reply-To: {$emailSafe}\r\n"
-        . "Content-Type: text/plain; charset=UTF-8\r\n";
-    $mailSent = @mail($empfaenger, '=?UTF-8?B?' . base64_encode($leadSubject) . '?=', $text('de') . "\n--- English ---\n\n" . $text('en'), $leadHeaders);
+        . "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n";
+    $mailSent = @mail($empfaenger, '=?UTF-8?B?' . base64_encode($leadSubject) . '?=', chunk_split(base64_encode($text('de') . "\n--- English ---\n\n" . $text('en'))), $leadHeaders);
+}
+
+// Versand protokollieren (Admin-Reiter → Protokoll), damit sich «nichts angekommen» prüfen lässt:
+// «ok» heisst, der Server hat die Mail zum Versand übernommen.
+if (function_exists('audit')) {
+    try {
+        audit('anmeldung_mail', null, null, ($mailSent ? 'ok' : 'FEHLER') . " an {$empfaenger}: {$nameSafe}", 0, email_norm($emailSafe));
+    } catch (Throwable) {
+    }
+}
+
+// Eingangsbestätigung an die anmeldende Person (Juliet 23.11.2026: nach dem Klick kam keine Mail).
+if ($mailSent && function_exists('mail_senden_html')) {
+    $vn = isset($payload['vorname']) ? $f('vorname') : $f('name');
+    $hv = htmlspecialchars($vn, ENT_QUOTES, 'UTF-8');
+    $sek = 'sekretariat@ferienwohnungsverein-jungfrau.ch';
+    $okText = zweisprachig_text(
+        "Guten Tag {$vn}\n\nvielen Dank – Ihre Anmeldung beim Ferienwohnungsverein Jungfrau ist bei uns eingegangen.\n\n"
+            . "Über die Aufnahme entscheidet der Vorstand. Sobald Sie aufgenommen sind, erhalten Sie eine E-Mail mit dem Zugang zum Mitgliederbereich.\n\n"
+            . "Fragen? Antworten Sie einfach auf diese Mail oder schreiben Sie an {$sek}.\n\nFreundliche Grüsse\nFerienwohnungsverein Jungfrau",
+        "Hello {$vn}\n\nThank you – we have received your application to the Ferienwohnungsverein Jungfrau.\n\n"
+            . "The board decides on admission. As soon as you have been admitted, you will receive an email with access to the members’ area.\n\n"
+            . "Questions? Simply reply to this email or write to {$sek}.\n\nKind regards\nFerienwohnungsverein Jungfrau"
+    );
+    $okHtml = zweisprachig_html(
+        "<p style=\"margin:0 0 16px;\">Guten Tag {$hv}</p><p style=\"margin:0 0 16px;\">Vielen Dank – Ihre Anmeldung beim Ferienwohnungsverein Jungfrau ist bei uns eingegangen.</p>"
+            . '<p style="margin:0 0 16px;">Über die Aufnahme entscheidet der Vorstand. Sobald Sie aufgenommen sind, erhalten Sie eine E-Mail mit dem Zugang zum Mitgliederbereich.</p>'
+            . "<p style=\"margin:0;color:#666666;font-size:13px;\">Fragen? Antworten Sie einfach auf diese Mail oder schreiben Sie an {$sek}.</p>",
+        "<p style=\"margin:0 0 16px;\">Hello {$hv}</p><p style=\"margin:0 0 16px;\">Thank you – we have received your application to the Ferienwohnungsverein Jungfrau.</p>"
+            . '<p style="margin:0 0 16px;">The board decides on admission. As soon as you have been admitted, you will receive an email with access to the members’ area.</p>'
+            . "<p style=\"margin:0;color:#666666;font-size:13px;\">Questions? Simply reply to this email or write to {$sek}.</p>"
+    );
+    mail_senden_html($emailSafe, zweisprachig_betreff('Ihre Anmeldung ist eingegangen', 'Your application has been received'), $okText, mail_html_rahmen($okHtml, $locale), $sek);
 }
 
 if (!$mailSent) {

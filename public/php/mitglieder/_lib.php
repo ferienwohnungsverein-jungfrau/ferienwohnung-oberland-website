@@ -692,10 +692,12 @@ function mail_senden(string $an, string $betreff, string $text, string $replyTo 
         . 'Reply-To: ' . str_replace(["\r", "\n"], '', $replyTo) . "\r\n"
         . "MIME-Version: 1.0\r\n"
         . "Content-Type: text/plain; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: 8bit\r\n"
+        . "Content-Transfer-Encoding: base64\r\n"
         . "X-Auto-Response-Suppress: All\r\n";
     $subject = '=?UTF-8?B?' . base64_encode(str_replace(["\r", "\n"], ' ', $betreff)) . '?=';
-    return @mail($an, $subject, $text, $headers);
+    // base64 statt 8bit: Mailserver brechen Zeilen über 998 Zeichen sonst irgendwo um – auch mitten
+    // in Links (23.11.2026: englischer Bestätigungslink dadurch ungültig).
+    return @mail($an, $subject, chunk_split(base64_encode($text)), $headers);
 }
 
 /** Mail mit Text- und HTML-Teil (für Knöpfe). */
@@ -708,8 +710,9 @@ function mail_senden_html(string $an, string $betreff, string $text, string $htm
         . "MIME-Version: 1.0\r\n"
         . "Content-Type: multipart/alternative; boundary=\"{$grenze}\"\r\n"
         . "X-Auto-Response-Suppress: All\r\n";
-    $body = "--{$grenze}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n{$text}\r\n"
-        . "--{$grenze}\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n{$html}\r\n"
+    // base64 statt 8bit (siehe mail_senden): kurze Zeilen, nichts wird umgebrochen.
+    $body = "--{$grenze}\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($text)) . "\r\n"
+        . "--{$grenze}\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html)) . "\r\n"
         . "--{$grenze}--";
     $subject = '=?UTF-8?B?' . base64_encode(str_replace(["\r", "\n"], ' ', $betreff)) . '?=';
     return @mail($an, $subject, $body, $headers);

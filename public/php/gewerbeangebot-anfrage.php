@@ -112,9 +112,10 @@ $body = "Neue Anfrage über das Formular \"Gewerbeangebote für Mitglieder\".\n\
 $headers = "From: Website Gewerbeangebote <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
     . "Reply-To: {$emailSafe}\r\n"
     . "MIME-Version: 1.0\r\n"
-    . "Content-Type: text/plain; charset=UTF-8\r\n";
+    . "Content-Type: text/plain; charset=UTF-8\r\n"
+    . "Content-Transfer-Encoding: base64\r\n";
 
-$mailSent = @mail('sekretariat@ferienwohnungsverein-jungfrau.ch', $subjectEncoded, $body, $headers);
+$mailSent = @mail('sekretariat@ferienwohnungsverein-jungfrau.ch', $subjectEncoded, chunk_split(base64_encode($body)), $headers);
 
 if (!$mailSent) {
     http_response_code(500);

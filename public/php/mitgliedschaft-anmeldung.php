@@ -194,12 +194,14 @@ $headers = "From: Ferienwohnungsverein Jungfrau <noreply@ferienwohnungsverein-ju
     . "MIME-Version: 1.0\r\n"
     . "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n";
 
+// base64: Mailserver brechen Zeilen über 998 Zeichen um – am 23.11.2026 mitten im englischen
+// Bestätigungslink, der dadurch ungültig wurde. base64 liefert kurze Zeilen, der Link bleibt ganz.
 $message = "--{$boundary}\r\n"
-    . "Content-Type: text/plain; charset=UTF-8\r\n\r\n"
-    . $textBody . "\r\n"
+    . "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+    . chunk_split(base64_encode($textBody)) . "\r\n"
     . "--{$boundary}\r\n"
-    . "Content-Type: text/html; charset=UTF-8\r\n\r\n"
-    . $htmlBody . "\r\n"
+    . "Content-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+    . chunk_split(base64_encode($htmlBody)) . "\r\n"
     . "--{$boundary}--";
 
 $mailSent = @mail($emailSafe, $subject, $message, $headers);
