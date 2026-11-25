@@ -844,6 +844,68 @@ function begruessung_senden(string $email, string $vorname, string $locale): boo
     return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, 'de'), FWVJ_SEKRETARIAT_ADRESSE); // Antworten → Sekretariat
 }
 
+/** Stammt die Zugangsanfrage aus «Mitglied werden» (neues Vereinsmitglied, nicht nur Zugang)? */
+function anfrage_ist_neues_mitglied(array $anfrage): bool
+{
+    return str_starts_with((string) ($anfrage['angaben'] ?? ''), 'Neue Mitgliedschaft');
+}
+
+/**
+ * Willkommensmail für NEUE Vereinsmitglieder (Anmeldung über «Mitglied werden»), Stefan 25.11.2026.
+ * Sie-Form wie Formular und Eingangsbestätigung. Beitrag: laufendes (angebrochenes) Vereinsjahr gratis,
+ * erster Beitrag nach der nächsten GV (meist Frühling). Betrag aus der Bettenzahl der Anmeldung, falls lesbar.
+ */
+function willkommen_senden(string $email, string $vorname, array $anfrage): bool
+{
+    $de = basis_url() . '/mitglieder/';
+    $en = basis_url() . '/en/members/';
+    $statDe = basis_url() . '/statuten/';
+    $statEn = basis_url() . '/en/statutes/';
+    $hallo = trim($vorname);
+    $h = htmlspecialchars($hallo, ENT_QUOTES, 'UTF-8');
+    $betten = preg_match('/(\d+)\s*Betten/', (string) ($anfrage['angaben'] ?? ''), $m) ? (int) $m[1] : 0;
+    $betragDe = $betten > 0 ? ' Bei Ihren ' . $betten . ' Gästebetten sind das CHF ' . ($betten <= 10 ? '100' : '200') . ' pro Jahr.' : '';
+    $betragEn = $betten > 0 ? ' With your ' . $betten . ' guest beds, that is CHF ' . ($betten <= 10 ? '100' : '200') . ' per year.' : '';
+    $beitragDe = 'Für das laufende Vereinsjahr bezahlen Sie nichts. Der erste Mitgliederbeitrag wird nach der nächsten Generalversammlung fällig (in der Regel im Frühling): '
+        . 'CHF 100 pro Jahr bis 10 Gästebetten, CHF 200 ab 11 Gästebetten.' . $betragDe . ' Die Rechnung erhalten Sie nach der GV.';
+    $beitragEn = 'There is nothing to pay for the current association year. Your first membership fee is due after the next General Assembly (usually in spring): '
+        . 'CHF 100 per year for up to 10 guest beds, CHF 200 for 11 or more.' . $betragEn . ' You will receive the invoice after the General Assembly.';
+    $betreff = zweisprachig_betreff('Willkommen im Ferienwohnungsverein Jungfrau', 'Welcome to the Ferienwohnungsverein Jungfrau');
+    $text = zweisprachig_text(
+        "Guten Tag {$hallo}\n\nherzlich willkommen im Ferienwohnungsverein Jungfrau! Ihre Mitgliedschaft ist bestätigt – wir freuen uns, dass Sie dabei sind.\n\n"
+            . "MITGLIEDERBEITRAG\n{$beitragDe}\n\n"
+            . "MITGLIEDERBEREICH\nIhr Zugang ist bereits freigeschaltet. Dort finden Sie die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …).\n"
+            . "Anmelden: {$de}\nDiese E-Mail-Adresse eingeben – Sie bekommen einen Anmeldelink per Mail, kein Passwort nötig.\n\n"
+            . "Statuten: {$statDe}\nFragen? Antworten Sie einfach auf diese Mail – sie geht an unser Sekretariat.\n\n"
+            . "Freundliche Grüsse\nVorstand und Sekretariat\nFerienwohnungsverein Jungfrau",
+        "Hello {$hallo}\n\nWelcome to the Ferienwohnungsverein Jungfrau! Your membership is confirmed – we are glad to have you with us.\n\n"
+            . "MEMBERSHIP FEE\n{$beitragEn}\n\n"
+            . "MEMBERS’ AREA\nYour access is already active. There you will find updates from the board, regional news, the community and templates for renting (signs, house rules, checklists …).\n"
+            . "Log in: {$en}\nEnter this email address – you will receive a log-in link by email, no password needed.\n\n"
+            . "Statutes: {$statEn}\nQuestions? Simply reply to this email – it goes to our secretariat.\n\n"
+            . "Kind regards\nBoard and Secretariat\nFerienwohnungsverein Jungfrau"
+    );
+    $e = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+    $zw = 'margin:24px 0 6px;font-weight:700;color:#004D7A;';
+    $html = zweisprachig_html(
+        "<p style=\"margin:0 0 16px;\">Guten Tag {$h}</p><p style=\"margin:0 0 16px;\"><strong>Herzlich willkommen im Ferienwohnungsverein Jungfrau!</strong> Ihre Mitgliedschaft ist bestätigt – wir freuen uns, dass Sie dabei sind.</p>"
+            . "<p style=\"{$zw}\">Mitgliederbeitrag</p><p style=\"margin:0 0 16px;\">" . $e($beitragDe) . '</p>'
+            . "<p style=\"{$zw}\">Mitgliederbereich</p><p style=\"margin:0 0 16px;\">Ihr Zugang ist bereits freigeschaltet. Dort finden Sie die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung.</p>"
+            . '<p style="margin:0 0 8px;">' . mail_knopf($de, 'Zum Mitgliederbereich') . '</p>'
+            . '<p style="margin:0 0 20px;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – Sie bekommen einen Anmeldelink per Mail, kein Passwort nötig.</p>'
+            . '<p style="margin:0 0 16px;font-size:14px;"><a href="' . $e($statDe) . '" style="color:#004D7A;">Statuten</a> · Fragen? Antworten Sie einfach auf diese Mail – sie geht an unser Sekretariat.</p>'
+            . '<p style="margin:0;">Freundliche Grüsse<br>Vorstand und Sekretariat<br>Ferienwohnungsverein Jungfrau</p>',
+        "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\"><strong>Welcome to the Ferienwohnungsverein Jungfrau!</strong> Your membership is confirmed – we are glad to have you with us.</p>"
+            . "<p style=\"{$zw}\">Membership fee</p><p style=\"margin:0 0 16px;\">" . $e($beitragEn) . '</p>'
+            . "<p style=\"{$zw}\">Members’ area</p><p style=\"margin:0 0 16px;\">Your access is already active. There you will find updates from the board, regional news, the community and templates for renting.</p>"
+            . '<p style="margin:0 0 8px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
+            . '<p style="margin:0 0 20px;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
+            . '<p style="margin:0 0 16px;font-size:14px;"><a href="' . $e($statEn) . '" style="color:#004D7A;">Statutes</a> · Questions? Simply reply to this email – it goes to our secretariat.</p>'
+            . '<p style="margin:0;">Kind regards<br>Board and Secretariat<br>Ferienwohnungsverein Jungfrau</p>'
+    );
+    return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, 'de'), FWVJ_SEKRETARIAT_ADRESSE);
+}
+
 /** Absage an die anfragende Person (neutral formuliert). */
 function absage_senden(string $email, string $vorname, string $locale): bool
 {
@@ -886,7 +948,8 @@ function anfrage_entscheiden(array $anfrage, bool $annehmen, string $vorname, st
         ->execute([$annehmen ? 'angenommen' : 'abgelehnt', jetzt(), $von, $email]);
     $gesendet = false;
     if ($mailSenden) {
-        $gesendet = $annehmen ? begruessung_senden($email, $vorname, $anfrage['locale']) : absage_senden($email, $vorname, $anfrage['locale']);
+        $gesendet = !$annehmen ? absage_senden($email, $vorname, $anfrage['locale'])
+            : (anfrage_ist_neues_mitglied($anfrage) ? willkommen_senden($email, $vorname, $anfrage) : begruessung_senden($email, $vorname, $anfrage['locale']));
     }
     audit($annehmen ? 'anfrage_angenommen' : 'anfrage_abgelehnt', $admin, null, "{$email}: {$vorname} {$name}" . ($mailSenden ? ($gesendet ? ', Mail gesendet' : ', Mail FEHLGESCHLAGEN') : ', ohne Mail'), 0, $admin ? null : $von);
     return $annehmen ? 'angenommen' : 'abgelehnt';

@@ -68,9 +68,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($ergebnis === 'angenommen') {
         seite2(
             'Aufgenommen & freigeschaltet', "<p><strong>{$wer}</strong> kann sich jetzt im Mitgliederbereich anmelden.</p><p>"
-                . ($mail ? 'Die Begrüssungsmail mit dem Link ist unterwegs.' : 'Es wurde keine Mail verschickt – bitte selbst Bescheid geben.') . '</p>',
+                . ($mail ? (anfrage_ist_neues_mitglied($a) ? 'Die Willkommensmail ist unterwegs.' : 'Die Begrüssungsmail mit dem Link ist unterwegs.') : 'Es wurde keine Mail verschickt – bitte selbst Bescheid geben.') . '</p>',
             'Admitted & activated', "<p><strong>{$wer}</strong> can now log in to the members’ area.</p><p>"
-                . ($mail ? 'The welcome email with the link is on its way.' : 'No email was sent – please let the person know yourself.') . '</p>'
+                . ($mail ? (anfrage_ist_neues_mitglied($a) ? 'The welcome email is on its way.' : 'The welcome email with the link is on its way.') : 'No email was sent – please let the person know yourself.') . '</p>'
         );
     }
     seite2(
@@ -98,12 +98,12 @@ if ($aktion === 'annehmen') {
         'Aufnehmen & freischalten?',
         $daten('de') . '<form method="post">' . $felder('de') . $namen('Vorname', 'Nachname')
             . '<p class="klein">Vorname und Nachname erscheinen im Mitgliederbereich als Autor.</p>'
-            . '<label class="check"><input type="checkbox" name="mail" value="1" checked> Begrüssungsmail mit Link an die Person senden</label>'
+            . '<label class="check"><input type="checkbox" name="mail" value="1" checked> ' . (anfrage_ist_neues_mitglied($a) ? 'Willkommensmail an das neue Mitglied senden (Mitgliedschaft, Beitrag gratis bis nach der GV, Zugang)' : 'Begrüssungsmail mit Link an die Person senden') . '</label>'
             . '<button type="submit">✓ Ja, aufnehmen & freischalten</button></form>',
         'Admit & activate?',
         $daten('en') . '<form method="post">' . $felder('en') . $namen('First name', 'Last name')
             . '<p class="klein">First and last name are shown as author in the members’ area.</p>'
-            . '<label class="check"><input type="checkbox" name="mail" value="1" checked> Send a welcome email with the link to the person</label>'
+            . '<label class="check"><input type="checkbox" name="mail" value="1" checked> ' . (anfrage_ist_neues_mitglied($a) ? 'Send the welcome email to the new member (membership, fee free until after the General Assembly, access)' : 'Send a welcome email with the link to the person') . '</label>'
             . '<button type="submit">✓ Yes, admit & activate</button></form>'
     );
 }
