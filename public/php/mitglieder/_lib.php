@@ -924,10 +924,11 @@ function absage_senden(string $email, string $vorname, string $locale): bool
  * Zugangsanfrage entscheiden – gemeinsam für zugang.php (Knopf in der Mail) und den Admin-Reiter.
  * Rückgabe: Kurztext für die Bestätigung.
  */
-function anfrage_entscheiden(array $anfrage, bool $annehmen, string $vorname, string $name, bool $mailSenden, ?array $admin): string
+function anfrage_entscheiden(array $anfrage, bool $annehmen, string $vorname, string $name, bool $mailSenden, ?array $admin, string $knopfVon = ''): string
 {
     $pdo = db();
-    $von = $admin['email'] ?? 'it@ (Knopf in der Mail)';
+    // Knopf in der Mail: der Link trägt den Empfänger der Mail (siehe anfrage_link); ältere Links nicht.
+    $von = $admin['email'] ?? ($knopfVon !== '' ? "{$knopfVon} (Knopf in der Mail)" : 'Knopf in der Mail (Empfänger unbekannt)');
     $email = $anfrage['email'];
     if ($annehmen) {
         $st = $pdo->prepare('SELECT * FROM mitglieder WHERE email = ?');
@@ -955,12 +956,38 @@ function anfrage_entscheiden(array $anfrage, bool $annehmen, string $vorname, st
     return $annehmen ? 'angenommen' : 'abgelehnt';
 }
 
-function anfrage_link(string $aktion, int $id): string
+/**
+ * Link für die Knöpfe in der Entscheid-Mail. $wer = Empfänger der Mail (z. B. «sekretariat@»): Jede
+ * Adresse bekommt ihre eigene Mail mit eigenem, signiertem Link, damit das Protokoll zeigt, WER geklickt
+ * hat (Stefan 25.11.2026: Juliets Klick stand fälschlich als «it@» im Protokoll).
+ */
+function anfrage_link(string $aktion, int $id, string $wer = ''): string
 {
     $ablauf = jetzt() + ANFRAGE_GUELTIG_TAGE * 86400;
-    return basis_url() . '/php/mitglieder/zugang.php?' . http_build_query([
-        'a' => $aktion, 'id' => $id, 'exp' => $ablauf, 's' => signatur('zugang_' . $aktion, (string) $id, $ablauf),
-    ]);
+    $q = ['a' => $aktion, 'id' => $id, 'exp' => $ablauf];
+    if ($wer !== '') {
+        $q['w'] = $wer;
+    }
+    $q['s'] = signatur('zugang_' . $aktion, $wer === '' ? (string) $id : "{$id}|{$wer}", $ablauf);
+    return basis_url() . '/php/mitglieder/zugang.php?' . http_build_query($q);
+}
+
+/** Prüft einen Knopf-Link; Links ohne $wer (vor dem 25.11.2026 verschickt) bleiben gültig. */
+function anfrage_link_pruefen(string $aktion, int $id, int $ablauf, string $sig, string $wer): bool
+{
+    return hash_equals(signatur('zugang_' . $aktion, $wer === '' ? (string) $id : "{$id}|{$wer}", $ablauf), $sig);
+}
+
+/** «sekretariat@ferienwohnungsverein-jungfrau.ch» → «sekretariat@» (Kurzform für Link und Protokoll). */
+function empfaenger_kurz(string $adresse): string
+{
+    return strtolower(strstr(trim($adresse), '@', true) ?: trim($adresse)) . '@';
+}
+
+/** Kommagetrennte Empfängerliste → einzelne Adressen. */
+function empfaenger_liste(string $liste): array
+{
+    return array_values(array_filter(array_map('trim', explode(',', $liste))));
 }
 
 function mail_an_it(string $betreff, string $text): void

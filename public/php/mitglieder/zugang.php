@@ -18,6 +18,10 @@ $aktion = in_array($q['a'] ?? '', ['annehmen', 'ablehnen'], true) ? (string) $q[
 $id = (int) ($q['id'] ?? 0);
 $exp = (int) ($q['exp'] ?? 0);
 $sig = (string) ($q['s'] ?? '');
+$wer = (string) ($q['w'] ?? '');
+if ($wer !== '' && !preg_match('/^[a-z0-9._-]{1,40}@$/', $wer)) {
+    $wer = '!';   // ungültig → Signaturprüfung schlägt fehl
+}
 
 function e(string $s): string
 {
@@ -36,7 +40,7 @@ $st = db()->prepare('SELECT * FROM zugangsanfragen WHERE id = ?');
 $st->execute([$id]);
 $a = $st->fetch();
 $admin = ['de' => '<a href="/mitglieder/#admin">Admin-Reiter</a>', 'en' => '<a href="/en/members/#admin">Admin tab</a>'];
-if ($aktion === '' || !$a || $exp < jetzt() || !hash_equals(signatur('zugang_' . $aktion, (string) $id, $exp), $sig)) {
+if ($aktion === '' || !$a || $exp < jetzt() || !anfrage_link_pruefen($aktion, $id, $exp, $sig, $wer)) {
     seite2(
         'Link ungültig', '<p>Der Link ist ungültig oder abgelaufen (gültig ' . ANFRAGE_GUELTIG_TAGE . ' Tage). Offene Anfragen findest du im ' . $admin['de'] . '.</p>',
         'Invalid link', '<p>The link is invalid or has expired (valid ' . ANFRAGE_GUELTIG_TAGE . ' days). Open requests are listed in the ' . $admin['en'] . '.</p>',
@@ -56,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $vorname = sauber((string) ($_POST['vorname'] ?? ''), 80) ?: $a['vorname'];
     $name = sauber((string) ($_POST['name'] ?? ''), 80) ?: $a['name'];
     $mail = !empty($_POST['mail']);
-    $ergebnis = anfrage_entscheiden($a, $aktion === 'annehmen', $vorname, $name, $mail, null);
+    $ergebnis = anfrage_entscheiden($a, $aktion === 'annehmen', $vorname, $name, $mail, null, $wer);
     $wer = e("{$vorname} {$name}") . ' (' . e($a['email']) . ')';
     if ($ergebnis === 'gesperrt') {
         seite2(
@@ -79,9 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 }
 
-$felder = static function (string $l) use ($aktion, $id, $exp, $sig): string {
+$felder = static function (string $l) use ($aktion, $id, $exp, $sig, $wer): string {
     $f = '';
-    foreach (['a' => $aktion, 'id' => (string) $id, 'exp' => (string) $exp, 's' => $sig, 'l' => $l] as $k => $v) {
+    foreach (['a' => $aktion, 'id' => (string) $id, 'exp' => (string) $exp, 's' => $sig, 'w' => $wer, 'l' => $l] as $k => $v) {
         $f .= '<input type="hidden" name="' . $k . '" value="' . e($v) . '">';
     }
     return $f;

@@ -128,7 +128,8 @@ $emailSafe = $f('email');
 // (Stefan 23.11.2026). Das Sekretariat entscheidet mit EINEM Klick: aufnehmen = Zugang frei +
 // Begrüssungsmail. Klappt das nicht (z. B. Datenbank nicht erreichbar), geht die Mail trotzdem
 // raus – dann ohne Knöpfe, mit Hinweis auf den Admin-Reiter.
-$knoepfe = null;      // [ja, nein] oder null
+$knoepfe = null;      // [ja, nein] oder null – je Empfänger neu gesetzt (eigener Link)
+$anfrageId = 0;
 $zugangHinweis = ['de' => '', 'en' => ''];
 $doppelt = false;
 try {
@@ -154,7 +155,7 @@ try {
             ->execute([$emailNorm, $vorname, $nachname, mb_substr($kurz, 0, 500), $locale, jetzt(), client_ip()]);
         $id = (int) $pdo->lastInsertId();
         audit('anfrage', null, null, "{$nameSafe}: {$kurz}", 0, $emailNorm);
-        $knoepfe = [anfrage_link('annehmen', $id), anfrage_link('ablehnen', $id)];
+        $anfrageId = $id;   // Knöpfe je Empfänger unten beim Versand
         if ($status === 'gesperrt') {
             $zugangHinweis = ['de' => 'ACHTUNG: Diese Adresse ist im Mitgliederbereich gesperrt.', 'en' => 'WARNING: This address is blocked in the members’ area.'];
         }
@@ -203,7 +204,7 @@ $L = [
 ];
 $linkL = static fn (string $url, string $l): string => $url . '&l=' . $l;
 
-$text = static function (string $l) use ($L, $felder, $notiz, $zugangHinweis, $knoepfe, $quelle, $linkL): string {
+$text = static function (string $l) use ($L, $felder, $notiz, $zugangHinweis, &$knoepfe, $quelle, $linkL): string {
     $t = $L[$l];
     $out = $t['intro'] . "\n\n";
     foreach ($felder as $z) {
@@ -221,7 +222,7 @@ $text = static function (string $l) use ($L, $felder, $notiz, $zugangHinweis, $k
 
 if (function_exists('mail_senden_html')) {
     $h = static fn (string $x): string => htmlspecialchars($x, ENT_QUOTES, 'UTF-8');
-    $html = static function (string $l) use ($L, $felder, $notiz, $zugangHinweis, $knoepfe, $quelle, $linkL, $h): string {
+    $html = static function (string $l) use ($L, $felder, $notiz, $zugangHinweis, &$knoepfe, $quelle, $linkL, $h): string {
         $t = $L[$l];
         $zeilen = '';
         foreach ($felder as $z) {
@@ -238,7 +239,12 @@ if (function_exists('mail_senden_html')) {
                 : '')
             . '<p style="margin:0;color:#666666;font-size:13px;">' . $h($t['schluss']) . ' · ' . $h($quelle) . '</p>';
     };
-    $mailSent = mail_senden_html($empfaenger, $leadSubject, zweisprachig_text($text('de'), $text('en')), mail_html_rahmen(zweisprachig_html($html('de'), $html('en'))), $emailSafe);
+    // Je Empfänger eine eigene Mail mit eigenem Link → Protokoll zeigt, wer geklickt hat (25.11.2026).
+    $mailSent = true;
+    foreach (empfaenger_liste($empfaenger) as $an) {
+        $knoepfe = $anfrageId > 0 ? [anfrage_link('annehmen', $anfrageId, empfaenger_kurz($an)), anfrage_link('ablehnen', $anfrageId, empfaenger_kurz($an))] : null;
+        $mailSent = mail_senden_html($an, $leadSubject, zweisprachig_text($text('de'), $text('en')), mail_html_rahmen(zweisprachig_html($html('de'), $html('en'))), $emailSafe) && $mailSent;
+    }
 } else {
     // Ohne Mitgliederbereich-Bibliothek: schlichte Textmail. From MUSS zur Domain passen (SPF).
     $leadHeaders = "From: Website Anmeldeformular <noreply@ferienwohnungsverein-jungfrau.ch>\r\n"
