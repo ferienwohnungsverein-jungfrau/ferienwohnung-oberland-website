@@ -867,9 +867,9 @@ function willkommen_senden(string $email, string $vorname, array $anfrage): bool
     $betragDe = $betten > 0 ? ' Bei Ihren ' . $betten . ' Gästebetten sind das CHF ' . ($betten <= 10 ? '100' : '200') . ' pro Jahr.' : '';
     $betragEn = $betten > 0 ? ' With your ' . $betten . ' guest beds, that is CHF ' . ($betten <= 10 ? '100' : '200') . ' per year.' : '';
     $beitragDe = 'Für das laufende Vereinsjahr bezahlen Sie nichts. Der erste Mitgliederbeitrag wird nach der nächsten Generalversammlung fällig (in der Regel im Frühling): '
-        . 'CHF 100 pro Jahr bis 10 Gästebetten, CHF 200 ab 11 Gästebetten.' . $betragDe . ' Die Rechnung erhalten Sie nach der GV.';
+        . 'CHF 100 pro Jahr bis 10 Gästebetten, CHF 200 ab 11 Gästebetten.' . $betragDe . ' Die erste Rechnung erhalten Sie nach der nächsten Generalversammlung (GV).';
     $beitragEn = 'There is nothing to pay for the current association year. Your first membership fee is due after the next General Assembly (usually in spring): '
-        . 'CHF 100 per year for up to 10 guest beds, CHF 200 for 11 or more.' . $betragEn . ' You will receive the invoice after the General Assembly.';
+        . 'CHF 100 per year for up to 10 guest beds, CHF 200 for 11 or more.' . $betragEn . ' You will receive your first invoice after the next General Assembly.';
     $betreff = zweisprachig_betreff('Willkommen im Ferienwohnungsverein Jungfrau', 'Welcome to the Ferienwohnungsverein Jungfrau');
     $text = zweisprachig_text(
         "Guten Tag {$hallo}\n\nherzlich willkommen im Ferienwohnungsverein Jungfrau! Ihre Mitgliedschaft ist bestätigt – wir freuen uns, dass Sie dabei sind.\n\n"
