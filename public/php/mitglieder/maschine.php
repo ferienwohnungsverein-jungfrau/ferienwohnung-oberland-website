@@ -137,6 +137,30 @@ function erinnerung_zugang_senden(string $an): bool
     return mail_senden_html($an, $betreff, $text, mail_html_rahmen($html, 'de'), FWVJ_SEKRETARIAT_ADRESSE);
 }
 
+// Einladungslink WhatsApp-Gruppe für die Willkommensmail setzen (Juliet 26.11.); {"link":"…"} oder {"link":""} = entfernen.
+// Mit {"vorschau":true} gehen zusätzlich Muster der Willkommens- und der Begrüssungsmail an it@.
+if ($aktion === 'whatsapp_link') {
+    $daten = json_decode((string) file_get_contents('php://input'), true);
+    $daten = is_array($daten) ? $daten : [];
+    if (array_key_exists('link', $daten)) {
+        $l = trim((string) $daten['link']);
+        if (preg_match('~^(https://chat\.whatsapp\.com/[A-Za-z0-9]{10,40})(?:\?.*)?$~', $l, $m)) {
+            $l = $m[1];
+        } elseif ($l !== '') {
+            antwort(['success' => false, 'message' => 'nur https://chat.whatsapp.com/… erlaubt'], 400);
+        }
+        einstellung_setzen('whatsapp_gruppe_link', $l);
+        audit('whatsapp_link_gesetzt', null, null, $l === '' ? 'entfernt' : 'gesetzt');
+    }
+    $vorschau = null;
+    if (!empty($daten['vorschau'])) {
+        $vorschau = willkommen_senden(FWVJ_IT_ADRESSE, 'Muster', ['angaben' => 'Neue Mitgliedschaft · 6 Betten']);
+        $vorschau = begruessung_senden(FWVJ_IT_ADRESSE, 'Muster', 'de') && $vorschau;
+        audit('willkommen_vorschau', null, null, $vorschau ? 'Muster Willkommen + Begrüssung an it@ gesendet' : 'Muster FEHLGESCHLAGEN', 0, FWVJ_IT_ADRESSE);
+    }
+    antwort(['success' => true, 'gesetzt' => whatsapp_gruppe_link() !== '', 'vorschau' => $vorschau]);
+}
+
 if ($aktion === 'login_versuche') {
     $liste = login_versuche();
     antwort(['success' => true, 'anzahl' => count($liste), 'adressen' => $liste]);

@@ -815,6 +815,13 @@ function zweisprachig_html(string $de, string $en): string
         . '<p style="margin:0 0 12px;color:#666666;font-size:12px;letter-spacing:.08em;text-transform:uppercase;">English</p>' . $en;
 }
 
+/** Einladungslink der WhatsApp-Gruppe (nur https://chat.whatsapp.com/…, sonst leer). */
+function whatsapp_gruppe_link(): string
+{
+    $l = trim(einstellung('whatsapp_gruppe_link', ''));
+    return preg_match('~^https://chat\.whatsapp\.com/[A-Za-z0-9]{10,40}$~', $l) ? $l : '';
+}
+
 /** Begrüssungsmail nach der Freischaltung (Formular-Anfrage oder Admin-Reiter). */
 function begruessung_senden(string $email, string $vorname, string $locale): bool
 {
@@ -822,24 +829,33 @@ function begruessung_senden(string $email, string $vorname, string $locale): boo
     $en = basis_url() . '/en/members/';
     $hallo = trim($vorname);
     $h = htmlspecialchars($hallo, ENT_QUOTES, 'UTF-8');
+    $wa = whatsapp_gruppe_link(); // auch hier (Stefan 26.11.)
+    $waTextDe = $wa !== '' ? "Noch nicht in unserer WhatsApp-Gruppe? Dort tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand: {$wa}\n\n" : '';
+    $waTextEn = $wa !== '' ? "Not yet in our WhatsApp group? Members exchange ideas there and receive short-notice updates from the board: {$wa}\n\n" : '';
+    $waHtml = static fn (string $satz, string $knopf): string => $wa === '' ? ''
+        : '<p style="margin:20px 0 12px;">' . $satz . '</p><p style="margin:0 0 16px;">' . mail_knopf($wa, $knopf) . '</p>';
     $betreff = zweisprachig_betreff('Dein Zugang zum Mitgliederbereich ist freigeschaltet', 'Your access to the members’ area is active');
     $text = zweisprachig_text(
         "Hallo {$hallo}\n\nDeine Adresse ist für den Mitgliederbereich des Ferienwohnungsvereins Jungfrau freigeschaltet.\n\n"
             . "Anmelden: {$de}\nDiese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.\n\n"
             . "Dort findest du die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …) – eigene kannst du hochladen.\n\n"
+            . $waTextDe
             . "Freundliche Grüsse\nFerienwohnungsverein Jungfrau",
         "Hello {$hallo}\n\nYour address has been activated for the members’ area of the Ferienwohnungsverein Jungfrau.\n\n"
             . "Log in: {$en}\nEnter this email address – you will receive a log-in link by email, no password needed.\n\n"
             . "There you will find updates from the board, regional news, the community and templates for renting (signs, house rules, checklists …) – you can upload your own.\n\n"
+            . $waTextEn
             . "Kind regards\nFerienwohnungsverein Jungfrau"
     );
     $html = zweisprachig_html(
         "<p style=\"margin:0 0 16px;\">Hallo {$h}</p><p style=\"margin:0 0 16px;\">Deine Adresse ist für den Mitgliederbereich freigeschaltet. Dort findest du die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung – eigene kannst du hochladen.</p>"
             . '<p style="margin:0 0 16px;">' . mail_knopf($de, 'Zum Mitgliederbereich') . '</p>'
-            . '<p style="margin:0;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.</p>',
+            . '<p style="margin:0;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.</p>'
+            . $waHtml('Noch nicht in unserer WhatsApp-Gruppe? Dort tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand.', 'WhatsApp-Gruppe beitreten'),
         "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\">Your address has been activated for the members’ area. There you will find updates from the board, regional news, the community and templates for renting – you can upload your own.</p>"
             . '<p style="margin:0 0 16px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
             . '<p style="margin:0;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
+            . $waHtml('Not yet in our WhatsApp group? Members exchange ideas there and receive short-notice updates from the board.', 'Join the WhatsApp group')
     );
     return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, 'de'), FWVJ_SEKRETARIAT_ADRESSE); // Antworten → Sekretariat
 }
@@ -870,29 +886,40 @@ function willkommen_senden(string $email, string $vorname, array $anfrage): bool
         . 'CHF 100 pro Jahr bis 10 Gästebetten, CHF 200 ab 11 Gästebetten.' . $betragDe . ' Die erste Rechnung erhalten Sie nach der nächsten Generalversammlung (GV).';
     $beitragEn = 'There is nothing to pay for the current association year. Your first membership fee is due after the next General Assembly (usually in spring): '
         . 'CHF 100 per year for up to 10 guest beds, CHF 200 for 11 or more.' . $betragEn . ' You will receive your first invoice after the next General Assembly.';
+    // WhatsApp-Gruppe der Mitglieder (Juliet 26.11.): Link nur in der Datenbank (Repo ist öffentlich),
+    // gesetzt über maschine.php?aktion=whatsapp_link. Ohne Eintrag fehlt der Absatz.
+    $wa = whatsapp_gruppe_link();
+    $waTextDe = $wa !== '' ? "WHATSAPP-GRUPPE\nIn unserer WhatsApp-Gruppe tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand.\nBeitreten: {$wa}\n\n" : '';
+    $waTextEn = $wa !== '' ? "WHATSAPP GROUP\nIn our WhatsApp group, members exchange ideas and receive short-notice updates from the board.\nJoin: {$wa}\n\n" : '';
     $betreff = zweisprachig_betreff('Willkommen im Ferienwohnungsverein Jungfrau', 'Welcome to the Ferienwohnungsverein Jungfrau');
     $text = zweisprachig_text(
         "Guten Tag {$hallo}\n\nherzlich willkommen im Ferienwohnungsverein Jungfrau! Ihre Mitgliedschaft ist bestätigt – wir freuen uns, dass Sie dabei sind.\n\n"
             . "MITGLIEDERBEITRAG\n{$beitragDe}\n\n"
             . "MITGLIEDERBEREICH\nIhr Zugang ist bereits freigeschaltet. Dort finden Sie die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung (Schilder, Hausordnungen, Checklisten …).\n"
             . "Anmelden: {$de}\nDiese E-Mail-Adresse eingeben – Sie bekommen einen Anmeldelink per Mail, kein Passwort nötig.\n\n"
+            . $waTextDe
             . "Statuten: {$statDe}\nFragen? Antworten Sie einfach auf diese Mail – sie geht an unser Sekretariat.\n\n"
             . "Freundliche Grüsse\nVorstand und Sekretariat\nFerienwohnungsverein Jungfrau",
         "Hello {$hallo}\n\nWelcome to the Ferienwohnungsverein Jungfrau! Your membership is confirmed – we are glad to have you with us.\n\n"
             . "MEMBERSHIP FEE\n{$beitragEn}\n\n"
             . "MEMBERS’ AREA\nYour access is already active. There you will find updates from the board, regional news, the community and templates for renting (signs, house rules, checklists …).\n"
             . "Log in: {$en}\nEnter this email address – you will receive a log-in link by email, no password needed.\n\n"
+            . $waTextEn
             . "Statutes: {$statEn}\nQuestions? Simply reply to this email – it goes to our secretariat.\n\n"
             . "Kind regards\nBoard and Secretariat\nFerienwohnungsverein Jungfrau"
     );
     $e = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
     $zw = 'margin:24px 0 6px;font-weight:700;color:#004D7A;';
+    $waHtml = static fn (string $titel, string $satz, string $knopf): string => $wa === '' ? ''
+        : "<p style=\"{$zw}\">{$titel}</p><p style=\"margin:0 0 12px;\">{$satz}</p>"
+            . '<p style="margin:0 0 20px;">' . mail_knopf($wa, $knopf) . '</p>';
     $html = zweisprachig_html(
         "<p style=\"margin:0 0 16px;\">Guten Tag {$h}</p><p style=\"margin:0 0 16px;\"><strong>Herzlich willkommen im Ferienwohnungsverein Jungfrau!</strong> Ihre Mitgliedschaft ist bestätigt – wir freuen uns, dass Sie dabei sind.</p>"
             . "<p style=\"{$zw}\">Mitgliederbeitrag</p><p style=\"margin:0 0 16px;\">" . $e($beitragDe) . '</p>'
             . "<p style=\"{$zw}\">Mitgliederbereich</p><p style=\"margin:0 0 16px;\">Ihr Zugang ist bereits freigeschaltet. Dort finden Sie die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung.</p>"
             . '<p style="margin:0 0 8px;">' . mail_knopf($de, 'Zum Mitgliederbereich') . '</p>'
             . '<p style="margin:0 0 20px;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – Sie bekommen einen Anmeldelink per Mail, kein Passwort nötig.</p>'
+            . $waHtml('WhatsApp-Gruppe', 'In unserer WhatsApp-Gruppe tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand.', 'WhatsApp-Gruppe beitreten')
             . '<p style="margin:0 0 16px;font-size:14px;"><a href="' . $e($statDe) . '" style="color:#004D7A;">Statuten</a> · Fragen? Antworten Sie einfach auf diese Mail – sie geht an unser Sekretariat.</p>'
             . '<p style="margin:0;">Freundliche Grüsse<br>Vorstand und Sekretariat<br>Ferienwohnungsverein Jungfrau</p>',
         "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\"><strong>Welcome to the Ferienwohnungsverein Jungfrau!</strong> Your membership is confirmed – we are glad to have you with us.</p>"
@@ -900,6 +927,7 @@ function willkommen_senden(string $email, string $vorname, array $anfrage): bool
             . "<p style=\"{$zw}\">Members’ area</p><p style=\"margin:0 0 16px;\">Your access is already active. There you will find updates from the board, regional news, the community and templates for renting.</p>"
             . '<p style="margin:0 0 8px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
             . '<p style="margin:0 0 20px;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
+            . $waHtml('WhatsApp group', 'In our WhatsApp group, members exchange ideas and receive short-notice updates from the board.', 'Join the WhatsApp group')
             . '<p style="margin:0 0 16px;font-size:14px;"><a href="' . $e($statEn) . '" style="color:#004D7A;">Statutes</a> · Questions? Simply reply to this email – it goes to our secretariat.</p>'
             . '<p style="margin:0;">Kind regards<br>Board and Secretariat<br>Ferienwohnungsverein Jungfrau</p>'
     );
