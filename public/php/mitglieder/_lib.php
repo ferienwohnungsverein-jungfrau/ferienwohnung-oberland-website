@@ -21,6 +21,7 @@ date_default_timezone_set('Europe/Zurich'); // Zeiten in Mails/Seiten + Monat im
 const FWVJ_ERST_ADMIN = 'it@ferienwohnungsverein-jungfrau.ch';
 const FWVJ_IT_ADRESSE = 'it@ferienwohnungsverein-jungfrau.ch';
 const FWVJ_SEKRETARIAT_ADRESSE = 'sekretariat@ferienwohnungsverein-jungfrau.ch';
+const FWVJ_VORSTAND_ADRESSE = 'vorstand@ferienwohnungsverein-jungfrau.ch';
 // Zugangsanfragen gehen an Sekretariat UND it@ (Stefan 30.10.2026) – beide können akzeptieren/ablehnen.
 const FWVJ_ANFRAGE_EMPFAENGER = FWVJ_SEKRETARIAT_ADRESSE . ', ' . FWVJ_IT_ADRESSE;
 const FWVJ_ABSENDER = 'Ferienwohnungsverein Jungfrau <noreply@ferienwohnungsverein-jungfrau.ch>';
@@ -474,7 +475,16 @@ SQL);
         }
         $pdo->exec('PRAGMA user_version = 9');
     }
-    // Künftige Schemaänderungen: if ($version < 10) { … PRAGMA user_version = 10 } – idempotent halten.
+    if ($version < 10) {
+        // 26.11.2026 (Stefan): Handynummer aus «Mitglied werden» mitführen, damit der Vorstand das neue
+        // Mitglied beim Aufnehmen in den WhatsApp-Kanal des Vorstands einladen kann.
+        $spalten = array_column($pdo->query('PRAGMA table_info(zugangsanfragen)')->fetchAll(), 'name');
+        if (!in_array('telefon', $spalten, true)) {
+            $pdo->exec("ALTER TABLE zugangsanfragen ADD COLUMN telefon TEXT NOT NULL DEFAULT ''");
+        }
+        $pdo->exec('PRAGMA user_version = 10');
+    }
+    // Künftige Schemaänderungen: if ($version < 11) { … PRAGMA user_version = 11 } – idempotent halten.
 }
 
 function einstellung_setzen(string $schluessel, string $wert): void
@@ -830,8 +840,8 @@ function begruessung_senden(string $email, string $vorname, string $locale): boo
     $hallo = trim($vorname);
     $h = htmlspecialchars($hallo, ENT_QUOTES, 'UTF-8');
     $wa = whatsapp_gruppe_link(); // auch hier (Stefan 26.11.)
-    $waTextDe = $wa !== '' ? "Noch nicht in unserer WhatsApp-Gruppe? Dort tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand: {$wa}\n\n" : '';
-    $waTextEn = $wa !== '' ? "Not yet in our WhatsApp group? Members exchange ideas there and receive short-notice updates from the board: {$wa}\n\n" : '';
+    $waTextDe = $wa !== '' ? "Noch nicht in unserer Community-Gruppe auf WhatsApp? Dort tauschen sich die Mitglieder aus: {$wa}\n\n" : '';
+    $waTextEn = $wa !== '' ? "Not yet in our community group on WhatsApp? Members exchange ideas there: {$wa}\n\n" : '';
     $waHtml = static fn (string $satz, string $knopf): string => $wa === '' ? ''
         : '<p style="margin:20px 0 12px;">' . $satz . '</p><p style="margin:0 0 16px;">' . mail_knopf($wa, $knopf) . '</p>';
     $betreff = zweisprachig_betreff('Dein Zugang zum Mitgliederbereich ist freigeschaltet', 'Your access to the members’ area is active');
@@ -851,13 +861,38 @@ function begruessung_senden(string $email, string $vorname, string $locale): boo
         "<p style=\"margin:0 0 16px;\">Hallo {$h}</p><p style=\"margin:0 0 16px;\">Deine Adresse ist für den Mitgliederbereich freigeschaltet. Dort findest du die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung – eigene kannst du hochladen.</p>"
             . '<p style="margin:0 0 16px;">' . mail_knopf($de, 'Zum Mitgliederbereich') . '</p>'
             . '<p style="margin:0;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – du bekommst einen Anmeldelink per Mail, kein Passwort nötig.</p>'
-            . $waHtml('Noch nicht in unserer WhatsApp-Gruppe? Dort tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand.', 'WhatsApp-Gruppe beitreten'),
+            . $waHtml('Noch nicht in unserer Community-Gruppe auf WhatsApp? Dort tauschen sich die Mitglieder aus.', 'Community-Gruppe beitreten'),
         "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\">Your address has been activated for the members’ area. There you will find updates from the board, regional news, the community and templates for renting – you can upload your own.</p>"
             . '<p style="margin:0 0 16px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
             . '<p style="margin:0;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
-            . $waHtml('Not yet in our WhatsApp group? Members exchange ideas there and receive short-notice updates from the board.', 'Join the WhatsApp group')
+            . $waHtml('Not yet in our community group on WhatsApp? Members exchange ideas there.', 'Join the community group')
     );
     return mail_senden_html($email, $betreff, $text, mail_html_rahmen($html, 'de'), FWVJ_SEKRETARIAT_ADRESSE); // Antworten → Sekretariat
+}
+
+/**
+ * Neues Mitglied aufgenommen → Mail an vorstand@ mit Handynummer, damit der Vorstand es in den
+ * WhatsApp-Kanal des Vorstands (nur lesen, nur Vorstand lädt ein) aufnehmen kann (Stefan 26.11.2026).
+ */
+function vorstand_kanal_melden(array $anfrage, string $vorname, string $name, string $von, string $an = FWVJ_VORSTAND_ADRESSE): bool
+{
+    $tel = trim((string) ($anfrage['telefon'] ?? ''));
+    $wer = trim($vorname . ' ' . $name);
+    $angaben = preg_replace('~^Neue Mitgliedschaft / New membership · ~', '', (string) ($anfrage['angaben'] ?? ''));
+    $telZeile = $tel !== '' ? $tel : 'nicht hinterlegt – bitte in der Anmeldemail nachsehen oder beim Sekretariat fragen';
+    $e = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+    $text = "Hallo Vorstand\n\n{$wer} ist neu im Verein aufgenommen (von {$von}). Bitte in den WhatsApp-Kanal des Vorstands einladen.\n\n"
+        . "Name: {$wer}\nHandy: {$telZeile}\nE-Mail: {$anfrage['email']}\nAngaben: {$angaben}\n\n"
+        . "Den Link zur Community-Gruppe hat das neue Mitglied mit der Willkommensmail bekommen.\n\nMitgliederbereich – automatische Meldung";
+    $html = '<p style="margin:0 0 16px;">Hallo Vorstand</p>'
+        . '<p style="margin:0 0 16px;"><strong>' . $e($wer) . '</strong> ist neu im Verein aufgenommen (von ' . $e($von) . '). Bitte in den <strong>WhatsApp-Kanal des Vorstands</strong> einladen.</p>'
+        . '<table style="border-collapse:collapse;margin:0 0 16px;font-size:15px;">'
+        . '<tr><td style="padding:4px 16px 4px 0;color:#666666;">Name</td><td style="padding:4px 0;">' . $e($wer) . '</td></tr>'
+        . '<tr><td style="padding:4px 16px 4px 0;color:#666666;">Handy</td><td style="padding:4px 0;"><strong>' . $e($telZeile) . '</strong></td></tr>'
+        . '<tr><td style="padding:4px 16px 4px 0;color:#666666;">E-Mail</td><td style="padding:4px 0;">' . $e((string) $anfrage['email']) . '</td></tr>'
+        . '<tr><td style="padding:4px 16px 4px 0;color:#666666;">Angaben</td><td style="padding:4px 0;">' . $e($angaben) . '</td></tr></table>'
+        . '<p style="margin:0;color:#666666;font-size:13px;">Den Link zur Community-Gruppe hat das neue Mitglied mit der Willkommensmail bekommen.</p>';
+    return mail_senden_html($an, 'WhatsApp-Kanal: neues Mitglied ' . $wer . ' einladen', $text, mail_html_rahmen($html, 'de'), FWVJ_SEKRETARIAT_ADRESSE);
 }
 
 /** Stammt die Zugangsanfrage aus «Mitglied werden» (neues Vereinsmitglied, nicht nur Zugang)? */
@@ -889,8 +924,12 @@ function willkommen_senden(string $email, string $vorname, array $anfrage): bool
     // WhatsApp-Gruppe der Mitglieder (Juliet 26.11.): Link nur in der Datenbank (Repo ist öffentlich),
     // gesetzt über maschine.php?aktion=whatsapp_link. Ohne Eintrag fehlt der Absatz.
     $wa = whatsapp_gruppe_link();
-    $waTextDe = $wa !== '' ? "WHATSAPP-GRUPPE\nIn unserer WhatsApp-Gruppe tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand.\nBeitreten: {$wa}\n\n" : '';
-    $waTextEn = $wa !== '' ? "WHATSAPP GROUP\nIn our WhatsApp group, members exchange ideas and receive short-notice updates from the board.\nJoin: {$wa}\n\n" : '';
+    // Zwei Wege (Stefan 26.11.): Community-Gruppe (Link, alle schreiben) und Kanal des Vorstands (nur lesen,
+    // nur der Vorstand lädt ein → vorstand_kanal_melden() schickt ihm die Handynummer).
+    $kanalDe = 'Die Infos des Vorstands kommen zusätzlich über den WhatsApp-Kanal des Vorstands (nur lesen). Dort nimmt Sie der Vorstand mit der Handynummer aus Ihrer Anmeldung auf.';
+    $kanalEn = 'Updates from the board are also shared in the board’s WhatsApp channel (read-only). The board will add you using the mobile number from your application.';
+    $waTextDe = "WHATSAPP\n" . ($wa !== '' ? "In unserer Community-Gruppe auf WhatsApp tauschen sich die Mitglieder aus. Beitreten: {$wa}\n" : '') . $kanalDe . "\n\n";
+    $waTextEn = "WHATSAPP\n" . ($wa !== '' ? "In our community group on WhatsApp, members exchange ideas. Join: {$wa}\n" : '') . $kanalEn . "\n\n";
     $betreff = zweisprachig_betreff('Willkommen im Ferienwohnungsverein Jungfrau', 'Welcome to the Ferienwohnungsverein Jungfrau');
     $text = zweisprachig_text(
         "Guten Tag {$hallo}\n\nherzlich willkommen im Ferienwohnungsverein Jungfrau! Ihre Mitgliedschaft ist bestätigt – wir freuen uns, dass Sie dabei sind.\n\n"
@@ -910,16 +949,16 @@ function willkommen_senden(string $email, string $vorname, array $anfrage): bool
     );
     $e = static fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
     $zw = 'margin:24px 0 6px;font-weight:700;color:#004D7A;';
-    $waHtml = static fn (string $titel, string $satz, string $knopf): string => $wa === '' ? ''
-        : "<p style=\"{$zw}\">{$titel}</p><p style=\"margin:0 0 12px;\">{$satz}</p>"
-            . '<p style="margin:0 0 20px;">' . mail_knopf($wa, $knopf) . '</p>';
+    $waHtml = static fn (string $titel, string $satz, string $knopf, string $kanal): string => "<p style=\"{$zw}\">{$titel}</p>"
+        . ($wa === '' ? '' : "<p style=\"margin:0 0 12px;\">{$satz}</p><p style=\"margin:0 0 12px;\">" . mail_knopf($wa, $knopf) . '</p>')
+        . "<p style=\"margin:0 0 20px;\">{$kanal}</p>";
     $html = zweisprachig_html(
         "<p style=\"margin:0 0 16px;\">Guten Tag {$h}</p><p style=\"margin:0 0 16px;\"><strong>Herzlich willkommen im Ferienwohnungsverein Jungfrau!</strong> Ihre Mitgliedschaft ist bestätigt – wir freuen uns, dass Sie dabei sind.</p>"
             . "<p style=\"{$zw}\">Mitgliederbeitrag</p><p style=\"margin:0 0 16px;\">" . $e($beitragDe) . '</p>'
             . "<p style=\"{$zw}\">Mitgliederbereich</p><p style=\"margin:0 0 16px;\">Ihr Zugang ist bereits freigeschaltet. Dort finden Sie die Infos des Vorstands, News aus der Region, die Community und Vorlagen für die Vermietung.</p>"
             . '<p style="margin:0 0 8px;">' . mail_knopf($de, 'Zum Mitgliederbereich') . '</p>'
             . '<p style="margin:0 0 20px;color:#666666;font-size:13px;">Diese E-Mail-Adresse eingeben – Sie bekommen einen Anmeldelink per Mail, kein Passwort nötig.</p>'
-            . $waHtml('WhatsApp-Gruppe', 'In unserer WhatsApp-Gruppe tauschen sich die Mitglieder aus und erhalten kurzfristige Infos vom Vorstand.', 'WhatsApp-Gruppe beitreten')
+            . $waHtml('WhatsApp', 'In unserer Community-Gruppe auf WhatsApp tauschen sich die Mitglieder aus.', 'Community-Gruppe beitreten', $e($kanalDe))
             . '<p style="margin:0 0 16px;font-size:14px;"><a href="' . $e($statDe) . '" style="color:#004D7A;">Statuten</a> · Fragen? Antworten Sie einfach auf diese Mail – sie geht an unser Sekretariat.</p>'
             . '<p style="margin:0;">Freundliche Grüsse<br>Vorstand und Sekretariat<br>Ferienwohnungsverein Jungfrau</p>',
         "<p style=\"margin:0 0 16px;\">Hello {$h}</p><p style=\"margin:0 0 16px;\"><strong>Welcome to the Ferienwohnungsverein Jungfrau!</strong> Your membership is confirmed – we are glad to have you with us.</p>"
@@ -927,7 +966,7 @@ function willkommen_senden(string $email, string $vorname, array $anfrage): bool
             . "<p style=\"{$zw}\">Members’ area</p><p style=\"margin:0 0 16px;\">Your access is already active. There you will find updates from the board, regional news, the community and templates for renting.</p>"
             . '<p style="margin:0 0 8px;">' . mail_knopf($en, 'Go to the members’ area') . '</p>'
             . '<p style="margin:0 0 20px;color:#666666;font-size:13px;">Enter this email address – you will receive a log-in link by email, no password needed.</p>'
-            . $waHtml('WhatsApp group', 'In our WhatsApp group, members exchange ideas and receive short-notice updates from the board.', 'Join the WhatsApp group')
+            . $waHtml('WhatsApp', 'In our community group on WhatsApp, members exchange ideas.', 'Join the community group', $e($kanalEn))
             . '<p style="margin:0 0 16px;font-size:14px;"><a href="' . $e($statEn) . '" style="color:#004D7A;">Statutes</a> · Questions? Simply reply to this email – it goes to our secretariat.</p>'
             . '<p style="margin:0;">Kind regards<br>Board and Secretariat<br>Ferienwohnungsverein Jungfrau</p>'
     );
@@ -980,7 +1019,11 @@ function anfrage_entscheiden(array $anfrage, bool $annehmen, string $vorname, st
         $gesendet = !$annehmen ? absage_senden($email, $vorname, $anfrage['locale'])
             : (anfrage_ist_neues_mitglied($anfrage) ? willkommen_senden($email, $vorname, $anfrage) : begruessung_senden($email, $vorname, $anfrage['locale']));
     }
-    audit($annehmen ? 'anfrage_angenommen' : 'anfrage_abgelehnt', $admin, null, "{$email}: {$vorname} {$name}" . ($mailSenden ? ($gesendet ? ', Mail gesendet' : ', Mail FEHLGESCHLAGEN') : ', ohne Mail'), 0, $admin ? null : $von);
+    $kanal = '';
+    if ($annehmen && anfrage_ist_neues_mitglied($anfrage)) {
+        $kanal = vorstand_kanal_melden($anfrage, $vorname, $name, $von) ? ', Vorstand für WhatsApp-Kanal informiert' : ', Meldung an Vorstand FEHLGESCHLAGEN';
+    }
+    audit($annehmen ? 'anfrage_angenommen' : 'anfrage_abgelehnt', $admin, null, "{$email}: {$vorname} {$name}" . ($mailSenden ? ($gesendet ? ', Mail gesendet' : ', Mail FEHLGESCHLAGEN') : ', ohne Mail') . $kanal, 0, $admin ? null : $von);
     return $annehmen ? 'angenommen' : 'abgelehnt';
 }
 

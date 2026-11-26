@@ -151,8 +151,8 @@ try {
         $kurz = 'Neue Mitgliedschaft / New membership · ' . $f('betten') . ' Betten/beds' . ($f('plz_ort') !== '' ? ' · ' . $f('plz_ort') : '') . ($f('firma') !== '' ? ' · ' . $f('firma') : '');
         $nachname = isset($payload['vorname']) ? $f('nachname') : '';
         $vorname = isset($payload['vorname']) ? $f('vorname') : $f('name');
-        $pdo->prepare('INSERT INTO zugangsanfragen (email, vorname, name, angaben, locale, zeit, ip) VALUES (?, ?, ?, ?, ?, ?, ?)')
-            ->execute([$emailNorm, $vorname, $nachname, mb_substr($kurz, 0, 500), $locale, jetzt(), client_ip()]);
+        $pdo->prepare('INSERT INTO zugangsanfragen (email, vorname, name, angaben, locale, zeit, ip, telefon) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+            ->execute([$emailNorm, $vorname, $nachname, mb_substr($kurz, 0, 500), $locale, jetzt(), client_ip(), mb_substr($f('telefon'), 0, 40)]);
         $id = (int) $pdo->lastInsertId();
         audit('anfrage', null, null, "{$nameSafe}: {$kurz}", 0, $emailNorm);
         $anfrageId = $id;   // Knöpfe je Empfänger unten beim Versand

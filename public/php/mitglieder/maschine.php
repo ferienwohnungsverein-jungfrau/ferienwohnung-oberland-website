@@ -138,7 +138,7 @@ function erinnerung_zugang_senden(string $an): bool
 }
 
 // Einladungslink WhatsApp-Gruppe für die Willkommensmail setzen (Juliet 26.11.); {"link":"…"} oder {"link":""} = entfernen.
-// Mit {"vorschau":true} gehen zusätzlich Muster der Willkommens- und der Begrüssungsmail an it@.
+// Mit {"vorschau":true} gehen Muster der Willkommens-, der Begrüssungsmail und der Vorstandsmeldung an it@.
 if ($aktion === 'whatsapp_link') {
     $daten = json_decode((string) file_get_contents('php://input'), true);
     $daten = is_array($daten) ? $daten : [];
@@ -156,7 +156,9 @@ if ($aktion === 'whatsapp_link') {
     if (!empty($daten['vorschau'])) {
         $vorschau = willkommen_senden(FWVJ_IT_ADRESSE, 'Muster', ['angaben' => 'Neue Mitgliedschaft · 6 Betten']);
         $vorschau = begruessung_senden(FWVJ_IT_ADRESSE, 'Muster', 'de') && $vorschau;
-        audit('willkommen_vorschau', null, null, $vorschau ? 'Muster Willkommen + Begrüssung an it@ gesendet' : 'Muster FEHLGESCHLAGEN', 0, FWVJ_IT_ADRESSE);
+        $vorschau = vorstand_kanal_melden(['email' => 'muster@example.org', 'telefon' => '079 000 00 00', 'angaben' => 'Neue Mitgliedschaft / New membership · 6 Betten/beds · 3800 Interlaken'],
+            'Muster', 'Mitglied', 'sekretariat@ (Knopf in der Mail)', FWVJ_IT_ADRESSE) && $vorschau;
+        audit('willkommen_vorschau', null, null, $vorschau ? 'Muster Willkommen + Begrüssung + Vorstandsmeldung an it@ gesendet' : 'Muster FEHLGESCHLAGEN', 0, FWVJ_IT_ADRESSE);
     }
     antwort(['success' => true, 'gesetzt' => whatsapp_gruppe_link() !== '', 'vorschau' => $vorschau]);
 }
